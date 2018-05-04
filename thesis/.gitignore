@@ -1,0 +1,16 @@
+*.aux
+group_law*.tex
+thesis.bbl
+thesis.blg
+thesis.lof
+thesis.log
+thesis.lot
+thesis.out
+thesis.pdf
+thesis.toc
+thesis.nlo
+thesis.ist
+thesis.nls
+thesis.ilg
+thesis.loa
+thesis.synctex.gz

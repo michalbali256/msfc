@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:latexdraw="http://latexdraw.sourceforge.net/namespaces/latexdraw"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="tcp_bottleneck.svg">
+  <defs
+     id="defs2">
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker2414"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path2412"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mstart"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path1322"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.4) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path1325"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path1319"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-5"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path1325-9"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-5-7"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path1325-9-2"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-5-6"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path1325-9-1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="399.41349"
+     inkscape:cy="818.00363"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:snap-others="true"
+     inkscape:object-nodes="false"
+     inkscape:window-width="1888"
+     inkscape:window-height="1057"
+     inkscape:window-x="24"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.95700002;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="M 35.279577,97.082387 H 52.678562"
+       id="path509"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.55455446;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker2414)"
+       d="m 156.07071,95.544108 c 19.47877,0 24.56019,-3.281764 24.56019,9.845302 0,13.12705 -3.38761,10.07968 -25.61883,10.3141"
+       id="path2378"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.44;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-5)"
+       d="m 92.31986,88.888278 h 20.53371"
+       id="path509-1"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.59367657px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.18984191"
+       x="35.800148"
+       y="93.320923"
+       id="text5224"
+       transform="scale(0.85719058,1.1666017)"><tspan
+         sodipodi:role="line"
+         id="tspan5222"
+         x="35.800148"
+         y="93.320923"
+         style="stroke-width:0.18984191">sender</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.78233433px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.16955836"
+       x="156.64516"
+       y="104.29603"
+       id="text5228"
+       transform="scale(0.9697313,1.0312135)"><tspan
+         sodipodi:role="line"
+         id="tspan5226"
+         x="156.64516"
+         y="104.29603"
+         style="stroke-width:0.16955836">receiver</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.44;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-5-6)"
+       d="M 112.99934,125.14569 H 92.465633"
+       id="path509-1-7"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g6258"
+       transform="matrix(0.22842716,0,0,0.22842716,-11.437326,44.147459)">
+      <g
+         id="id705005250"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6159"
+           latexdraw:rotationAngle="0.0"
+           points="420.0,260.0 300.0,260.0 300.0,260.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1338326342"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6162"
+           latexdraw:rotationAngle="0.0"
+           points="300.0,260.0 290.0,260.0 290.0,260.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1097430142"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6165"
+           latexdraw:rotationAngle="0.0"
+           points="700.0,260.0 710.0,260.0 "
+           style="stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1358574103"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6168"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,240.0 580.0,240.0 590.0,260.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id151863072"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6171"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,240.0 420.0,260.0 420.0,260.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1832228878"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6174"
+           latexdraw:rotationAngle="0.0"
+           points="590.0,260.0 700.0,260.0 700.0,260.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1555524489"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6177"
+           latexdraw:rotationAngle="0.0"
+           points="420.0,340.0 300.0,340.0 300.0,340.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id730328920"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6180"
+           latexdraw:rotationAngle="0.0"
+           points="300.0,340.0 290.0,340.0 290.0,340.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1000923587"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6183"
+           latexdraw:rotationAngle="0.0"
+           points="700.0,340.0 710.0,340.0 "
+           style="stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id675822661"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6186"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,320.0 580.0,320.0 590.0,340.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id455423129"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6189"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,320.0 420.0,340.0 420.0,340.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id897371735"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6192"
+           latexdraw:rotationAngle="0.0"
+           points="590.0,340.0 700.0,340.0 700.0,340.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1716402497"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6195"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,220.0 580.0,220.0 590.0,200.0 710.0,200.0 710.0,200.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id299082581"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6198"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,220.0 420.0,200.0 290.0,200.0 290.0,200.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id273671750"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6201"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,300.0 580.0,300.0 590.0,280.0 710.0,280.0 710.0,280.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1990293245"
+         latexdraw:type="joinedLines">
+        <polyline
+           id="polyline6204"
+           latexdraw:rotationAngle="0.0"
+           points="430.0,300.0 420.0,280.0 290.0,280.0 290.0,280.0 "
+           style="fill:none;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1180258093"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6207"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="411"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id772728958"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6210"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="401"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id132401118"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6213"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="391"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id718122897"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6216"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="381"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1083716110"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6219"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="371"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1375156188"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6222"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="361"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id834511057"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6225"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="351"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id2056032892"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6228"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="341"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id283930294"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6231"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="331"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1890978000"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6234"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="321"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id512596907"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6237"
+           latexdraw:borderPos="outer"
+           height="18"
+           width="28"
+           y="221"
+           x="461"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1072397728"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6240"
+           latexdraw:borderPos="outer"
+           height="18"
+           width="28"
+           y="221"
+           x="431"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1640230504"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6243"
+           latexdraw:borderPos="outer"
+           height="18"
+           width="28"
+           y="221"
+           x="491"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id753249373"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6246"
+           latexdraw:borderPos="outer"
+           height="18"
+           width="28"
+           y="221"
+           x="521"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id919675164"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6249"
+           latexdraw:borderPos="outer"
+           height="18"
+           width="28"
+           y="221"
+           x="551"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id1085095101"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6252"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="601"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+      <g
+         id="id111445738"
+         latexdraw:type="rectangle">
+        <rect
+           id="rect6255"
+           latexdraw:borderPos="outer"
+           height="58"
+           width="8"
+           y="201"
+           x="631"
+           style="fill:#666666;stroke:#000000;stroke-width:2" />
+      </g>
+    </g>
+  </g>
+</svg>
