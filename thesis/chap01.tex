@@ -9,7 +9,7 @@ ISP - klienti si platia za nejaku kvalitu
 
 co je to traffic scheduling - stoji medzi 2-3 layer OSI, mby trosku HW popisat? netdevice queue vs queing discipline 
 
-\section{Bufferbloat -> CoDel}
+\section{Bufferbloat}
 
 
 In gateways of packet-switched networks, short-term differences between arrival and departure rate naturally happen. To balance these bursts, buffers are used - packets are waiting in queues until they can be sent towards their destination. This helps avoiding outgoing link starvation and increases throughput. Without buffers, the gateway has no place to store incoming packets and they get dropped, which decrease throughput.
@@ -80,7 +80,7 @@ This all indicated, that simple tail drop queues, which drop packets only when t
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/RED}
-	\caption{The Random Early Drop algorithm}
+	\caption{The Random Early Drop algorithm \cite{RED:picture} }
 	
 	\label{fig04:RED}
 \end{figure}
