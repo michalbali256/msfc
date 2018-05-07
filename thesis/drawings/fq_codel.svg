@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="800" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="337.5" cy="91.5" rx="30" ry="30"/>
+	<text x="312.5" y="97.5" font-family="Times New Roman" font-size="20">empty</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="162.5" cy="254.5" rx="30" ry="30"/>
+	<text x="145.5" y="260.5" font-family="Times New Roman" font-size="20">new</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="510.5" cy="254.5" rx="30" ry="30"/>
+	<text x="497.5" y="260.5" font-family="Times New Roman" font-size="20">old</text>
+	<polygon stroke="black" stroke-width="1" points="315.547,111.947 184.453,234.053"/>
+	<polygon fill="black" stroke-width="1" points="184.453,234.053 193.714,232.259 186.899,224.941"/>
+	<text x="192.5" y="164.5" font-family="Times New Roman" font-size="20">arrival</text>
+	<polygon stroke="black" stroke-width="1" points="192.5,254.5 480.5,254.5"/>
+	<polygon fill="black" stroke-width="1" points="480.5,254.5 472.5,249.5 472.5,259.5"/>
+	<text x="227.5" y="275.5" font-family="Times New Roman" font-size="20">empty, or credits exhausted</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 535.673,238.396 A 22.5,22.5 0 1 1 538.594,264.685"/>
+	<text x="584.5" y="251.5" font-family="Times New Roman" font-size="20">credits exhausted</text>
+	<polygon fill="black" stroke-width="1" points="538.594,264.685 543.071,272.989 548.02,264.299"/>
+	<polygon stroke="black" stroke-width="1" points="488.665,233.927 359.335,112.073"/>
+	<polygon fill="black" stroke-width="1" points="359.335,112.073 361.729,121.198 368.586,113.92"/>
+	<text x="429.5" y="164.5" font-family="Times New Roman" font-size="20">empty</text>
+	<polygon stroke="black" stroke-width="1" points="199.5,26.5 310.36,78.717"/>
+	<polygon fill="black" stroke-width="1" points="310.36,78.717 305.253,70.784 300.992,79.831"/>
+</svg>
