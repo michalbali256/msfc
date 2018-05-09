@@ -1,25 +1,175 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-
-<svg width="800" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg">
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="337.5" cy="91.5" rx="30" ry="30"/>
-	<text x="312.5" y="97.5" font-family="Times New Roman" font-size="20">empty</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="162.5" cy="254.5" rx="30" ry="30"/>
-	<text x="145.5" y="260.5" font-family="Times New Roman" font-size="20">new</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="510.5" cy="254.5" rx="30" ry="30"/>
-	<text x="497.5" y="260.5" font-family="Times New Roman" font-size="20">old</text>
-	<polygon stroke="black" stroke-width="1" points="315.547,111.947 184.453,234.053"/>
-	<polygon fill="black" stroke-width="1" points="184.453,234.053 193.714,232.259 186.899,224.941"/>
-	<text x="192.5" y="164.5" font-family="Times New Roman" font-size="20">arrival</text>
-	<polygon stroke="black" stroke-width="1" points="192.5,254.5 480.5,254.5"/>
-	<polygon fill="black" stroke-width="1" points="480.5,254.5 472.5,249.5 472.5,259.5"/>
-	<text x="227.5" y="275.5" font-family="Times New Roman" font-size="20">empty, or credits exhausted</text>
-	<path stroke="black" stroke-width="1" fill="none" d="M 535.673,238.396 A 22.5,22.5 0 1 1 538.594,264.685"/>
-	<text x="584.5" y="251.5" font-family="Times New Roman" font-size="20">credits exhausted</text>
-	<polygon fill="black" stroke-width="1" points="538.594,264.685 543.071,272.989 548.02,264.299"/>
-	<polygon stroke="black" stroke-width="1" points="488.665,233.927 359.335,112.073"/>
-	<polygon fill="black" stroke-width="1" points="359.335,112.073 361.729,121.198 368.586,113.92"/>
-	<text x="429.5" y="164.5" font-family="Times New Roman" font-size="20">empty</text>
-	<polygon stroke="black" stroke-width="1" points="199.5,26.5 310.36,78.717"/>
-	<polygon fill="black" stroke-width="1" points="310.36,78.717 305.253,70.784 300.992,79.831"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800"
+   height="600"
+   version="1.1"
+   id="svg9589"
+   sodipodi:docname="fq_codel.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata9595">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs9593" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1888"
+     inkscape:window-height="1057"
+     id="namedview9591"
+     showgrid="false"
+     inkscape:zoom="0.355"
+     inkscape:cx="388.73239"
+     inkscape:cy="300"
+     inkscape:window-x="24"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg9589" />
+  <ellipse
+     stroke="black"
+     stroke-width="1"
+     fill="none"
+     cx="337.5"
+     cy="91.5"
+     rx="30"
+     ry="30"
+     id="ellipse9549" />
+  <text
+     x="312.5"
+     y="97.5"
+     font-family="Times New Roman"
+     font-size="20"
+     id="text9551">empty</text>
+  <ellipse
+     stroke="black"
+     stroke-width="1"
+     fill="none"
+     cx="162.5"
+     cy="254.5"
+     rx="30"
+     ry="30"
+     id="ellipse9553" />
+  <text
+     x="145.5"
+     y="260.5"
+     font-family="Times New Roman"
+     font-size="20"
+     id="text9555">new</text>
+  <ellipse
+     stroke="black"
+     stroke-width="1"
+     fill="none"
+     cx="510.5"
+     cy="254.5"
+     rx="30"
+     ry="30"
+     id="ellipse9557" />
+  <text
+     x="497.5"
+     y="260.5"
+     font-family="Times New Roman"
+     font-size="20"
+     id="text9559">old</text>
+  <polygon
+     stroke="black"
+     stroke-width="1"
+     points="315.547,111.947 184.453,234.053"
+     id="polygon9561" />
+  <polygon
+     fill="black"
+     stroke-width="1"
+     points="184.453,234.053 193.714,232.259 186.899,224.941"
+     id="polygon9563" />
+  <text
+     x="192.5"
+     y="164.5"
+     font-family="Times New Roman"
+     font-size="20"
+     id="text9565">arrival</text>
+  <polygon
+     stroke="black"
+     stroke-width="1"
+     points="192.5,254.5 480.5,254.5"
+     id="polygon9567" />
+  <polygon
+     fill="black"
+     stroke-width="1"
+     points="480.5,254.5 472.5,249.5 472.5,259.5"
+     id="polygon9569" />
+  <text
+     x="227.5"
+     y="275.5"
+     font-family="Times New Roman"
+     font-size="20"
+     id="text9571"
+     style="-inkscape-font-specification:'Times New Roman, Normal';font-family:'Times New Roman';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;font-size:20px;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;">
+    <tspan
+       sodipodi:role="line"
+       id="tspan10140">empty or credits exhausted</tspan>
+  </text>
+  <path
+     stroke="black"
+     stroke-width="1"
+     fill="none"
+     d="M 535.673,238.396 A 22.5,22.5 0 1 1 538.594,264.685"
+     id="path9573" />
+  <text
+     x="584.5"
+     y="251.5"
+     font-family="Times New Roman"
+     font-size="20"
+     id="text9575">credits exhausted</text>
+  <polygon
+     fill="black"
+     stroke-width="1"
+     points="538.594,264.685 543.071,272.989 548.02,264.299"
+     id="polygon9577" />
+  <polygon
+     stroke="black"
+     stroke-width="1"
+     points="488.665,233.927 359.335,112.073"
+     id="polygon9579" />
+  <polygon
+     fill="black"
+     stroke-width="1"
+     points="359.335,112.073 361.729,121.198 368.586,113.92"
+     id="polygon9581" />
+  <text
+     x="429.5"
+     y="164.5"
+     font-family="Times New Roman"
+     font-size="20"
+     id="text9583">empty</text>
+  <polygon
+     points="310.36,78.717 199.5,26.5 "
+     id="polygon9585"
+     transform="matrix(0.69734037,0,0,0.36203055,94.058429,50.464024)"
+     style="stroke:#000000;stroke-width:1" />
+  <polygon
+     fill="black"
+     stroke-width="1"
+     points="310.36,78.717 305.253,70.784 300.992,79.831"
+     id="polygon9587" />
 </svg>
