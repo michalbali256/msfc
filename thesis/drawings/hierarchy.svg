@@ -27,7 +27,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
      inkscape:cx="241.82143"
-     inkscape:cy="777.13357"
+     inkscape:cy="805.705"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -95,15 +95,16 @@
        r="8.112112" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:7.83544397px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.19588611"
-       x="51.664555"
-       y="91.146225"
-       id="text42200-2"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.55805397px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.13894953"
+       x="49.505745"
+       y="91.419968"
+       id="text42200-2"
+       transform="scale(1.0117588,0.98837786)"><tspan
          sodipodi:role="line"
-         x="51.664555"
-         y="91.146225"
-         style="stroke-width:0.19588611"
-         id="tspan42202-2">UK</tspan></text>
+         id="tspan48730"
+         x="49.505745"
+         y="91.419968"
+         style="stroke-width:0.13894953">CUNI</tspan></text>
     <circle
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.62421638;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path42196-6-8"
@@ -112,20 +113,18 @@
        r="8.112112" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:5.18319273px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12957983"
-       x="106.35752"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.18336391px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12957983"
+       x="108.62538"
        y="90.614273"
        id="text42200-2-3"><tspan
          sodipodi:role="line"
-         x="106.35752"
-         y="90.614273"
-         style="stroke-width:0.12957983"
-         id="tspan42202-2-1">CVUT</tspan><tspan
+         id="tspan48732"
+         x="108.62538"
+         y="90.614273">CTU</tspan><tspan
          sodipodi:role="line"
-         x="106.35752"
-         y="97.093262"
-         style="stroke-width:0.12957983"
-         id="tspan42253" /></text>
+         id="tspan48734"
+         x="108.62538"
+         y="97.093475"></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 79.374998,57.741071 62.933034,81.931546"

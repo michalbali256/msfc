@@ -1,0 +1,59 @@
+delay 204.0449
+    prio0 387.8033
+    prio1 235.9755
+    prio2 68.28738
+    prio3
+download 1497853
+    delay 387.8033
+    goodput 2307.189
+    jitter 5193687
+    RTTe 139.3291
+game 995977.5
+    delay 68.71515
+    goodput 97.56
+    jitter 2133970
+    RTTe 176.0905
+goodput 944.3047
+    prio0 2307.189
+    prio1 722.1292
+    prio2 1008.42
+    prio3
+HDIPTV 1453683
+    delay 232.966
+    goodput 2777.191
+    jitter 2936334
+    RTTe
+http 2627307
+    delay 573.326
+    goodput 1040.322
+    jitter 7357553
+    RTTe 151.0962
+jitter 3526186
+    prio0 5193687
+    prio1 4067638
+    prio2 1706965
+    prio3
+prio0 1497853
+prio1 1778624
+prio2 568871.2
+prio3
+RTTe 144.0482
+    prio0 139.3291
+    prio1 159.1882
+    prio2 136.7506
+    prio3
+SSH 1597429
+    delay 67.3901
+    goodput 0.975
+    jitter 3277042
+    RTTe 294.4495
+TVStream 234711.4
+    delay 71.65369
+    goodput 2908.177
+    jitter 1079638
+    RTTe 133.4883
+voip 918256.3
+    delay 66.60423
+    goodput 58.54062
+    jitter 2020628
+    RTTe 160.0783

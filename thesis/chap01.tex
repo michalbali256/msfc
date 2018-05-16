@@ -136,7 +136,7 @@ where $size_{packet}$ is size of the packet being enqueued and $size_{max}$ is m
 Over the years, several variants of RED have been introduced. With Weighted RED, different packets have different probability functions for different classes of traffic (classified for example by DSCP). Adaptive RED \cite{Floyd01adaptivered:} tunes the RED algorithm to remove sensitivity to some of the parameters. Robust RED \cite{RRED} was proposed to counter low-rate Denial-of-Service attacks.
 
 \subsection{CoDel}
-
+\label{CoDel}
 In 2012, Jacobson and Nichols introduced Controlled Delay (CoDel) algorithm \cite{CoDel}. Their AQM uses local minimum length of queue as indication of bufferbloat. Additionally, it works only with sojourn time --- the time packets spend in queue. That means it is independent of bandwidths of adjacent links, because it only works with time --- if it is deployed in a backbone, with 10 Gb/s bandwidth, acceptable queue will be 50 Mb big. On the other hand, on slow links, say 10 Mb/s, corresponding acceptable buffer is only 50 kb. CoDel measures the time packets spend in queue and if it exceeds a threshold for a longer uninterrupted time, it starts to drop packets.
 
 It has 2 parameters:
@@ -201,7 +201,7 @@ SFQ uses bufferstealing: When there is no more space in the buffer, a packet is 
 McKenney's scheme is valuable for bufferstealing and stochastic approach, however does nothing about unfairness caused by flows having different size of packets.
 
 \subsection{Deficit round-robin}
-
+\label{DRR}
 Deficit round-robin \cite{EffDRR} is an algorithm that extends SFQ and takes packet length into consideration, so every flow gets the same bandwidth in the long term regardless of its packet characteristics. For each queue, it uses deficit counter that counts how many bytes were dequeued from the queue. If a packet can not be sent because it is too big, remaining bytes in the counter transfer to the next round. It still requires only $O(1)$ time for all the operations.
 
 For each flow, DRR needs parameter $Q_i$, where $i$ is flow number. $Q_i$ roughly specifies how many bytes DRR can send from flow $i$. If $Q_i = Q_j$ for all $i$ and $j$, all queues get the same share of the bandwidth, and thus is fair. If $Q_i$ is twice $Q_j$, $i$-th to $j$-th bandwidth will be in ration $2:1$.
