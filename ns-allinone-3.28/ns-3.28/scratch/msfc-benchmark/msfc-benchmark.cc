@@ -52,8 +52,6 @@ int main(int argc, char *argv[])
     float simDuration = 60;
     float samplingPeriod = 1;
 
-    double connNodesMean = 2.5;
-
     std::string serversDatarate = "1Gbps";
     std::string connectionDatarate = "1Gbps";
 
