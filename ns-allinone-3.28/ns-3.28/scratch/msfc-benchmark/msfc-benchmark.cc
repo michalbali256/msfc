@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
             device->GetAttribute("DataRate", dataRate);
             uint64_t rate = dataRate.Get().GetBitRate();
 
-            tchBottleneck.Uninstall(device);
+            
             int discSize = rate / 8 * queueDiscQueueSize;
 
             QueueDiscContainer queDisc = InstallQDisc(device, queueDiscType, discSize, msfcMultiplier);
