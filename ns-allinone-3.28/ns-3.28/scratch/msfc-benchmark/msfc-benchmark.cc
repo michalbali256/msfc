@@ -40,17 +40,13 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("BenchmarkQueueDiscs");
 
 
-
-
-
 int main(int argc, char *argv[])
 {
-    std::string bandwidth = "10Mbps";
-    //std::string delay = "5ms";
+    std::string serversDelay = "50ms";
+    std::string connectionDelay = "5ms";
     std::string queueDiscType = "PfifoFast";
 
     std::string flowsDatarate = "20Mbps";
-    uint32_t flowsPacketsSize = 1000;
 
     float startTime = 0.1; // in s
     float simDuration = 60;
@@ -64,6 +60,7 @@ int main(int argc, char *argv[])
     bool netDeviceQueueTrace = false;
     bool qDiscQueueTrace = false;
     bool randomPriority = false;
+    uint32_t numberOfPrios = 3;
     uint32_t msfcMultiplier = 2000;
 
     FlowType::LoadTypes();
@@ -72,45 +69,46 @@ int main(int argc, char *argv[])
     double queueDiscQueueSize = 0.0001; // 100ms / 1000 (avg size of packet)
 
     CommandLine cmd;
-    cmd.AddValue("queueDiscType", "Bottleneck queue disc type in {PfifoFast, ARED, CoDel, FqCoDel, PIE, Msfc}", queueDiscType);
+    cmd.AddValue("queueDiscType", "Bottleneck queue disc type in {PfifoFast, Sfq, CoDel, FqCoDel, Msfc}", queueDiscType);
     cmd.AddValue("netDeviceQueueSize", "Netdevices queue size in seconds", netDeviceQueueSize);
     cmd.AddValue("queueDiscQueueSize", "Multiplier for queue disc size", queueDiscQueueSize);
-    cmd.AddValue("flowsPacketsSize", "Upload and download flows packets sizes", flowsPacketsSize);
     cmd.AddValue("startTime", "Simulation start time", startTime);
     cmd.AddValue("simDuration", "Simulation duration in seconds", simDuration);
     cmd.AddValue("samplingPeriod", "Goodput sampling period in seconds", samplingPeriod);
     cmd.AddValue("serversDatarate", "Datarate between the server and root of ISP tree", serversDatarate);
+    cmd.AddValue("serversDelay", "Delay between the server and root of ISP tree", serversDelay);
     cmd.AddValue("connectionDatarate", "Datarate of p2p links in ISP tree", connectionDatarate);
+    cmd.AddValue("connectionDelay", "Delay of p2p links in ISP tree", connectionDelay);    
     cmd.AddValue("netDeviceQueueTrace", "Determines if amount of bytes in net device queues will be traced", netDeviceQueueTrace);
     cmd.AddValue("qDiscQueueTrace", "Determines if amount of bytes in queuedisc queues will be traced", qDiscQueueTrace);
     cmd.AddValue("randomPriority", "Determines if priorities of flows will be chosen randomly or by flows config", randomPriority);
+    cmd.AddValue("numberOfPrios", "If random priority is set, this determines number of used priorities.", numberOfPrios);    
     cmd.AddValue("msfcMultiplier", "multiplier for Msfc", msfcMultiplier);
 
     cmd.Parse(argc, argv);
 
     float stopTime = startTime + simDuration;
 
-    Ptr<ExponentialRandomVariable> connNodesRandom = CreateObject<ExponentialRandomVariable>();
-    connNodesRandom->SetAttribute("Mean", DoubleValue(connNodesMean));
-
     NodeContainer root, leaves, all, clients;
     root.Create(1);
-    //     depth        0  1  1  1  2  2  2  2  2  2  2  2  2
+    //     depth       0  1  1  1  2  2  2  2  2  2  2  2  2, 3, 3, 3, 3, 3, 3, 3, 3
     size_t nChildren[]{3, 1, 3, 5, 4, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     InternetStackHelper stack;
+    
     Ipv4AddressHelper address;
     address.SetBase("10.10.0.0", "255.255.255.252");
 
     std::queue<Ptr<Node>> next;
     next.push(root.Get(0));
     stack.Install(root);
+    
     PointToPointHelper connP2PHelper;
-    connP2PHelper.SetChannelAttribute("Delay", StringValue("5ms"));
+    connP2PHelper.SetChannelAttribute("Delay", StringValue(connectionDelay));
     connP2PHelper.SetDeviceAttribute("DataRate", StringValue(connectionDatarate));
 
+    //generation of ISP tree. Numbers of children is in nChildren, it is generated in BFS-way
     size_t iTree = -1;
-
     while (!next.empty())
     {
 
@@ -147,14 +145,13 @@ int main(int argc, char *argv[])
 
     Ipv4InterfaceContainer clientInterfaces;
     AsciiTraceHelper ascii;
-    Ptr<OutputStreamWrapper> nodesGroup = ascii.CreateFileStream(queueDiscType + "-nodes-group.txt");
-
+    
+    //Creation of wifi APs and clients. 8-12 clients random, 
     for (size_t i = 0; i < leaves.GetN(); ++i)
     {
         Ptr<Node> ap = leaves.Get(i);
         Names::Add("AP-" + std::to_string(i), ap);
         int nCl = clientNodesRandom->GetInteger();
-        *nodesGroup->GetStream() << nCl << "\n";
 
         NodeContainer cl;
         cl.Create(nCl);
@@ -178,7 +175,7 @@ int main(int argc, char *argv[])
         WifiMacHelper mac;
         Ssid ssid = Ssid("ssid-" + std::to_string(i));
 
-        //look for sth with QoS
+        
         mac.SetType("ns3::StaWifiMac",
                     "Ssid", SsidValue(ssid),
                     "ActiveProbing", BooleanValue(false));
@@ -214,17 +211,18 @@ int main(int argc, char *argv[])
         clientInterfaces.Add(address.Assign(staDevices));
         address.NewNetwork();
     }
-    (*nodesGroup->GetStream()).flush();
-    TrafficControlHelper tchBottleneck;
 
+    
+    //setting up server
     NodeContainer s1;
     s1.Create(1);
     stack.Install(s1);
 
     Names::Add("Sink", s1.Get(0));
 
+    //server link to root of ISP
     PointToPointHelper s1root;
-    s1root.SetChannelAttribute("Delay", StringValue("50ms"));
+    s1root.SetChannelAttribute("Delay", StringValue(serversDelay));
     s1root.SetDeviceAttribute("DataRate", StringValue(serversDatarate));
 
     address.NewNetwork();
@@ -233,7 +231,8 @@ int main(int argc, char *argv[])
     Ipv4InterfaceContainer interfacesS1 = address.Assign(s1p1Link);
 
     int a = 0;
-
+    
+    //sets netDevices queue size, installs qdisc
     for (auto it = NodeList::Begin(); it != NodeList::End(); it++)
     {
 
@@ -285,24 +284,19 @@ int main(int argc, char *argv[])
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    //Config::SetDefault("ns3::TcpSocket::SegmentSize", UintegerValue(flowsPacketsSize));
     Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::TcpNewReno"));
 
     uint32_t  clientN = clients.GetN();
-
     ApplicationContainer clientApps;
 
-    uint16_t port = 10;
 
+    uint16_t port = 10;
     Ptr<OutputStreamWrapper> appsAssign = ascii.CreateFileStream(queueDiscType + "-apps-assign.txt");
 
-    
+    //sets the number of priorities
     size_t type = 0;
-
-    size_t numberOfPrios;
-    if (randomPriority)
-        numberOfPrios = 3;
-    else
+    
+    if (!randomPriority)
     {
         numberOfPrios = 0;
         for (size_t i = 0; i < Types.size(); ++i)
@@ -312,6 +306,7 @@ int main(int argc, char *argv[])
         }
         ++numberOfPrios;
     }
+    
     Ptr<UniformRandomVariable> prioRandom = CreateObject<UniformRandomVariable>();
     prioRandom->SetAttribute("Min", DoubleValue(0));
     prioRandom->SetAttribute("Max", DoubleValue(numberOfPrios - 1));
@@ -341,7 +336,6 @@ int main(int argc, char *argv[])
         flowTypes[std::make_pair(interfacesS1.GetAddress(0), clientInterfaces.GetAddress(i))] = type + 1;
         flowTypes[std::make_pair(clientInterfaces.GetAddress(i), interfacesS1.GetAddress(0))] = -(type + 1);
         flowSinks[std::make_pair(interfacesS1.GetAddress(0), clientInterfaces.GetAddress(i))] = s;
-        
         
         
         if (Types[type].IsBi)
