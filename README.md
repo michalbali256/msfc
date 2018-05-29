@@ -64,7 +64,7 @@ There are several arguments for the benchmark, most important are:
 - connectionDatarate - datarate of p2p links of ISP tree
 - serversDatarate - datarate of p2p tree-to-server link
 - randomPriority - determines whether flow priorities are determined randomly or from config file
-
+- flowInFileName - the location of config file. Defaults to ../flow_types.in, so it is recommended to set the cwd argument to a folder in the ns-3.28 folder.
 An example:
 ```
 cd msfc/ns-allinone-3.28/ns-3.28/
