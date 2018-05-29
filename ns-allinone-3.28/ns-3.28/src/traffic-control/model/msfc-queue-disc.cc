@@ -313,7 +313,6 @@ bool MsfcQueueDisc::DoEnqueue(Ptr<QueueDiscItem> item)
 
     if (GetCurrentSize() > GetMaxSize())
     {
-        //std::cout << GetCurrentSize() << "\n";
         MsfcDrop();
     }
 
@@ -465,9 +464,6 @@ void MsfcQueueDisc::InitializeParams(void)
     m_prioClassFactory.SetTypeId("ns3::MsfcPrioClass");
 
     m_queueDiscFactory.SetTypeId("ns3::CoDelQueueDisc");
-    /*m_queueDiscFactory.Set("Mode", EnumValue(CoDelQueueDisc::QUEUE_DISC_MODE_PACKETS));
-    m_queueDiscFactory.Set("MaxPackets", UintegerValue(m_limit + 1));*/
-    std::cout << "MAXSIZE" << GetMaxSize() << "\n";
     m_queueDiscFactory.Set("MaxSize", QueueSizeValue(GetMaxSize()));
     m_queueDiscFactory.Set("Interval", StringValue(m_interval));
     m_queueDiscFactory.Set("Target", StringValue(m_target));

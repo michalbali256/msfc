@@ -78,7 +78,7 @@ class FlowType
     }
 
     //static
-    static void LoadTypes();
+    static void LoadTypes(std::string flowsInFileName);
 };
 
 std::vector<FlowType> Types;
@@ -86,7 +86,7 @@ std::vector<FlowType> Types;
 struct TypeStats
 {
   public:
-    TypeStats() : Throughput(0), Loss(0), PacketCount(0), FlowCount(0), Goodput(0), AppCount(0)
+    TypeStats() : Throughput(0), Loss(0), PacketCount(0), FlowCount(0), Goodput(0), AppCount(0), PrioCount()
     {
     }
     Time Delay;
@@ -97,6 +97,7 @@ struct TypeStats
     int64_t FlowCount;
     int64_t Goodput;
     int64_t AppCount;
+    int64_t PrioCount[10];
     
 };
 
@@ -126,6 +127,8 @@ InstallQDisc(Ptr<NetDevice> device, std::string queueDiscType, int queueDiscSize
     if (queueDiscType.compare("PfifoFast") == 0)
     {
         tchBottleneck.SetRootQueueDisc("ns3::PfifoFastQueueDisc", "MaxSize", QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS, queueDiscSize)));
+        for(int i = 0; i < 16; ++i)
+            PfifoFastQueueDisc::prio2band[i] = 0;
     }
     else if (queueDiscType.compare("CoDel") == 0)
     {
@@ -194,8 +197,6 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         else
             prio = flowPrios[t.destinationPort];
         
-        if(prio != Types[type].Priority)
-            std::cout << "WRONG " << prio << " " << Types[type].Priority << "\n";
         
         auto stats = iter->second;
         typeStats[type].Delay += stats.delaySum;
@@ -203,7 +204,7 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         typeStats[type].Throughput += stats.rxBytes;
         typeStats[type].Loss += stats.lostPackets;
         typeStats[type].PacketCount += stats.rxPackets;
-        
+        ++typeStats[type].PrioCount[prio];
         if(flowSinks.find(std::make_pair(t.sourceAddress, t.destinationAddress)) != flowSinks.end())
         {
             
@@ -233,7 +234,13 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
     
     AsciiTraceHelper ascii;
     Ptr<OutputStreamWrapper> allStream = ascii.CreateFileStream(queueDiscType + "-" + du + ".all");
-
+    
+    *allStream->GetStream() << "FlowCount " << "\n";
+    for (size_t i = 0; i < numberOfPrios; ++i)
+    {
+        *allStream->GetStream() << "    prio" << i << " " << prioFlowCount[i] << "\n";
+    }
+    
     *allStream->GetStream() << "Delay " << (delay.Overall / packetCount).GetMilliSeconds() << "\n";
     for (size_t i = 0; i < numberOfPrios; ++i)
     {
@@ -281,6 +288,10 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         }
         *allStream->GetStream() << "    Loss " << typeStats[t].Loss << "\n";
         *allStream->GetStream() << "    FlowCount " << typeStats[t].FlowCount << "\n";
+        for (size_t i = 0; i < numberOfPrios; ++i)
+        {
+            *allStream->GetStream() << "        prio" << i << " " << typeStats[t].PrioCount[i] << "\n";
+        }
         *allStream->GetStream() << "    AppCount " << typeStats[t].AppCount << "\n";
         *allStream->GetStream() << "    PacketCount " << typeStats[t].PacketCount << "\n";
     }
@@ -319,7 +330,7 @@ SetupOnOff(ApplicationContainer &clientApps, std::string onTime, std::string off
 
     //application
     InetSocketAddress socketAddress = InetSocketAddress(remoteAddress, port);
-    socketAddress.SetTos(priority << 2);
+    socketAddress.SetTos(priority);
 
     OnOffHelper onOffHelper("ns3::TcpSocketFactory", Address());
     if (tcp)
@@ -353,10 +364,10 @@ SetupOnOff(ApplicationContainer &clientApps, std::string onTime, std::string off
     return DynamicCast<PacketSink> (s1Sink.Get(0));
 }
 
-void FlowType::LoadTypes()
+void FlowType::LoadTypes(std::string flowsInFileName)
 {
     using namespace std;
-    ifstream flin("../flow_types.in");
+    ifstream flin(flowsInFileName);
 
     while (!flin.eof()) // && i < 100)
     {

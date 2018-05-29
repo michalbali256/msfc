@@ -60,8 +60,10 @@ int main(int argc, char *argv[])
     bool randomPriority = false;
     uint32_t numberOfPrios = 3;
     uint32_t msfcMultiplier = 2000;
-
-    FlowType::LoadTypes();
+    
+    std::string flowsInFileName = "../flow_types.in";
+    
+    
 
     double netDeviceQueueSize = 0.00125; //1.25 ms
     double queueDiscQueueSize = 0.0001; // 100ms / 1000 (avg size of packet)
@@ -82,9 +84,12 @@ int main(int argc, char *argv[])
     cmd.AddValue("randomPriority", "Determines if priorities of flows will be chosen randomly or by flows config", randomPriority);
     cmd.AddValue("numberOfPrios", "If random priority is set, this determines number of used priorities.", numberOfPrios);    
     cmd.AddValue("msfcMultiplier", "multiplier for Msfc", msfcMultiplier);
-
+    cmd.AddValue("flowsInFileName", "The location of the file with flows information", flowsInFileName);
+    
     cmd.Parse(argc, argv);
-
+    
+    FlowType::LoadTypes(flowsInFileName);
+    
     float stopTime = startTime + simDuration;
 
     NodeContainer root, leaves, all, clients;
@@ -326,7 +331,7 @@ int main(int argc, char *argv[])
             prio = Types[type].Priority;
         flowPrio.push_back(prio);
         
-        Ptr<PacketSink> s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio, Types[type].IsTCP,
+        Ptr<PacketSink> s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
                                 s1.Get(0), clients.Get(i), clientInterfaces.GetAddress(i), port, Types[type].PacketSize,
                                 Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
                                 std::to_string(i) + "-prio" + std::to_string(prio) + "-down");
@@ -339,7 +344,7 @@ int main(int argc, char *argv[])
         if (Types[type].IsBi)
         {
             ++port;
-            s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio, Types[type].IsTCP,
+            s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
                                     clients.Get(i), s1.Get(0), interfacesS1.GetAddress(0), port, Types[type].PacketSize,
                                     Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
                                     std::to_string(i) + "-prio" + std::to_string(prio) + "-up");

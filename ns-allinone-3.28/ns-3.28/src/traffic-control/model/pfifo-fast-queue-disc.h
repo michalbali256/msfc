@@ -64,7 +64,13 @@ public:
 
   // Reasons for dropping packets
   static constexpr const char* LIMIT_EXCEEDED_DROP = "Queue disc limit exceeded";  //!< Packet dropped due to queue disc limit exceeded
-
+  
+  /**
+   * Priority to band map. Values are taken from the prio2band array used by
+   * the Linux pfifo_fast queue disc.
+   */
+  static uint32_t prio2band[16];
+  
 private:
   /**
    * \brief Set the limit of this queue disc.
@@ -84,11 +90,7 @@ private:
    */
   uint32_t GetLimit (void) const;
 
-  /**
-   * Priority to band map. Values are taken from the prio2band array used by
-   * the Linux pfifo_fast queue disc.
-   */
-  static const uint32_t prio2band[16];
+  
 
   virtual bool DoEnqueue (Ptr<QueueDiscItem> item);
   virtual Ptr<QueueDiscItem> DoDequeue (void);

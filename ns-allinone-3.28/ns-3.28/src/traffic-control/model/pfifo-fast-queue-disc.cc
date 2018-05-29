@@ -70,21 +70,7 @@ PfifoFastQueueDisc::~PfifoFastQueueDisc ()
   NS_LOG_FUNCTION (this);
 }
 
-const uint32_t PfifoFastQueueDisc::prio2band[16] = {1, 2, 2, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
-
-uint32_t
-ClassifyPriority(Ptr<QueueDiscItem> item)
-{
-    
-    Ptr<Ipv4QueueDiscItem> ipv4Item = DynamicCast<Ipv4QueueDiscItem> (item);
-   
-    NS_ASSERT (ipv4Item != 0);
-   
-    Ipv4Header hdr = ipv4Item->GetHeader ();
-    
-    NS_LOG_DEBUG(hdr);
-    return 1;
-}
+uint32_t PfifoFastQueueDisc::prio2band[16] = {1, 2, 2, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
 
 bool
 PfifoFastQueueDisc::DoEnqueue (Ptr<QueueDiscItem> item)
@@ -106,7 +92,6 @@ PfifoFastQueueDisc::DoEnqueue (Ptr<QueueDiscItem> item)
     }
 
   uint32_t band = prio2band[priority & 0x0f];
-  band = ClassifyPriority(item);
   //std::cout << band;
   bool retval = GetInternalQueue (band)->Enqueue (item);
 
