@@ -132,7 +132,7 @@ InstallQDisc(Ptr<NetDevice> device, std::string queueDiscType, int queueDiscSize
     }
     else if (queueDiscType.compare("CoDel") == 0)
     {
-        tchBottleneck.SetRootQueueDisc("ns3::CoDelQueueDisc", "MaxSize", QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS, queueDiscSize)));
+        tchBottleneck.SetRootQueueDisc("ns3::CoDelQueueDisc", "MaxSize", QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS, queueDiscSize * 50)));
     }
     else if (queueDiscType.compare("FqCoDel") == 0)
     {
@@ -165,7 +165,7 @@ InstallQDisc(Ptr<NetDevice> device, std::string queueDiscType, int queueDiscSize
 
 
 void
-WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Ptr<Ipv4FlowClassifier> & classifier, std::map<AddressPair, int> & flowTypes, std::map<AddressPair, Ptr<PacketSink> > & flowSinks, std::vector<int> & flowPrios, const std::string & queueDiscType, size_t numberOfPrios, int simDuration)
+WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Ptr<Ipv4FlowClassifier> & classifier, std::vector< int> & flowTypes, std::vector< Ptr<PacketSink> > & flowSinks, std::vector<int> & flowPrios, const std::string & queueDiscType, size_t numberOfPrios, int simDuration)
 {   
     std::map<size_t, TypeStats> typeStats;
     MeasurementStats<Time> delay;
@@ -180,10 +180,21 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
     for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator iter = stats.begin(); iter != stats.end(); ++iter)
     {
         Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow(iter->first);
-
-        int type = flowTypes[std::make_pair(t.sourceAddress, t.destinationAddress)];
-        if ((type <= 0 && down) || (type >= 0 && !down))
+        unsigned int prio;
+        int type;
+        uint16_t port;
+        if(flowPrios.size() < t.destinationPort)
+            continue;
+        else
+            port = t.destinationPort;
+        std::cout << port << "\n";
+        prio = flowPrios[port];
+        type = flowTypes[port];
+        
+        if ((type <= 0 && down) || (type >= 0 && !down) || type == 0)
         {
+            if(type == 0)
+                std::cout << "WRONG";
             continue;
         }
         
@@ -191,11 +202,7 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
             type = -type;
         --type;
         
-        unsigned int prio;
-        if(flowPrios.size() < t.destinationPort)
-            prio = flowPrios[t.sourcePort];
-        else
-            prio = flowPrios[t.destinationPort];
+        
         
         
         auto stats = iter->second;
@@ -205,10 +212,10 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         typeStats[type].Loss += stats.lostPackets;
         typeStats[type].PacketCount += stats.rxPackets;
         ++typeStats[type].PrioCount[prio];
-        if(flowSinks.find(std::make_pair(t.sourceAddress, t.destinationAddress)) != flowSinks.end())
+        if(flowSinks[port] != 0)
         {
             
-            typeStats[type].Goodput += flowSinks[std::make_pair(t.sourceAddress, t.destinationAddress)]->GetTotalRx();
+            typeStats[type].Goodput += flowSinks[port]->GetTotalRx();
             ++typeStats[type].AppCount;
             //std::cout << type << " " << (double) flowSinks[std::make_pair(t.sourceAddress, t.destinationAddress)]->GetTotalRx() << "\n";
         }

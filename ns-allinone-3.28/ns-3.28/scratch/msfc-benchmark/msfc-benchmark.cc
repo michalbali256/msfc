@@ -173,15 +173,18 @@ int main(int argc, char *argv[])
         phyHelper.SetChannel(channelHelper.Create());
 
         WifiHelper wifi;
-        wifi.SetRemoteStationManager("ns3::IdealWifiManager");
-        wifi.SetStandard(ns3::WifiPhyStandard::WIFI_PHY_STANDARD_80211n_2_4GHZ);
+        wifi.SetStandard(ns3::WifiPhyStandard::WIFI_PHY_STANDARD_80211ac);
+        wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
+                                     "DataMode", StringValue("VhtMcs9"),
+                                     "ControlMode", StringValue("VhtMcs9"));
+        
         WifiMacHelper mac;
         Ssid ssid = Ssid("ssid-" + std::to_string(i));
 
         
         mac.SetType("ns3::StaWifiMac",
                     "Ssid", SsidValue(ssid),
-                    "ActiveProbing", BooleanValue(false));
+                    "ActiveProbing", BooleanValue(true));
 
         NetDeviceContainer staDevices;
         staDevices = wifi.Install(phyHelper, mac, cl);
@@ -195,7 +198,7 @@ int main(int argc, char *argv[])
         MobilityHelper mobility;
 
         mobility.SetPositionAllocator("ns3::UniformDiscPositionAllocator",
-                                      "rho", DoubleValue(50),
+                                      "rho", DoubleValue(10),
                                       "X", DoubleValue(i * 300),
                                       "Y", DoubleValue(0.0));
 
@@ -214,7 +217,8 @@ int main(int argc, char *argv[])
         clientInterfaces.Add(address.Assign(staDevices));
         address.NewNetwork();
     }
-
+    
+    Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelWidth", UintegerValue (40));
     
     //setting up server
     NodeContainer s1;
@@ -317,8 +321,8 @@ int main(int argc, char *argv[])
     ApplicationContainer upSinks;
     ApplicationContainer downSinks;
 
-    std::map<std::pair<Ipv4Address, Ipv4Address>, int> flowTypes;
-    std::map<std::pair<Ipv4Address, Ipv4Address>, Ptr<PacketSink> > flowSinks;
+    std::vector<int> flowTypes (port+1);
+    std::vector<Ptr<PacketSink> > flowSinks (port+1);
     std::vector<int> flowPrio (port+1);
     
     for (size_t i = 0; i < clientN; ++i)
@@ -336,21 +340,26 @@ int main(int argc, char *argv[])
                                 Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
                                 std::to_string(i) + "-prio" + std::to_string(prio) + "-down");
         downSinks.Add(s);
-        flowTypes[std::make_pair(interfacesS1.GetAddress(0), clientInterfaces.GetAddress(i))] = type + 1;
-        flowTypes[std::make_pair(clientInterfaces.GetAddress(i), interfacesS1.GetAddress(0))] = -(type + 1);
-        flowSinks[std::make_pair(interfacesS1.GetAddress(0), clientInterfaces.GetAddress(i))] = s;
+        flowTypes.push_back(type + 1);
+        flowTypes.push_back(-(type + 1));
+        flowSinks.push_back(s);
         
-        
+        ++port;
         if (Types[type].IsBi)
         {
-            ++port;
+            
             s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
                                     clients.Get(i), s1.Get(0), interfacesS1.GetAddress(0), port, Types[type].PacketSize,
                                     Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
                                     std::to_string(i) + "-prio" + std::to_string(prio) + "-up");
-            flowSinks[std::make_pair(clientInterfaces.GetAddress(i), interfacesS1.GetAddress(0))] = s;
+            flowSinks.push_back(s);
             flowPrio.push_back(prio);
             upSinks.Add(s);
+        }
+        else
+        {
+            flowPrio.push_back(prio);
+            flowSinks.push_back(0);
         }
 
         *appsAssign->GetStream() << i << " " << Names::FindName(clients.Get(i)) << " prio " << (int)prio << " " << type << " " << Types[type].Name << "\n";
