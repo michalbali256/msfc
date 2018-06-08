@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     
     std::string flowsInFileName = "../flow_types.in";
     
-    
+    uint32_t appCount = 140;
 
     double netDeviceQueueSize = 0.00125; //1.25 ms
     double queueDiscQueueSize = 0.0001; // 100ms / 1000 (avg size of packet)
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     cmd.AddValue("numberOfPrios", "If random priority is set, this determines number of used priorities.", numberOfPrios);    
     cmd.AddValue("msfcMultiplier", "multiplier for Msfc", msfcMultiplier);
     cmd.AddValue("flowsInFileName", "The location of the file with flows information", flowsInFileName);
-    
+    cmd.AddValue("appCount", "The number of applications that will be installed", appCount);
     cmd.Parse(argc, argv);
     
     FlowType::LoadTypes(flowsInFileName);
@@ -317,55 +317,90 @@ int main(int argc, char *argv[])
     Ptr<UniformRandomVariable> prioRandom = CreateObject<UniformRandomVariable>();
     prioRandom->SetAttribute("Min", DoubleValue(0));
     prioRandom->SetAttribute("Max", DoubleValue(numberOfPrios - 1));
-
+    
+    Ptr<UniformRandomVariable> assignRandom = CreateObject<UniformRandomVariable>();
+    assignRandom->SetAttribute("Min", DoubleValue(0));
+    assignRandom->SetAttribute("Max", DoubleValue(clientN-1));
+    
     ApplicationContainer upSinks;
     ApplicationContainer downSinks;
 
     std::vector<int> flowTypes (port+1);
     std::vector<Ptr<PacketSink> > flowSinks (port+1);
     std::vector<int> flowPrio (port+1);
-    
-    for (size_t i = 0; i < clientN; ++i)
+    uint32_t count = 0;
+    uint32_t typeCount = 0;
+    type = 0;
+    while(count < appCount)
     {
-        ++port;
-        uint8_t prio;
-        if (randomPriority)
-            prio = prioRandom->GetInteger();
-        else
-            prio = Types[type].Priority;
-        flowPrio.push_back(prio);
+        std::vector<uint32_t> typesAssign(clientN);
+        std::vector<bool> assigned(clientN);
         
-        Ptr<PacketSink> s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
-                                s1.Get(0), clients.Get(i), clientInterfaces.GetAddress(i), port, Types[type].PacketSize,
-                                Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
-                                std::to_string(i) + "-prio" + std::to_string(prio) + "-down");
-        downSinks.Add(s);
-        flowTypes.push_back(type + 1);
-        flowTypes.push_back(-(type + 1));
-        flowSinks.push_back(s);
+        uint32_t c = 0;
         
-        ++port;
-        if (Types[type].IsBi)
+        while(c < clientN)
         {
+            int assign = assignRandom->GetInteger();
+            size_t i = assign;
+            for(; i < clientN && assigned[i]; ++i);
+            if(i == clientN)
+                continue;
+                
+            assigned[i] = true;
+            typesAssign[i] = type;
             
-            s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
-                                    clients.Get(i), s1.Get(0), interfacesS1.GetAddress(0), port, Types[type].PacketSize,
+            ++c;
+            if(++typeCount >= Types[type].AppCount)
+            {
+                typeCount = 0;
+                if (++type == Types.size())
+                {
+                    type = 0;
+                }
+            }
+        }
+        
+        for (size_t i = 0; i < clientN; ++i)
+        {
+            type = typesAssign[i];
+            ++port;
+            uint8_t prio;
+            if (randomPriority)
+                prio = prioRandom->GetInteger();
+            else
+                prio = Types[type].Priority;
+            flowPrio.push_back(prio);
+            
+            Ptr<PacketSink> s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
+                                    s1.Get(0), clients.Get(i), clientInterfaces.GetAddress(i), port, Types[type].PacketSize,
                                     Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
-                                    std::to_string(i) + "-prio" + std::to_string(prio) + "-up");
+                                    std::to_string(i) + "-prio" + std::to_string(prio) + "-down");
+            downSinks.Add(s);
+            flowTypes.push_back(type + 1);
+            flowTypes.push_back(-(type + 1));
             flowSinks.push_back(s);
-            flowPrio.push_back(prio);
-            upSinks.Add(s);
-        }
-        else
-        {
-            flowPrio.push_back(prio);
-            flowSinks.push_back(0);
-        }
+            
+            ++port;
+            if (Types[type].IsBi)
+            {
+                
+                s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
+                                        clients.Get(i), s1.Get(0), interfacesS1.GetAddress(0), port, Types[type].PacketSize,
+                                        Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
+                                        std::to_string(i) + "-prio" + std::to_string(prio) + "-up");
+                flowSinks.push_back(s);
+                flowPrio.push_back(prio);
+                upSinks.Add(s);
+            }
+            else
+            {
+                flowPrio.push_back(prio);
+                flowSinks.push_back(0);
+            }
 
-        *appsAssign->GetStream() << i << " " << Names::FindName(clients.Get(i)) << " prio " << (int)prio << " " << type << " " << Types[type].Name << "\n";
-        if (++type == Types.size())
-        {
-            type = 0;
+            *appsAssign->GetStream() << i << " " << Names::FindName(clients.Get(i)) << " prio " << (int)prio << " " << type << " " << Types[type].Name << "\n";
+            if(++count >= appCount)
+                break;
         }
     }
     (*appsAssign->GetStream()).flush();

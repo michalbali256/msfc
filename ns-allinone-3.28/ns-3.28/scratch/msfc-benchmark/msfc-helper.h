@@ -67,13 +67,14 @@ class FlowType
     std::string Name = "";
     std::string DataRate = "";
     bool IsTCP = true;
+    uint32_t AppCount;    
     bool IsBi = true;
     uint32_t PacketSize;
     std::string OnTime;
     std::string OffTime;
     uint32_t Priority;
-    FlowType(std::string name, bool tcp, std::string dataRate, bool bi, uint32_t packetSize, std::string onTime, std::string offTime, uint32_t priority)
-        : Name(name), DataRate(dataRate), IsTCP(tcp), IsBi(bi), PacketSize(packetSize), OnTime(onTime), OffTime(offTime), Priority(priority)
+    FlowType(std::string name, bool tcp, uint32_t appCount, std::string dataRate, bool bi, uint32_t packetSize, std::string onTime, std::string offTime, uint32_t priority)
+        : Name(name), DataRate(dataRate), IsTCP(tcp), AppCount(appCount), IsBi(bi), PacketSize(packetSize), OnTime(onTime), OffTime(offTime), Priority(priority)
     {
     }
 
@@ -187,7 +188,7 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
             continue;
         else
             port = t.destinationPort;
-        std::cout << port << "\n";
+
         prio = flowPrios[port];
         type = flowTypes[port];
         
@@ -200,10 +201,7 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         
         if (type < 0)
             type = -type;
-        --type;
-        
-        
-        
+        --type; 
         
         auto stats = iter->second;
         typeStats[type].Delay += stats.delaySum;
@@ -376,14 +374,14 @@ void FlowType::LoadTypes(std::string flowsInFileName)
     using namespace std;
     ifstream flin(flowsInFileName);
 
-    while (!flin.eof()) // && i < 100)
+    while (!flin.eof()) 
     {
         string name, dataRate, onTime, offTime;
         string bi, tcp;
-        uint32_t packetSize, priority;
-        flin >> name >> tcp >> dataRate >> priority >> bi >> packetSize >> onTime >> offTime;
+        uint32_t packetSize, priority, appCount;
+        flin >> name >> tcp >> appCount >> dataRate >> priority >> bi >> packetSize >> onTime >> offTime;
         //cout << name << tcp << dataRate << bi << packetSize << onTime << " " << offTime << "\n";
-        Types.emplace_back(name, tcp == "TCP", dataRate, bi == "bi", packetSize, onTime, offTime, priority);
+        Types.emplace_back(name, tcp == "TCP", appCount, dataRate, bi == "bi", packetSize, onTime, offTime, priority);
     }
 }
 
