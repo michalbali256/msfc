@@ -9,7 +9,7 @@
 	\label{fig10:msfc}
 \end{figure}
 
-In this thesis, we propose a traffic scheduler Multilevel stochastic fairness queueing (MSFC) illustrated in \ref{fig10:msfc}. It combines ideas of previous work: CoDel and deficit round-robin, to create classful traffic scheduler. It uses three-level layout. In the highest level, packets are assigned to priority classes. We use non-fair DRR to prioritize more important traffic. Inside the classes, packets are distributed into flows (based on source and destination IP addresses, ports and protocol) and we use second, independent fair DRR to schedule traffic within the class. Each flow uses CoDel algorithm.
+In this thesis, we propose a traffic scheduler Multilevel stochastic fairness queueing (MSFC) illustrated in \ref{fig10:msfc}. It combines ideas of previous work: CoDel and deficit round-robin, to create traffic scheduler. It uses three-level layout. In the highest level, packets are assigned to priority classes. We use non-fair DRR to prioritize more important traffic. Inside the classes, packets are distributed into flows (based on source and destination IP addresses, ports and protocol) and we use second, independent fair DRR to schedule traffic within the class. Each flow uses CoDel algorithm.
 
 Additionally, it has following parameters:
 \begin{itemize}
@@ -17,7 +17,7 @@ Additionally, it has following parameters:
 	\item $Prios$ --- the number of priority classes (max 8).
 	\item $Flows$ --- the number of queues (CoDels) in each priority class (so there is $Prios*Flows$ total independent CoDels)
 	\item $Backlog$ --- the maximum backlogged bytes in an individual CoDel.
-	\item $Perturb$ --- number of seconds after flow-classification hash function perturbs
+	\item $Perturb$ --- number of seconds after flow-classification hash function changes
 	\item $Quantum$ --- the quantum parameter of the inner fair DRR (see \ref{DRR})
 	\item $Target$ --- target delay parameter for CoDel algorithm (see \ref{CoDel})
 	\item $Interval$ --- Interval parameter for CoDel algorithm (see \ref{CoDel})
@@ -58,16 +58,19 @@ In the kernel, packets are represented by struct sk\_buff (socket buffer). This 
 The default qdisc is pfifo\_fast. It is three-band first-come first-serve scheduler. There are 3 independent FIFO queues, one for each priority. Pfifo\_fast classifies packets based on priority attribute of sk\_buff (it takes 4 least significant bits). The dequeue is simple: it iterates dequeues packet from highest priority non-empty FIFO queue.
 
 Every qdisc is connected to the kernel via struct Qdisc\_ops. It defines pointers to methods that the kernel calls to operate the qdisc. Every qdisc then defines variable of type Qdisc\_ops and assigns implementations of corresponding methods to the members of the struct. The most important members are:
-
-
-
 \begin{itemize}
-	\item enqueue
-	\item dequeue
-	\item 
+	\item enqueue --- Takes sk\_buff argument. It is called every time kernel adds a packet to the qdisc.
+	\item dequeue --- Returns dequeued packet.
+	\item peek --- Returns packet that the qdisc dequeues next.
+	\item init --- Kernel calls it to initialize the qdisc in the beginning of its operation. Here the qdisc may allocate memory and sets its parameters.
+	\item destroy --- It is called when operation of the qdisc stops. The qdisc should deallocate all its resources (memory, etc.).
+	\item reset --- Kernel calls it to reset the qdisc into the default (empty) state.
 \end{itemize}
 
-We have implemented the MSFC as classless qdisc. There is 
+We have implemented the MSFC as classless qdisc. The implementation follows the 3-level layout of the algorithm. We represent priority class by struct msfc\_prioclass and one CoDel flow by struct msfc\_flow. The amount of memory that the implementation needs is constant throughout the lifetime of qdisc, and it can be computed from parameters $Prios$, $Flows$. We need an array of priority classes of size $Prios$ and an array of CoDel flows of size $Prios * Flows$. We allocate all the memory in the initialization (msfc\_init) of the qdisc.
+
+
+
 
 qdisc interface
 
