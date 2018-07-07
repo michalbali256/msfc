@@ -27,6 +27,7 @@
 #include "ns3/net-device-queue-interface.h"
 #include "ns3/ipv4-header.h"
 #include "ns3/ipv4-queue-disc-item.h"
+#include "ns3/ipv6-queue-disc-item.h"
 #include <cmath>
 namespace ns3
 {
@@ -34,6 +35,8 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("MsfcQueueDisc");
 
 NS_OBJECT_ENSURE_REGISTERED(MsfcFlow);
+
+uint32_t DEFAULT_BACKLOG_MTU_PACKETS = 32;
 
 TypeId MsfcFlow::GetTypeId(void)
 {
@@ -182,6 +185,11 @@ TypeId MsfcQueueDisc::GetTypeId(void)
                         MakeQueueSizeAccessor (&QueueDisc::SetMaxSize,
                                                 &QueueDisc::GetMaxSize),
                         MakeQueueSizeChecker ())
+        .AddAttribute ("Backlog",
+                        "The maximum number of bytes in a single CoDel flow",
+                        UintegerValue(0),
+                        MakeUintegerAccessor (&MsfcQueueDisc::m_backlog),
+                        MakeUintegerChecker<uint32_t>() )
         .AddAttribute("Flows",
                         "The number of queues into which the incoming packets are classified",
                         UintegerValue(1024),
@@ -193,15 +201,20 @@ TypeId MsfcQueueDisc::GetTypeId(void)
                         MakeUintegerAccessor(&MsfcQueueDisc::m_dropBatchSize),
                         MakeUintegerChecker<uint32_t>())
         .AddAttribute("QuantumMultiplier",
-                        "the bandwidth allocation difference between two sequential prioclasses",
+                        "The bandwidth allocation difference between two sequential prioclasses",
                         UintegerValue(2000),
                         MakeUintegerAccessor(&MsfcQueueDisc::m_quantum_multiplier),
                         MakeUintegerChecker<uint32_t>())
         .AddAttribute("Quantum",
-                        "initial quantum value",
+                        "Initial quantum value",
                         UintegerValue(0),
                         MakeUintegerAccessor(&MsfcQueueDisc::m_quantum),
-                        MakeUintegerChecker<uint32_t>());
+                        MakeUintegerChecker<uint32_t>())
+        .AddAttribute("PriorityClassifier",
+                        "Callback, that is used to determine priority of packets",
+                        CallbackValue(MakeCallback(&MsfcQueueDisc::ClassifyPriority)),
+                        MakeCallbackAccessor(&MsfcQueueDisc::m_priorityClassifier),
+                        MakeCallbackChecker());
     return tid;
 }
 
@@ -233,23 +246,28 @@ MsfcQueueDisc::GetQuantum(void) const
 uint32_t
 MsfcQueueDisc::ClassifyPriority(Ptr<QueueDiscItem> item)
 {
-    NS_LOG_FUNCTION(this << item);
+    NS_LOG_FUNCTION( item);
     Ptr<Ipv4QueueDiscItem> ipv4Item = DynamicCast<Ipv4QueueDiscItem> (item);
-   
-    NS_ASSERT (ipv4Item != 0);
-   
-    Ipv4Header hdr = ipv4Item->GetHeader ();
-    NS_LOG_DEBUG(hdr);
-    return hdr.GetDscp();
+    if(ipv4Item != 0)
+    {
+        Ipv4Header hdr = ipv4Item->GetHeader ();
+        NS_LOG_DEBUG(hdr);
+        return hdr.GetDscp();
+    }
+    else
+    {
+        Ptr<Ipv6QueueDiscItem> ipv6Item = DynamicCast<Ipv6QueueDiscItem> (item);
+        return ipv6Item->GetHeader().GetDscp();
+    }
 }
 
 bool MsfcQueueDisc::DoEnqueue(Ptr<QueueDiscItem> item)
 {
     NS_LOG_FUNCTION(this << item);
 
-    int32_t ret = Classify(item);
+    int32_t ret = Classify(item); //hash
 
-    uint32_t prio = ClassifyPriority(item);
+    uint32_t prio = m_priorityClassifier(item); //priority
 
     if (ret == PacketFilter::PF_NO_MATCH)
     {
@@ -295,15 +313,16 @@ bool MsfcQueueDisc::DoEnqueue(Ptr<QueueDiscItem> item)
     if(!pclass->IsActive())
     {
         pclass->SetActive(true);
-        pclass->SetDeficit(pclass->GetQuantum());//////
-        m_prioClasses.push_front(pclass);
-        //m_prioClasses.push_back(pclass);
+        if(pclass->GetDeficit() > (int32_t) pclass->GetQuantum())
+            pclass->SetDeficit(pclass->GetQuantum());
+        m_prioClasses.push_back(pclass);
     }
 
     if (!flow->IsActive())
     {
         flow->SetActive(true);
-        flow->SetDeficit(m_quantum);
+        if(flow->GetDeficit() > (int32_t) m_quantum)
+            flow->SetDeficit(m_quantum);
         pclass->m_flows.push_back(flow);
     }
 
@@ -456,6 +475,7 @@ void MsfcQueueDisc::InitializeParams(void)
         Ptr<NetDevice> device = GetNetDevice();
         NS_ASSERT_MSG(device, "Device not set for the queue disc");
         m_quantum = device->GetMtu();
+        m_backlog = DEFAULT_BACKLOG_MTU_PACKETS * m_quantum;
         NS_LOG_DEBUG("Setting the quantum to the MTU of the device: " << m_quantum);
     }
 
@@ -464,7 +484,7 @@ void MsfcQueueDisc::InitializeParams(void)
     m_prioClassFactory.SetTypeId("ns3::MsfcPrioClass");
 
     m_queueDiscFactory.SetTypeId("ns3::CoDelQueueDisc");
-    m_queueDiscFactory.Set("MaxSize", QueueSizeValue(GetMaxSize()));
+    m_queueDiscFactory.Set("MaxSize", QueueSizeValue(std::to_string(m_backlog) + "B"));
     m_queueDiscFactory.Set("Interval", StringValue(m_interval));
     m_queueDiscFactory.Set("Target", StringValue(m_target));
 }

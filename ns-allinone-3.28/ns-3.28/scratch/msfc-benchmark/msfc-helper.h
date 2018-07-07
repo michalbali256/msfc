@@ -59,6 +59,7 @@ using namespace ns3;
 
 typedef std::pair<Ipv4Address, Ipv4Address> AddressPair;
 
+const uint32_t MAX_PRIOS = 10;
 
 class FlowType
 {
@@ -98,7 +99,9 @@ struct TypeStats
     int64_t FlowCount;
     int64_t Goodput;
     int64_t AppCount;
-    int64_t PrioCount[10];
+    int64_t PrioCount[MAX_PRIOS];
+    Ptr<OutputStreamWrapper> DelayStream;
+    Ptr<OutputStreamWrapper> JitterStream;
     
 };
 
@@ -108,15 +111,16 @@ struct MeasurementStats
   public:
     MeasurementStats() : Prios(), Overall(0)
     {
-        for (size_t i = 0; i < 10; i++)
+        for (size_t i = 0; i < MAX_PRIOS; i++)
         {
             PriosCount[i] = 0;
         }
     }
-    T Prios[10];
-    int64_t PriosCount[10];
+    T Prios[MAX_PRIOS];
+    int64_t PriosCount[MAX_PRIOS];
+    Ptr<OutputStreamWrapper> PriosStream[MAX_PRIOS];
     T Overall;
-    
+    Ptr<OutputStreamWrapper> OverallStream;
 };
 
 
@@ -168,15 +172,32 @@ InstallQDisc(Ptr<NetDevice> device, std::string queueDiscType, int queueDiscSize
 void
 WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Ptr<Ipv4FlowClassifier> & classifier, std::vector< int> & flowTypes, std::vector< Ptr<PacketSink> > & flowSinks, std::vector<int> & flowPrios, const std::string & queueDiscType, size_t numberOfPrios, int simDuration)
 {   
-    std::map<size_t, TypeStats> typeStats;
+    std::string du = down ? "down" : "up";
+    AsciiTraceHelper ascii;
+    
+    std::map<uint32_t, TypeStats> typeStats;
     MeasurementStats<Time> delay;
     MeasurementStats<Time> jitter;
     MeasurementStats<int64_t> throughput;
     MeasurementStats<int64_t> loss;
+    
+    for(size_t i = 0; i < Types.size(); ++i)
+    {
+        typeStats[i].DelayStream = ascii.CreateFileStream(queueDiscType + "-" + "type" + std::to_string(i) + "-" + "delay" + "-" + du + ".det");
+        typeStats[i].JitterStream = ascii.CreateFileStream(queueDiscType + "-" + "type" + std::to_string(i) + "-" + "jitter" + "-" + du + ".det");
+    }
+    delay.OverallStream = ascii.CreateFileStream(queueDiscType + "-" + "overall" + "-" + "delay" + "-" + du + ".det");
+    jitter.OverallStream = ascii.CreateFileStream(queueDiscType + "-" + "overall" + "-" + "jitter" + "-" + du + ".det");
+    
+    for(size_t i = 0; i < numberOfPrios; ++i)
+    {
+        delay.PriosStream[i] = ascii.CreateFileStream(queueDiscType + "-" + "delay" + "-" + "prio" + std::to_string(i) + "-" + du + ".det");
+        jitter.PriosStream[i] = ascii.CreateFileStream(queueDiscType + "-" + "jitter" + "-" + "prio" + std::to_string(i) + "-" + du + ".det");
+    }
 
     int64_t packetCount = 0;
-    int64_t prioPacketCount[10]{};
-    int64_t prioFlowCount[10]{};
+    int64_t prioPacketCount[MAX_PRIOS]{};
+    int64_t prioFlowCount[MAX_PRIOS]{};
     
     for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator iter = stats.begin(); iter != stats.end(); ++iter)
     {
@@ -204,8 +225,11 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         --type; 
         
         auto stats = iter->second;
+        
         typeStats[type].Delay += stats.delaySum;
+        stats.delayHistogram.SerializeToXmlStream(*(typeStats[type].DelayStream->GetStream()), 0, "type" + std::to_string(type));
         typeStats[type].Jitter += stats.jitterSum;
+        stats.jitterHistogram.SerializeToXmlStream(*(typeStats[type].JitterStream->GetStream()), 0, "type" + std::to_string(type));
         typeStats[type].Throughput += stats.rxBytes;
         typeStats[type].Loss += stats.lostPackets;
         typeStats[type].PacketCount += stats.rxPackets;
@@ -220,12 +244,16 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         
         ++typeStats[type].FlowCount;
         delay.Overall += stats.delaySum;
+        stats.delayHistogram.SerializeToXmlStream(*(delay.OverallStream->GetStream()), 0, "overall");
         jitter.Overall += stats.jitterSum;
+        stats.jitterHistogram.SerializeToXmlStream(*(jitter.OverallStream->GetStream()), 0, "overall");
         throughput.Overall += stats.rxBytes;
         loss.Overall += stats.lostPackets;
 
         delay.Prios[prio] += stats.delaySum;
+        stats.delayHistogram.SerializeToXmlStream(*(delay.PriosStream[prio]->GetStream()), 0, "prio" + std::to_string(prio));
         jitter.Prios[prio] += stats.jitterSum;
+        stats.jitterHistogram.SerializeToXmlStream(*(jitter.PriosStream[prio]->GetStream()), 0, "prio" + std::to_string(prio));
         throughput.Prios[prio] += stats.rxBytes;
         loss.Prios[prio] += stats.lostPackets;
 
@@ -235,9 +263,9 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         packetCount += stats.rxPackets;
 
     }
-    std::string du = down ? "down" : "up";
     
-    AsciiTraceHelper ascii;
+    
+    
     Ptr<OutputStreamWrapper> allStream = ascii.CreateFileStream(queueDiscType + "-" + du + ".all");
     
     *allStream->GetStream() << "FlowCount " << "\n";
@@ -246,16 +274,16 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         *allStream->GetStream() << "    prio" << i << " " << prioFlowCount[i] << "\n";
     }
     
-    *allStream->GetStream() << "Delay " << (delay.Overall / packetCount).GetMilliSeconds() << "\n";
+    *allStream->GetStream() << "Delay " << (packetCount != 0 ? (delay.Overall / packetCount).GetMilliSeconds() : -1) << "\n";
     for (size_t i = 0; i < numberOfPrios; ++i)
     {
-        *allStream->GetStream() << "    prio" << i << " " << (delay.Prios[i] / prioPacketCount[i]).GetMilliSeconds() << "\n";
+        *allStream->GetStream() << "    prio" << i << " " << (prioPacketCount[i] != 0 ? (delay.Prios[i] / prioPacketCount[i]).GetMilliSeconds() : -1) << "\n";
     }
 
-    *allStream->GetStream() << "Jitter " << (jitter.Overall / packetCount).GetMilliSeconds() << "\n";
+    *allStream->GetStream() << "Jitter " << (packetCount != 0 ? (jitter.Overall / packetCount).GetMilliSeconds() : -1) << "\n";
     for (size_t i = 0; i < numberOfPrios; ++i)
     {
-        *allStream->GetStream() << "    prio" << i << " " << (jitter.Prios[i] / prioPacketCount[i]).GetMilliSeconds() << "\n";
+        *allStream->GetStream() << "    prio" << i << " " << (prioPacketCount[i] != 0 ? (jitter.Prios[i] / prioPacketCount[i]).GetMilliSeconds() : -1) << "\n";
     }
 
     *allStream->GetStream() << "Throughput " << throughput.Overall * 8. / simDuration / 1024 << "\n";
@@ -269,7 +297,7 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
     {
         *allStream->GetStream() << "    prio" << i << " " << loss.Prios[i] << "\n";
     }
-
+    
     for (size_t t = 0; t < Types.size(); ++t)
     {
         *allStream->GetStream() << Types[t].Name << "\n";

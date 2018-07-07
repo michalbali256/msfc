@@ -163,7 +163,7 @@ private:
   virtual Ptr<const QueueDiscItem> DoPeek (void);
   virtual bool CheckConfig (void);
   virtual void InitializeParams (void);
-  uint32_t ClassifyPriority(Ptr<QueueDiscItem> item);
+  static uint32_t ClassifyPriority(Ptr<QueueDiscItem> item);
 
   /**
    * \brief Drop a packet from the head of the queue with the largest current byte count
@@ -178,8 +178,9 @@ private:
   uint32_t m_flows;          //!< Number of flow queues
   uint32_t m_dropBatchSize;  //!< Max number of packets dropped from the fat flow
   uint32_t m_quantum_multiplier; //!< the bandwidth allocation difference between two sequential prioclasses
+  uint32_t m_backlog;        //!< Maximum bytes in a single CoDel flow
+  Callback<uint32_t, Ptr<QueueDiscItem> > m_priorityClassifier; //<! Function, that is used to determine priority of packets
   
-
   std::map< uint32_t, Ptr<MsfcPrioClass>> m_prioClassMap; 
   std::list<Ptr<MsfcPrioClass> > m_prioClasses;    //!< list of classes
   

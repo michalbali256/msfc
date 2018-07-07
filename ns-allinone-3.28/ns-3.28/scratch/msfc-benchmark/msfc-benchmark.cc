@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
     Simulator::Stop(Seconds(stopTime));
     Simulator::Run();
 
-    flowMonitor->SerializeToXmlFile(queueDiscType + "-flowMonitor.xml", false, true);
+    flowMonitor->SerializeToXmlFile(queueDiscType + "-flowMonitor.xml", true, true);
 
     flowMonitor->CheckForLostPackets();
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowHelper.GetClassifier());
