@@ -37,6 +37,9 @@ There are 8 fields in this order:
 + ns3 random variable that determines on time of application
 + ns3 random variable that determines off time of application
 
+## Prerequisities
+
+You need a c++ compiler --- gcc or clang and python interpreter installed.
 
 ## Build
 
@@ -69,7 +72,7 @@ An example:
 ```
 cd msfc/ns-allinone-3.28/ns-3.28/
 mkdir results
-./waf --cwd=results --run "msfc-benchmark --simDuration=100 --queueDiscType=Msfc --connectionDatarate=150Mbps --serversDatarate=500Mbps --randomPriority=0"
+./waf --cwd=results --run "msfc-benchmark --simDuration=100  --connectionDatarate=100Mbps --serversDatarate=1000Mbps --randomPriority=0 appCount=280 --queueDiscType=Msfc"
 ```
 
 You can see all arguments of msfc-benchmark by running:
