@@ -1,0 +1,49 @@
+<prio0 nBins="9" >
+  <bin index="0" start="0" width="0.001" count="3143" />
+  <bin index="1" start="0.001" width="0.001" count="325" />
+  <bin index="2" start="0.002" width="0.001" count="88" />
+  <bin index="3" start="0.003" width="0.001" count="22" />
+  <bin index="4" start="0.004" width="0.001" count="10" />
+  <bin index="5" start="0.005" width="0.001" count="5" />
+  <bin index="6" start="0.006" width="0.001" count="1" />
+  <bin index="7" start="0.007" width="0.001" count="1" />
+  <bin index="8" start="0.008" width="0.001" count="1" />
+</prio0>
+<prio0 nBins="5" >
+  <bin index="0" start="0" width="0.001" count="2323" />
+  <bin index="1" start="0.001" width="0.001" count="84" />
+  <bin index="2" start="0.002" width="0.001" count="17" />
+  <bin index="3" start="0.003" width="0.001" count="11" />
+  <bin index="4" start="0.004" width="0.001" count="1" />
+</prio0>
+<prio0 nBins="5" >
+  <bin index="0" start="0" width="0.001" count="3449" />
+  <bin index="1" start="0.001" width="0.001" count="135" />
+  <bin index="2" start="0.002" width="0.001" count="9" />
+  <bin index="3" start="0.003" width="0.001" count="1" />
+  <bin index="4" start="0.004" width="0.001" count="2" />
+</prio0>
+<prio0 nBins="17" >
+  <bin index="0" start="0" width="0.001" count="3131" />
+  <bin index="1" start="0.001" width="0.001" count="281" />
+  <bin index="2" start="0.002" width="0.001" count="55" />
+  <bin index="3" start="0.003" width="0.001" count="22" />
+  <bin index="4" start="0.004" width="0.001" count="5" />
+  <bin index="5" start="0.005" width="0.001" count="5" />
+  <bin index="6" start="0.006" width="0.001" count="4" />
+  <bin index="7" start="0.007" width="0.001" count="2" />
+  <bin index="10" start="0.01" width="0.001" count="1" />
+  <bin index="11" start="0.011" width="0.001" count="1" />
+  <bin index="12" start="0.012" width="0.001" count="1" />
+  <bin index="13" start="0.013" width="0.001" count="1" />
+  <bin index="16" start="0.016" width="0.001" count="2" />
+</prio0>
+<prio0 nBins="7" >
+  <bin index="0" start="0" width="0.001" count="486" />
+  <bin index="1" start="0.001" width="0.001" count="79" />
+  <bin index="2" start="0.002" width="0.001" count="25" />
+  <bin index="3" start="0.003" width="0.001" count="12" />
+  <bin index="4" start="0.004" width="0.001" count="3" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+  <bin index="6" start="0.006" width="0.001" count="2" />
+</prio0>
