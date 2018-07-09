@@ -1,6 +1,6 @@
 \chapter{Our traffic scheduler}
 \label{chap02}
-%mby a little intro config (knobless), fast O(1), QoS aware, scheduler in presence of differentiated services. Would run at simple devices
+%mby a little intro what we want from a scheduler knobless, fast O(1), diffserv aware scheduler in presence of differentiated services. Would run at simple devices
 
 
 
@@ -11,8 +11,9 @@
 	\label{fig10:msfc}
 \end{figure}
 
-In this thesis, we study traffic scheduler Multilevel stochastic fairness queueing (MSFC) illustrated in \ref{fig10:msfc}. It combines ideas of previous work: CoDel and deficit round-robin, to create traffic scheduler. It uses three-level layout. In the highest level, packets are assigned to priority classes. We use non-fair DRR to prioritize more important traffic. Inside the classes, packets are distributed into flows (based on source and destination IP addresses, ports and protocol) and we use second, independent fair DRR to schedule traffic within the class. Each flow uses CoDel algorithm.
+In this thesis, we study traffic scheduler Multilevel stochastic fairness queueing (MSFC) illustrated in \ref{fig10:msfc}. It combines ideas of previous work: CoDel and deficit round-robin, to create traffic scheduler. It uses three-level layout. In the highest level, packets are assigned to priority classes. We use non-fair DRR to prioritize more important traffic. Inside the classes, packets are distributed into flows (based on source and destination IP addresses, ports and protocol) and we use second, independent fair DRR to schedule traffic within the class. Each flow uses a CoDel algorithm.
 
+%niektore z tychto parametrov su skorej implementacne, a bolo by ich mozno presunut nizsie do popisu linuxovej implementacie -- Backlog, Limit, lebo codelu je aj tak jedno ake su velke tie queues a mozno perturb? Perturb nemam ani implementovany v ns3.
 Additionally, it has following parameters:
 \begin{itemize}
 	\item $Limit$ --- the maximum amount of packets stored in the qdisc.
@@ -20,10 +21,10 @@ Additionally, it has following parameters:
 	\item $Flows$ --- the number of queues (CoDels) in each priority class (so there are $Prios*Flows$ total independent CoDels)
 	\item $Backlog$ --- the maximum backlogged bytes in an individual CoDel.
 	\item $Perturb$ --- number of seconds after flow-classification hash function changes
-	\item $Quantum$ --- the quantum parameter of the inner fair DRR (see \ref{DRR})
-	\item $Target$ --- target delay parameter for CoDel algorithm (see \ref{CoDel})
-	\item $Interval$ --- Interval parameter for CoDel algorithm (see \ref{CoDel})
-	\item $Ratio$ --- defines the ratio of bandwidth of two adjacent priority classes. The ratio is enforced by the outer DRR. MSFC uses $Ratio$ to compute quantums of all priority classes. The quantums rise exponentially:
+	\item $Quantum$ --- the quantum parameter of the inner fair DRR (see \autoref{DRR})
+	\item $Target$ --- target delay parameter for CoDel algorithm (see \autoref{CoDel})
+	\item $Interval$ --- Interval parameter for CoDel algorithm (see \autoref{CoDel})
+	\item $Ratio$ --- specifies the ratio of bandwidth of two adjacent priority classes. The ratio is enforced by the outer DRR. MSFC uses $Ratio$ to compute quantums of all priority classes. The quantums rise exponentially:
 	\[
 	Q_p = Quantum \cdot Ratio^p,
 	\]
@@ -31,9 +32,13 @@ Additionally, it has following parameters:
 \end{itemize}
 So if there are 3 classes with priorities 0, 1, 2 (like in the Figure \ref{fig10:msfc}), the upstream bandwidth will be distributed in ratio $1:Ratio:Ratio^2$.
 
-Note, that the ratio is independent of the number of flows in each class. Consider two classes with adjacent priorities 0 and 1. Priority 1 class has only one flow backlogged, priority 0 class has 100 flows. The one flow from priority 1 class is guaranteed to receive 2/3 of the bandwidth. The 1/3 is distributed fairly between the remaining 100 flows.
+The ratio of priority class bandwidths is independent of the number of flows in each class. Consider two classes with adjacent priorities 0 and 1. Priority 1 class has only one flow backlogged, priority 0 class has 100 flows. The one flow from priority 1 class is guaranteed to receive 2/3 of the bandwidth. The 1/3 is distributed fairly between the remaining 100 flows.
 
-%fq codel -new old distinction vs remembering quantum when deactivating
+As the Figure \ref{fig10:msfc} shows, enqueue consists of 3 steps. First, MSFC classifies the enqueued packet to determine the priority class. Different implementations may use different classifiers --- i. e. DSCP field of IP header or user--defined criteria. In the second step, MSFC hashes the five--tuple of source address, destination address, source port, destination port and transport protocol. Finally, the packet is timestamped for CoDel and enqueued in the queue determined by the hash.
+
+The dequeue is done in 3 steps as well. First, MSFC uses the outer non-fair DRR to determine the priority class to dequeue a packet. Second, MSFC uses the DRR that runs inside the particular priority class to choose the CoDel queue. Then, MSFC uses the CoDel algorithm (the CoDel dequeue from \autoref{CoDel}), that runs in the queue to dequeue the desired packet.
+
+% ?? kam a ci vobec ? fq codel -new old distinction vs MSFC - not reseting quantum when activating
 
 \section {Implementation}
 
@@ -49,41 +54,42 @@ We have implemented the MSFC algorithm into the Network simulator 3 (ns3) to eva
 
 To understand the Linux implementation, let us take a look how Linux controls network traffic. The Figure \ref{fig12:linux} shows the context of traffic control in the Linux kernel. It takes place at the bottom of the third (IP) layer, and stores packets that are ready to be handed over to the link layer (realised by Network Interface Card --- NIC).
 
-%The link layer is realised by Network Interface Cards (NIC) in common computers. So when a packet  So the traffic control queue is the place, where 
+%The link layer is realised by Network Interface Cards (NIC) in common computers. NIC is usually a separate hardware that is connected to motherboard of a computer. So when the kernel is about to actually send a packet, it needs to be moved from memory to the NIC. The transfer is not cheap. 
 
 There are three kinds of objects used in traffic control: qdisc (queuing discipline), class and filter \cite{tc}. Simply put, qdisc is traffic scheduler --- its role is to enqueue packets, store them, and choose an outgoing packet when NIC driver asks for one. Every interface must have at least one qdisc --- root qdisc. It may further contain child classes and each class contains exactly one qdisc. Classless qdiscs comprise only one qdisc object. Filter objects allow packet classifying and policing.
 
-When kernel decides a packet is ready to be sent, it enqueues the packet in root qdisc (that exists in every configuration). If the root qdisc is classful, it may end up in any of its child classes. An arbitrary number of filters may be assigned to every class. When a packet arrives to qdisc with multiple child classes, it calls all the filters one by one, until one of them returns with a verdict. The qdisc then enqueues the packet in child qdisc of the chosen class.
+When kernel decides a packet is ready to be sent, it enqueues the packet in root qdisc (that exists in every configuration). If the root qdisc is classful, it may end up in any of its child classes. An arbitrary number of filters may be assigned to every class. When a packet arrives to a qdisc with multiple child classes, it calls the filters one by one, until one of them returns with a verdict. The qdisc then enqueues the packet in the child qdisc of the chosen class.
 
-However, the concept of classes and filters is not obligatory to use, it depends on implementation of particular queueing discipline. For example, a classful qdisc may not use filters to classify packet, but use a different method instead (e.g. Type of Service field in IP header). Also qdisc may be classless in relation to Linux kernel, but still use internal 'classes' --- treat different groups of packets differently.
+However, the concept of classes and filters is not obligatory to use, it depends on implementation of particular queueing discipline. For example, a classful qdisc may not use any filters to classify a packet, but use a different method instead (e.g. Type of Service field in IP header). Also, a qdisc may be classless in relation to Linux kernel, but still use internal 'classes' --- treat different groups of packets differently.
 
-In the kernel, packets are represented by struct sk\_buff (socket buffer). This avoids copying of packets and provides us with attributes like pointer to socket where packet was created, timestamps, length, etc. One of the attributes is (queuing) priority. By default, the kernel sets the priority to value of field Type of Service from packet IP header. However, user may configure the system to change the priority in postrouting mangle phase (see Figure \ref{fig12:linux}) and thus classify packets even before they come to qdisc.
+In the kernel, packets are represented by struct sk\_buff (socket buffer). This avoids copying of packets and provides attributes like pointer to socket where packet was created, timestamps, length, etc. One of the attributes is (queuing) priority. By default, the kernel sets the priority to value of field Type of Service from packet IP header. However, user may configure the system to change the priority in postrouting mangle phase (see Figure \ref{fig12:linux}) and thus classify packets before they come to qdisc.
 
-The default qdisc is pfifo\_fast. It is three-band first-come first-serve scheduler. There are 3 independent FIFO queues, one for each priority. Pfifo\_fast classifies packets based on priority attribute of sk\_buff (it takes 4 least significant bits). The dequeue is simple: it iterates dequeues packet from highest priority non-empty FIFO queue.
+The default qdisc of Linux kernel is pfifo\_fast. It is three-band first-come first-serve scheduler. There are 3 independent FIFO queues, one for each priority. Pfifo\_fast classifies packets based on priority attribute of sk\_buff (it takes 4 least significant bits). The dequeue is simple: it dequeues packet from the highest priority queue that is not empty.
 
-Every qdisc is connected to the kernel via struct Qdisc\_ops. It defines pointers to methods that the kernel calls to operate the qdisc. Every qdisc then defines variable of type Qdisc\_ops and assigns implementations of corresponding methods to the members of the struct. The most important members are:
+Every qdisc is connected to the kernel via struct Qdisc\_ops. It defines pointers to methods that the kernel calls to operate the qdisc. Every qdisc then defines a variable of type Qdisc\_ops and assigns implementations of corresponding methods to the members of the struct. The most important members are:
 \begin{itemize}
 	\item enqueue --- Takes sk\_buff argument. It is called every time kernel adds a packet to the qdisc.
 	\item dequeue --- Returns dequeued packet.
 	\item peek --- Returns packet that the qdisc dequeues next.
-	\item init --- Kernel calls it to initialize the qdisc in the beginning of its operation. Here the qdisc may allocate memory and sets its parameters.
+	\item init --- Kernel calls it to initialize the qdisc in the beginning of its operation. Here the qdisc may allocate memory and set its parameters.
 	\item destroy --- It is called when operation of the qdisc stops. The qdisc should deallocate all its resources (memory, etc.).
 	\item reset --- Kernel calls it to reset the qdisc into the default (empty) state.
 \end{itemize}
 
-The Linux implementation follows the 3-level layout of the algorithm. priority class is represented by struct msfc\_prioclass and one CoDel flow by struct msfc\_flow. The amount of memory that the implementation needs is constant throughout the lifetime of qdisc, and it can be computed from parameters $Prios$, $Flows$. MSFC needs an array of priority classes of size $Prios$ and an array of CoDel flows of size $Prios * Flows$. The implementation allocates all the memory in the initialization (msfc\_init) of the qdisc.
+The Linux implementation follows the 3-level layout of the algorithm. Priority class is represented by struct msfc\_prioclass and one CoDel flow by struct msfc\_flow. The amount of memory that the implementation needs is constant throughout the lifetime of the qdisc, and it can be computed from parameters $Prios$, $Flows$. MSFC needs an array of priority classes of size $Prios$ and an array of CoDel flows of size $Prios * Flows$. The implementation allocates all the memory in the initialization (msfc\_init) of the qdisc.
 
 The enqueue function needs to determine the right CoDel flow to store the packet. Priority is taken solely from priority attribute of sk\_buff. Then, it uses Jenkins hash implemented in Linux to determine the right flow. The packet enqueued is then put in the back of flow using the pointer to the tail in msfc\_flow. 
 
-The dequeue implements two DRR algorithms and the CoDel algorithm. For each priority class, the quantums are computed during initialization. The qdisc holds pointer to the prioclass that is the next as well as its deficit. The msfc\_prioclass structs handle the state variables of the inner DRRs, which determine the flow from which the packet is dequeued. Finally, CoDel dequeue is used to obtain the packet --- the msfc\_flow struct contains the state of the CoDel algorithm used for the particular flow.
+The dequeue implements two DRR algorithms and the CoDel algorithm. For each priority class, the quantums are computed during initialization. The qdisc holds a pointer to the prioclass that is the next as well as its deficit. The msfc\_prioclass structs handle the state variables of the inner DRRs, which determine the flow from which the packet is dequeued. Finally, CoDel dequeue is used to obtain the packet --- the msfc\_flow struct contains the state of the CoDel algorithm used for the particular flow.
 
 \subsection {ns-3}
 
 Ns-3 (Network Simulator 3) is a discrete-event computer network simulator \cite{ns3}. It provides abstractions of real world objects and devices, and then simulates real (physical) phenomena and technologies as precisely as possible.  It allows us to perform replicable  experiments in a controlled environment that would never be possible in reality.
 
+\todo{vsetky mena(node, netdevice) zvyraznit emph alebo inak}
 One of key abstractions of ns-3 is \emph{node}. It represents a network device --- a computer, router, server, etc. Node itself does not have any functionality; It is a container, into which we may install applications, network interfaces and protocols.
 
-NetDevice is abstraction of network interface of a computer. One node may contain more NetDevices, just like common notebook may contain both WiFi and Ethernet interface cards. NetDevices are closely related to channels. A channel represents connection between nodes (more specifically netdevices). For example, it may model something as simple as Ethernet cable, but also complex things like three-dimensional space full of obstructions in case of wifi channel. The simplest channel is point-to-point channel, which connects two netdevices with configured bandwidth and delay.
+NetDevice is an abstraction of network interface of a computer. One node may contain more NetDevices, just like common notebook may contain both Wi-Fi and Ethernet interface cards. NetDevices are closely tied to channels. A channel represents connection between nodes (more specifically two or more NetDevices). For example, it may model something as simple as Ethernet cable, but also complex things like three-dimensional space full of obstructions in case of Wi-Fi channel. The simplest channel is point-to-point channel, which connects two NetDevices with configured bandwidth and delay.
 
 %seed
 %overview how it runs   It simulates all the proceses like real software does, and simulates the fact, that everything takes time in reality using the discrete events. Technically, an event is a timestamp with pointer to function and its parameters. Each event is processed at certain time and may generate additional events at later time. 
@@ -96,13 +102,13 @@ NetDevice is abstraction of network interface of a computer. One node may contai
 	\label{fig13:ns3}
 \end{figure}
 
-This concept of nodes, netdevices and channels works generally for all networks. To simulate the Internet we must install the Internet stack --- set of common protocols that are implemented in every device connected to the Internet. That includes TCP, UDP, IP (v4 or v6) or ARP. The whole ns3 stack is displayed in Figure \ref{fig13:ns3}. Traffic control takes place just before the packet is handed over to NetDevice. However, installing traffic control layer to a node is not mandatory; If none is present, ns-3 sends the packets directly to NetDevice.
+The concept of nodes, NetDevices and channels works generally for all networks. To simulate the Internet we must install the Internet stack --- a set of common protocols that are implemented in every device connected to the Internet. That includes TCP, UDP, IP (v4 or v6) or ARP. The whole ns3 stack is displayed in Figure \ref{fig13:ns3}. Traffic control takes place just before the packet is handed over to NetDevice. However, installing traffic control layer to a node is not mandatory; If none is present, ns-3 sends the packets directly to NetDevice.
 
 The ns-3 traffic control simulates the traffic control objects in the Linux kernel. Qdisc is represented by QueueDisc, class is QueueDiscClass and filter is named QueueDiscFilter. We implemented MSFC as QueueDisc, CoDel flow as QueueDiscClass and we use filters (one for IPv4 and one for IPv6) to hash packet headers to classify them into the CoDel flows.
 
-%The word class is overloaded in the next few paragraphs: one meaning is traffic control class and second is C++ class. We will use
+%Neviem ci je to zrozumitelne alebo nejaka takato poznamka by sa hodila The word class is overloaded in the next few paragraphs: one meaning is traffic control class and second is C++ class. We will use C++ class when we mean 
 
-The implementation is as straightforward as possible. We extend the C++ abstract class QueueDisc, the most important methods are again DoDequeue and DoEnqueue. We represent the MSFC priority class by C++ class MsfcPrioClass and one flow is represented by C++ class MsfcFlow. We use the ns-3 implementation of the CoDel algorithm --- there is a CoDel QueueDisc assigned to each MsfcFlow (using general QueueDiscClass mechanism). The actual packets are enqueued in the CoDel QueueDisc.
+The implementation is as straightforward as possible. We extend the C++ abstract class QueueDisc, the most important methods are DoDequeue and DoEnqueue. We represent the MSFC priority class by C++ class MsfcPrioClass and one flow is represented by C++ class MsfcFlow. We use the ns-3 implementation of the CoDel algorithm --- there is a CoDel QueueDisc assigned to each MsfcFlow (using general QueueDiscClass mechanism). The actual packets are enqueued in the CoDel QueueDisc.
 
 By default, we determine priority of a packet simply by DSCP field in its IP header. However user can change this easily using ns-3 attribute system by providing a different method that classifies packets. 
 
@@ -110,7 +116,7 @@ The usage of ns-3 CoDel helped us a lot --- we only need to find the right flow 
 
 In the dequeue, we implement the two--level DRR. We maintain a list of active priority classes --- the head of the list is the MsfcPrioClass that is the next in the outer DRR. Each MsfcPrioClass holds its deficit and quantum computed based on the priority when the first packet with the particular priority is enqueued. If the priority class does not have any packets, we deactivate it and remove from the list. We activate it again when a packet of the priority is enqueued.  
 
-The same applies to flows within each priority class. Each MsfcPrioClass contains a list of active flows and each MsfcFlow holds its deficit ( (we do not need quantum, because it is the same for all flows). We choose the right flow using the list and deficit of the flow that is the head of the list, and we dequeue from the underlying CoDel QueueDisc.   
+The same applies to flows within each priority class. Each MsfcPrioClass contains a list of active flows and each MsfcFlow holds its deficit (we do not need quantum, because it is the same for all flows). We choose the right flow using the list and deficit of the flow that is the head of the list, and we dequeue from the underlying CoDel QueueDisc.   
 
 
 

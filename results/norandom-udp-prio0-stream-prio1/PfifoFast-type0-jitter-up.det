@@ -1,0 +1,45 @@
+<type0 nBins="6" >
+  <bin index="0" start="0" width="0.001" count="587" />
+  <bin index="1" start="0.001" width="0.001" count="33" />
+  <bin index="2" start="0.002" width="0.001" count="3" />
+  <bin index="3" start="0.003" width="0.001" count="2" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+</type0>
+<type0 nBins="6" >
+  <bin index="0" start="0" width="0.001" count="620" />
+  <bin index="1" start="0.001" width="0.001" count="5" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+</type0>
+<type0 nBins="6" >
+  <bin index="0" start="0" width="0.001" count="617" />
+  <bin index="1" start="0.001" width="0.001" count="6" />
+  <bin index="3" start="0.003" width="0.001" count="2" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+</type0>
+<type0 nBins="6" >
+  <bin index="0" start="0" width="0.001" count="555" />
+  <bin index="1" start="0.001" width="0.001" count="48" />
+  <bin index="2" start="0.002" width="0.001" count="13" />
+  <bin index="3" start="0.003" width="0.001" count="6" />
+  <bin index="4" start="0.004" width="0.001" count="1" />
+  <bin index="5" start="0.005" width="0.001" count="3" />
+</type0>
+<type0 nBins="6" >
+  <bin index="0" start="0" width="0.001" count="520" />
+  <bin index="1" start="0.001" width="0.001" count="61" />
+  <bin index="2" start="0.002" width="0.001" count="20" />
+  <bin index="3" start="0.003" width="0.001" count="4" />
+  <bin index="4" start="0.004" width="0.001" count="2" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+</type0>
+<type0 nBins="5" >
+  <bin index="0" start="0" width="0.001" count="2" />
+  <bin index="4" start="0.004" width="0.001" count="1" />
+</type0>
+<type0 nBins="13" >
+  <bin index="0" start="0" width="0.001" count="578" />
+  <bin index="1" start="0.001" width="0.001" count="38" />
+  <bin index="2" start="0.002" width="0.001" count="8" />
+  <bin index="11" start="0.011" width="0.001" count="1" />
+  <bin index="12" start="0.012" width="0.001" count="1" />
+</type0>
