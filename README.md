@@ -72,7 +72,7 @@ An example:
 ```
 cd msfc/ns-allinone-3.28/ns-3.28/
 mkdir results
-./waf --cwd=results --run "msfc-benchmark --simDuration=100  --connectionDatarate=100Mbps --serversDatarate=1000Mbps --randomPriority=0 appCount=280 --queueDiscType=Msfc"
+./waf --cwd=results --run "msfc-benchmark --simDuration=100  --connectionDatarate=100Mbps --serversDatarate=1000Mbps --randomPriority=0 --appCount=280 --queueDiscType=Msfc"
 ```
 
 You can see all arguments of msfc-benchmark by running:
