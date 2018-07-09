@@ -1,25 +1,27 @@
 \chapter{Traffic scheduling}
 \label{chap:gf}
 %trosku este prepisat tento uvod
-One of the pieces of puzzle that make the Internet and generally packet-switched networks work is traffic scheduling. It lies between the second and the~third layer of OSI (or the TCP/IP). That means its turn comes after the network layer does its job: it determined the packet's next hop and particularly the link, through which the device is going to transmit the packet. Before the device hands it over to the data link layer and actually sends it, it waits in a buffer. The buffer is needed because of asynchronism of packet-switched networks (further reasons why buffers are needed are discussed in \autoref{chap:bb}). 
+One of the pieces of puzzle that make the Internet and generally packet-switched networks work is traffic scheduling. It lies between the second and the~third layer of OSI (or the TCP/IP). That means its turn comes \todo{its turn in what? guess: in each single router} after the network layer does \XX{did?} its job: it \XX{determined the packet's next hop and particularly the link,} through which the device is going to transmit the packet. Before the device hands it over to the data link layer and actually sends it, it waits in a buffer. The buffer is needed because of asynchronism of packet-switched networks (further reasons why buffers are needed are discussed in \autoref{chap:bb}).
 
-As the Internet grows, more and more different traffic flows through and more pressure is put on maintaining acceptable quality of service QoS. Ever-rising number of services are now provided through internet protocol, that require certain standards: IPTV, VoIP, teleconferencing. % The Internet consist of countless protocols, principles, ideas and algorithms. None of them are perfect, and perfecting any piece of puzzle may have far-reaching consequences.
+As the Internet grows, more and more different traffic flows \todo{tady to flows vypada dost jako podstatny jmeno, jako "traffic flows do something"...mozna mirne prefrazovat} through and more pressure is put on maintaining acceptable quality of service \XX{QoS}. Ever-rising number of services are now provided \todo{spis chces asi rict `occupy' nebo tak neco} through internet protocol, that require \XX{certain} standards: IPTV, VoIP, teleconferencing. % The Internet consist of countless protocols, principles, ideas and algorithms. None of them are perfect, and perfecting any piece of puzzle may have far-reaching consequences.
 
 %When people buy internet access, we pay for certain bandwidth, which Internet service provider (ISP) is obligated to guarantee. However, "internet speed" is not the only factor affecting our day-to-day experience. Great example is web browsing. Size of (most polite) web pages is negligible compared to bandwidth of today's connections. Still, it can take up to seconds to load a page, due to poor quality of service.
 %lepsi priklad^^
 
-The term quality of service is used to denote overall performance of the Internet service. Various measurements may be required for different services. Voice over Internet Protocol (VoIP), which enables us to phone each other over the IP, requires small delay, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements whatsoever. Here are some examples of measurements that affect quality of service:
+The term quality of service is used to denote overall performance of the Internet service. Various measurements may be required for different services. Voice over Internet Protocol (VoIP), which enables us\todo{allows users to} to phone each other over the IP \XX{protocol} requires small delay\todo{of what?}, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements whatsoever. Here are some examples of measurements that affect quality of service\todo{tadyto by bylo dobry rict jako `tyhle kvality se bezne oznacujou za QoS a my je budeme pozorovat', at to ma nejakou definitorickou hodnotu. Vklidu do tabulky. V ty samy tabulce muzes udelat i nejakej `feature matrix' o tom jaky servicy potrebujou jaky vlastnosti}:
 \begin{itemize}
 	\item Throughput --- the bit rate --- number of bits that can be transmitted per second
 	\item Packet loss --- ratio of packets, that never reach their destination to all packets.
-	\item Packer errors --- packet error happens, when the delivered packet is different than the sent packet.
+	\item Packe\XX{r} errors --- packet error happens, when the delivered packet is different than the sent packet.
 	\item Delay --- time that elapses between packet sending and receiving.
 	\item Jitter --- variance in delay of consecutive packets.
 \end{itemize}
 
-The natural simplest solution is to implement first-come first-serve (FCFS) queue. However, as shown throughout this chapter, problems arise, that can be solved by using more sophisticated methods instead.
+The natural simplest solution \todo{for what} is to implement first-come first-serve (FCFS) queue\todo{dost lidi to zna jako FIFO, mozna by nebylo spatny to napsat i tady}. However, as shown throughout this chapter, problems arise\todo{from what and when?}, that can\todo{must} be solved by using more sophisticated methods instead.
 
-There is wide range of requirements ideal traffic scheduler should satisfy. It starts with avoiding poor performance, and other negative phenomena observed in networks, continues with enforcing fairness for all applications (users). Internet service providers use scheduling to define the shape of traffic provided to customers. Researchers have realised the potential years ago and this chapter offers a summary of basic concepts used in the area.
+There is wide range of requirements ideal traffic scheduler should satisfy\todo{chce to predchozi pevnou definici traffic scheduleru}. \XX{It starts with}\todo{These include?} avoiding poor performance, and other negative phenomena observed in networks, continues with enforcing fairness for all applications (users). Internet service providers use scheduling to define the shape of traffic provided to customers. Researchers have realised the potential years ago and this chapter offers a summary of basic concepts used in the area.
+
+\todo{veta na zaver o carkach: Pred vedlejsima vetama ktery jde uvodit pomoci `that' se carka nedela, jen v extremnich pripadech kdy tam je fakt potreba pauza v reci. Pred and se carka nedela, krome Oxford Comma ktery slouzi pro odstraneni nejednoznacnosti. Obecne pokud je veta jednoznacne pochopitelna bez carky, carku nedelej.}
 
 
 %connection-oriented vs connectionless networks - connectionless are prone to statistical variations (bursts), while in connection-oriented it is easier to allocate the right amount of resources as the connection is began.
@@ -31,10 +33,10 @@ There is wide range of requirements ideal traffic scheduler should satisfy. It s
 \section{Bufferbloat}
 \label{chap:bb}
 
-In gateways of packet-switched networks, short-term differences between arrival and departure rate naturally happen. To balance these bursts, gateways use buffers --- packets wait in queues until they can be sent towards their destination. This helps avoiding outgoing link starvation and increases throughput. Without buffers, the gateway has no place to store incoming packets and they get dropped, which decrease throughput.
+In gateways of packet-switched networks, short-term differences between arrival and departure rate naturally happen\todo{mozna spis occurr naturally, as a result of XXX}. To balance these bursts, gateways use buffers --- packets \todo{which packets} wait in queues \todo{queues are buffers? where are the queues?} until they can be sent towards their destination. This helps avoiding outgoing link starvation \todo{mozna definice starvation} and \todo{therefore} increases throughput. Without buffers, the gateway has no place to store incoming packets and they get dropped\todo{in what situation}, which decreas\XX{e} throughput.
 
 
-However, the more packets are in a queue, the longer packets stay in it and the longer it takes to be delivered. Unfortunately, queues in modern networks tend to fill up and stay 'bloated' \cite{Gettys:2012:BDB:2063176.2063196}. That means some amount of packets always stay in the queue (it never becomes empty), even if there are no incoming bursts to balance.
+However\todo{tady jeste nemas nic proti cemu bys daval However --- mozna chces rict ze by asi ted mohlo vypadat, ze vetsi fronta je lepsi, jenze ne. :D}, the more packets are in a queue, the longer packets stay in it and the longer it takes \todo{for them} to be delivered\todo{forwarded?}. Unfortunately, queues in modern networks tend to fill up and stay 'bloated' \cite{Gettys:2012:BDB:2063176.2063196} --- some amount of packets always sta\XX{y} in the queue (it never becomes empty), even if there are no incoming bursts to balance. \todo{Proc to je spatne? (naprosto zbytecne se zveda ping)}
 
 \begin{figure}
 	\centering
@@ -43,7 +45,9 @@ However, the more packets are in a queue, the longer packets stay in it and the 
 	\label{fig01:no_bottle}
 \end{figure}
 
-To understand why queues become bloated, let's take a look at Transport Control Protocol (TCP), which is the most widely used layer 4 protocol. It achieves its reliability with the following policy: After a packet is transmitted, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must the sender resend. But waiting on ACK after each packet would provide miserable throughput and most of the time both sides would wait for single packet. Instead, the sender goes ahead and transmit packets without getting ACKs on previous ones. This fills the whole route, so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing. The situation is displayed in Figure \ref{fig01:no_bottle}.
+To understand why queues become bloated, let's take a look at Transport \todo{Transmission!} Control Protocol (TCP), which is \todo{currently} the most widely used layer 4 protocol. It achieves its reliability with the following policy: After a packet is transmitted, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must the sender resend. \XX{But} waiting \XX{on} ACK after each packet would provide miserable throughput and most of the time both sides would wait for single packet. Instead, the sender goes ahead and transmi\XX{t} packets without getting ACKs on previous ones. This fills the whole route, so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing. The situation is displayed in Figure \ref{fig01:no_bottle}.
+
+\todo{tadyto by chtelo trochu preskupit --- bufferbloat je obecne ten stav, ze buffery jsou zbytecne plny. To s tim TCP je jeden priklad toho, ze ani kdyz se endpointy dost snazej s tim neco udelat, tak maj solidni sanci to zmrsit. Also, chce to referenci na TCP RFC.}
 
 Figure \ref{fig01:no_bottle} shows connection with constant bandwidth along whole path, which is rarely the case in today's Internet. Typical path between the communicants consists of many hops with links of different bandwidth. That means somewhere must be a bottleneck - a link with lowest bandwidth. If the sender transmitted at the rate of the adjacent link, the network would become congested. The bottleneck link would not be able to forward all the incoming traffic, its buffer would fill, and the rest of the arriving packets would be dropped. That actually induces even more traffic, because sender would try to resend the dropped packets.
 
@@ -56,7 +60,6 @@ To maximize throughput, size of congestion window should be at least the (bottle
 %TCP uses slow start algorithm to find ideal congestion window at start, and then congestion control algorithm takes over to maintain it near the inflection point of maximized throughput and minimizing delay. This if solution to avoiding congestion collapse, but the Internet encounters problem of persistently full buffers - bufferbloat.
 
 
-
 Bufferbloat is caused by mismatch between congestion window and actual RTT \cite{CoDel}. In reality, estimating the window size is difficult. Always-changing network load affect both RTT and bandwidth, paths change thanks to rerouteing. Buffers can really only be measured at the bottleneck and even there it is hard to differentiate between useful and useless buffers that only cause delay.
 
 \begin{figure}
@@ -67,6 +70,7 @@ Bufferbloat is caused by mismatch between congestion window and actual RTT \cite
 	\label{fig02:bottle_1}
 \end{figure}
 
+\todo{tady uz trochu netusim jak to souvisi s predchozim odstavcem....mozna by to chtelo podsekci a nejakej mini uvod?}
 
 Figure \ref{fig02:bottle_1} shows a starting TCP communication. The illustrated network consists of 3 subnetworks. The left and the right have bandwidth 30 Mb/s, the middle one has 10 Mb/s. One packet has 30kb. The TCP Congestion window is 20 packets. The sender starts by transmitting whole window of packets back to back. They arrive at edge of the bottleneck network and get enqueued there, because of the bandwidth difference between left and middle subnetworks. A packet arrives from the left network every 1 ms, but only every 3 ms is one dequeued. At the right side, they retain spacing given by bottleneck as shown in Figure \ref{fig03:bottle_2}. The receiver turns incoming packets into ACKs with the same spacing. The sender then sends one packet of data for each ACK it gets.
 
@@ -80,22 +84,24 @@ This way, after one RTT, the whole connection gets into state of equilibrium. Th
 	\label{fig03:bottle_2}
 \end{figure}
 
-The reason, why the packets stay in the buffer in Figure \ref{fig03:bottle_2} is, that the congestion window is set to 5 more packets than the bandwidth-delay product. Determining the size of the congestion window is not an easy task. At start of TCP, slow start algorithm \cite{Jacobson:1988:CAC:52324.52356} is used to determine the size of congestion window. It grows exponentially, increasing size of the window with each ACK received, until a threshold is reached or a packet is dropped. After that, congestion avoidance takes over to maintain it. Over the years of TCP in service, many variants were introduced. Currently, CUBIC \cite{CUBIC} is used widely. 
+The reason\XX{,} why the packets stay in the buffer in Figure \ref{fig03:bottle_2} is\XX{,} that the congestion window is set to 5 more packets than the bandwidth-delay product. Determining the size of the congestion window is not an easy task. At start of TCP, slow start algorithm \cite{Jacobson:1988:CAC:52324.52356} is used to determine the size of congestion window. It grows exponentially, increasing size of the window with each ACK received, until a threshold is reached or a packet is dropped. After that, congestion avoidance takes over to maintain it. Over the years of TCP in service, many variants were introduced. Currently, CUBIC \cite{CUBIC} is used widely. 
 
 %emhasize that it is a way to communicate
 The congestion windows are managed by the TCP endpoints, while congestion and bufferbloat takes place in gateways along the path. There is no direct communication channel between them. When the buffer becomes full, the next packets must be dropped simply because there is no room for them. When TCP does not receive an ACK, it the congestion avoidance algorithm reduces the window and slows down.
 
-Explicit Congesion Notification (ECN) \cite{rfc3168:ECN} is relatively new protocol. There are 2 bits reserved for ECN in the IP header, so packets may be marked, that there is ongoing congestion. Both sides have to support ECN  - the receiver has to read the 2 bits and send ACK with the same bits back. The sender then may react like the ACK does not arrive at all. In May 2017, 70 \% of popular websites provided passive support for ECN\cite{ECN:proceedings}.
+Explicit Congesion Notification (ECN) \cite{rfc3168:ECN} is relatively new protocol\todo{used for what?}. There are 2 bits reserved for ECN in the IP header, so packets may be marked, that there is ongoing congestion. Both sides have to support ECN  - the receiver has to read the 2 bits and send ACK with the same bits back. The sender then may react like the ACK does not arrive at all. In May 2017, 70 \% of popular websites provided passive support for ECN\cite{ECN:proceedings}.
 
-This all indicated, that simple tail drop queues, which drop packets only when they are full may be superseded by more sophisticated queues right in the gateways. It involves the counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. But the drop indicates a problem, while still having room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet.
+This all indicate\XX{d,} that simple tail drop queues\XX{, which}\todo{that} drop packets only when they are full may be \todo{suboptimal for internet usage, and can be} superseded by more sophisticated queue\XX{s}\todo{-ing implementations?} \XX{right} in the gateways. It \todo{what?} involves \XX{the} counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. But the drop indicates a problem, while still having room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet.
 
+
+\todo{tady by to chtelo nejakou poznamku o tom ze ted zacnes rozvrtavat jednotlivy AQM. Pripadne na zacatku kapitoly.}
 
 \subsection{Random Early Detection}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/RED}
-	\caption{The Random Early Drop algorithm  (Image taken from wikipedia \cite{RED:picture}) }
+	\caption{The Random Early Drop algorithm (Image taken from \XX{w}ikipedia \cite{RED:picture}) }
 	
 	\label{fig04:RED}
 \end{figure}
@@ -104,13 +110,13 @@ This all indicated, that simple tail drop queues, which drop packets only when t
 
 In 1993, Sally Floyd and Van Jacobson introduced Random Early Drop (RED) \cite{Floyd:1993:RED:169931.169935}. It monitored the average length of queue. Based on the average, it may drop (mark) incoming packet with certain (possibly 100 \%) probability, which is function of average. It addressed congestion avoidance problem as well as TCP synchronization problem, that were encountered using tail drop. However, it had quite a few parameters, which have to be set differently in various networks. Without this tuning, it functioned poorly, which led to general reluctance of deployment, although it was recommended by Internet Engineering Task Force \cite{rfc2309} in 1998.
 
-To determine the average, RED uses exponential weighted moving average:
+To determine the average\todo{of what over what}, RED uses exponential weighted moving average:
 \[
 avg := (1 - w_q)avg+w_qq.
 \]
 $q$ is number of packets in the queue and $w_q$ is parameter of RED that represents degree of weighting decrease, or how much the average responds to new packets and how much weight have the past states. Too high $w_q$ would mean bias against short bursts. With lower $w_q$, the average is more fluid and queue responds to congestion slower.
 
-At each enqueue, the $avg$ is compared to two parameters $min_{th}$ and $max_{th}$, as shows Figure \ref{fig04:RED}. If it is lower than $min_{th}$, packet is just enqueued as is. If $avg$ is higher than $max_{th}$, the packet is marked (dropped). This ensures that if endpoints respond to the marking properly, or packets are actually dropped, the number of packets in queue will not exceed the maximum for long.
+At each enqueue\todo{enqueue tady je poprvy jako operace, mozna by nebylo od veci dat jeste pred tuhle sekci drobnej prehled API vsech AQM}, the $avg$ is compared to two parameters $min_{th}$ and $max_{th}$, as shows Figure \ref{fig04:RED}. If it is lower than $min_{th}$, packet is just enqueued as is. If $avg$ is higher than $max_{th}$, the packet is marked (dropped). This ensures that if endpoints respond to the marking properly, or packets are actually dropped, the number of packets in queue will not exceed the maximum for long.
 
 If $avg$ is between the thresholds $min_{th}$ and $max_{th}$, the packet is marked (dropped) with probability $p_a$, that is function of the average and number of packets since the last drop. Let $p_b$ be linear function of $avg$ that varies from 0 to $max_p$ ($max_p$ is parameter of RED):
 \[
@@ -123,44 +129,49 @@ p_a = \frac{p_b}{1-count \cdot p_b},
 where $count$ is number of packets that were enqueued since the last mark (drop). This ensures, that dropped packets will never be too far, nor too close to each other\cite[Section 7]{Floyd:1993:RED:169931.169935}.
 
 RED has also the option to work based on number of bytes in the buffer instead the number of packets. In this case:
-\[
-  p_b = max_p \frac{(avg - min_{th})}{max_{th} - min_{th}}
-\]\[
-  p_b = p_b \frac{size_{packet}}{size_{max}}
-\]\[
-  p_a = \frac{p_b}{1-count \cdot p_b},
-\]
+\begin{align*}
+p_b &= max_p \frac{(avg - min_{th})}{max_{th} - min_{th}}\\
+p_b &= p_b \frac{size_{packet}}{size_{max}},\\
+p_a &= \frac{p_b}{1-count \cdot p_b},
+\end{align*}
+\todo{ktera definice toho pb plati?}
 where $size_{packet}$ is size of the packet being enqueued and $size_{max}$ is maximum size of packet. This way, large packets are more likely to get marked, and the probability corresponds more precisely to actual time that the packets spend in the queue.
 
-%!!!!!!!!!!!!!!!!!!je v pohode tam dat takyto odstavec o ktorom neviem vela??
+%!!!!!!!!!!!!!!!!!!je v pohode tam dat takyto odstavec o ktorom neviem vela?? ---vicemene jo, mas k tomu citace. Je vhodny dat tam nejaky varianty "other" a "we do not discuss this here" aby bylo jasny ze se tomu nechces venovat.
 Over the years, several variants of RED have been introduced. With Weighted RED, different packets have different probability functions for different classes of traffic (classified for example by DSCP). Adaptive RED \cite{Floyd01adaptivered:} tunes the RED algorithm to remove sensitivity to some of the parameters. Robust RED \cite{RRED} was proposed to counter low-rate Denial-of-Service attacks.
+
+\todo{Tady by slo pridat trochu matematiky (nedostatek matematiky vycetli marcelovi) --- neda se nekde vycist/najit jak se odvodi ocekavana plnost REDu a shrnout to tady?}
 
 \subsection{CoDel}
 \label{CoDel}
-In 2012, Jacobson and Nichols introduced Controlled Delay (CoDel) algorithm \cite{CoDel}. Their AQM uses local minimum length of queue as indication of bufferbloat. Additionally, it works only with sojourn time --- the time packets spend in queue. That means it is independent of bandwidths of adjacent links, because it only works with time --- if it is deployed in a backbone, with 10 Gb/s bandwidth, acceptable queue will be 50 Mb big. On the other hand, on slow links, say 10 Mb/s, corresponding acceptable buffer is only 50 kb. CoDel measures the time packets spend in queue and if it exceeds a threshold for a longer uninterrupted time, it starts to drop packets.
+In 2012, Jacobson and Nichols introduced Controlled Delay (CoDel) algorithm \cite{CoDel}. Their AQM uses local minimum length \todo{nebylo by od veci rovnou rict ze `length' je casova a ne mnozstevni jednotka --- asi `local minimum waiting time'} of the queue as indication of bufferbloat. Additionally, it works only with sojourn time --- the time packets spend in queue. That means \todo{implies?} it is independent of bandwidths of adjacent links, \XX{because it only works with time} --- if it is deployed in a backbone\XX{,} with 10 Gb/s bandwidth, acceptable queue will be 50 Mb\todo{velikosti se bezne merej v bajtech, rychlosti v bitech. Coz je dementni, ale je fajn to dodrzovat. Doporucenej format jednotek je B,KB,MB,GB na velikosti a bps, Kbps, Mbps a Gbps pro rychlosti.} big. On the other hand, on an example slow 10 Mb/s link, the corresponding acceptable buffer is only 50 kb. CoDel measures the time packets spend in queue and if it exceeds a threshold for a longer uninterrupted time, it starts to drop packets.
 
-It has 2 parameters:
+It \todo{what? aha codel.} has 2 parameters:
 \begin{itemize}
-	\item $Target$ is the target delay CoDel tries to keep. Defaults at 5 ms.
-	\item $Interval$ sets period of time for which it is OK to exceed $Target$. Defaults at 100 ms.
+	\item \emph{Target} \todo{bacha na matematiku -- kdyz vysazis $Target$, matematicky to je 6 pismennych nazvu promennych a vypada to bez kerningu hnusne. Spravny je jedno z $\frac{\text{Target}}{\textsc{Target}}$.} is the target delay CoDel tries to keep. Defaults at 5 ms. \todo{Defaults where? In most implementations? Recommended?}
+	\item \emph{Interval} sets period of time for which it is OK to exceed $Target$\todo{tosamy}. Defaults at 100 ms.
 \end{itemize}
-So CoDel drops packets, if packets spend more than $Target$ time in the queue for more than $Interval$ time. Also, CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue.
+With these parameters, CoDel drops packets if they spend more than $Target$ time in the queue for more than $Interval$ time. Also, CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue.\todo{tohle je takovej dovetek kterej tam je kvuli work-conservation, to muzes vklidu presunout bud do poznamek nebo do kapitoly o implementace}.
 
-Every time a packet arrives, a time stamp is tagged to it. At dequeue, CoDel looks how long was the dequeued packet in the queue. If packets have exceeded the $Target$ time for at least $Interval$, CoDel enters dropping state. In this state, packets are dropped at an increasing rate until the sojourn time of packets at front is lower than $Target$. After each drop, the next drop time is calculated as follows:
+\todo{CoDel works in following way: } Every time a packet arrives, a time stamp is tagged to it. At dequeue, CoDel looks how long was the dequeued packet in the queue. If packets have exceeded the $Target$ time for at least $Interval$, CoDel enters dropping state. In this state, packets are dropped at an increasing rate until the sojourn time of packets at front is lower than $Target$. After each drop, the next drop time is calculated as follows:
 \[
   DropInterval = \frac{Interval}{\sqrt{count}},
 \]
 where count is the number of packets dropped since dropping state entry and DropInterval is the time after the next packet will be dropped.
 
---- je tu treba nejaky takyto transition? ---
+\todo{Tady bych ocekaval normalni algorithm listing s pseudokodem pro enqueue/dequeue.}
+
+\todo{Oponentova otazka: Proc je tam ta odmocnina? Je za tim trochu matematiky diky ktery to TCPckum ``akorat'' rekne o kolik maj zpomalit. Opsat tu matematiku z paperu by bylo fajn.}
+
+--- je tu treba nejaky takyto transition? --- \XX{je fajn}
  
-CoDel and RED both addressed the bufferbloat problem and both managed to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
+CoDel and RED both address\XX{ed} the bufferbloat problem and both manag\XX{ed} to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation \todo{especially if multiple non-cooperating traffic streams try to use this single queue at once}. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
 
 \section{Fair queueing}
 
-Research shows that simple first-come, first-serve (FCFS) scheduling does not treat all network users fairly in all situations. In many cases, we want to ensure that every user of a network is provided with the same quality of service. Further, it is beneficial if scheduling separates well and ill-behaved users, so that only the latter experience consequences of their behaviour. Set of algorithms that enable this is called fair queueing.
+Research shows \todo{`research shows' potrebuje citaci!} that simple first-come, first-serve (FCFS) scheduling does not treat all network users fairly in all situations. In many cases, we want to ensure that every user of a network is provided with the same quality of service. Further, it is beneficial if scheduling separates well and ill-behaved users, so that only the latter experience consequences of their behaviour. Set of \todo{AQM} algorithms that enable this is called fair queueing.
 
-In many of the proposed solutions, fairness is achieved by adding firewalls between different streams of packets traversing network, or flows. We use definition from \cite{Zhang:1990:VCN:99517.99525}. A flow has two properties:
+In many of the proposed solutions, fairness is achieved by adding firewalls \todo{definice firewallu? mozna chces pouzit uplne jiny slovo} between different streams of packets traversing network, or flows. We use definition from \cite{Zhang:1990:VCN:99517.99525}. A flow has two properties:
 \begin{itemize}
 	\item A flow is a stream of packets that traverses the same route from the source to the destination and requires the same grade of service at each router or gateway in the path.
 	\item In addition, every packet can be uniquely assigned to a flow using prespecified fields in the packet header.
@@ -169,7 +180,7 @@ In many of the proposed solutions, fairness is achieved by adding firewalls betw
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/parking_lot}
-	\caption{The parking lot problem.}
+	\caption{The parking lot problem. \XX{v captionu je potreba vysvetlit co znamenaj ty cisla}}
 	
 	\label{fig05:ParkingLot}
 \end{figure}
@@ -182,7 +193,7 @@ To battle these problems, Nagle \cite{Nagle:FQ} proposed to use one FCFS queue p
 
 %flow stealing
 
-This solves both of mentioned problems, maintaining separate queue for each flow requires that the gateway to be able to map from flow identifiactor (for example source-destination address pair, ports and protocol may be considered too) to corresponding queue at each dequeue. This can be easily implemented in $O(log n)$, where n is number of queues, however that is not fast enough for simple routers with ever-rising bandwidths. McKenney discusses several possible implementations in \cite[Section 2]{SFQ}.
+This solves both of mentioned problems, maintaining separate queue for each flow requires that the gateway to be able to map from flow identifiactor (for example source-destination address pair, ports and protocol may be considered too) to corresponding queue at each dequeue. This can be easily implemented in $O(log n)$ \todo{tohle si prosim vsude predelej na $\mathcal{O}(\log n)$.}, where n is number of queues, however that is not fast enough for simple routers with ever-rising bandwidths. McKenney discusses several possible implementations in \cite[Section 2]{SFQ}.
 
 Nagle's original algorithm has yet another flaw --- it doesn't take packet size into consideration. So if flow A sends only 100B packets, and flow B sends 500B packets, flow B gets five times more bandwidth. To address the flaw,  Demers et al. devised an ideal algorithm called bit-by-bit round-robin (BR) \cite{demers1989analysis}. It simulates that each queue sends one bit at a time in round-robin fashion. Based on this simulation, it computes time $t$ the whole packet would leave its queue. Then, BR inserts the packet in a queue sorted by $t$. Unfortunately, the best known algorithms that insert into sorted queue require $O(log n)$ time, where n is the number of flows (since at most one packet from each flow needs to be in the priority queue at the same time).
 
@@ -214,10 +225,14 @@ The novelty of DRR lies in modified round-robin. There is a state variable $DC_i
 \]
 $b_{sent}$ is number of bytes sent that round from queue i --- that is subtracted from $DC_i$. Further, DRR replenishes the deficit counter, so it may send packets in the next round. If there are no packets in queue left, it is deactivated instead of putting it in the back.
 
-\begin{algorithm}
-	\caption{DRR dequeue}
+\begin{algorithm}[t]
+	\caption{DRR queueing algorithm}
 	\label{alg01:DRR_deq}
 	\begin{algorithmic}
+	\Function{enqueue}{}
+		\State \Return \XX{TODO}
+	\EndFunction
+	\Function{dequeue}{}
 		\While{true}
 			\State F $\leftarrow$ pop(ActiveQueues);
 			\If {empty(F)}
@@ -231,20 +246,21 @@ $b_{sent}$ is number of bytes sent that round from queue i --- that is subtracte
 				\State push(ActiveQueues, F)
 			\EndIf
 		\EndWhile
+	\EndFunction
 	\end{algorithmic}
 \end{algorithm}
 
 Although DRR may not send exactly the same amount of bytes each round, it becomes fair (if all $Q_i$ are equal) in several rounds time, because every round, all that remains in $DC_i$ from the previous round transfers to the next. Thus, any unfairness caused by atomicity of packets are smoothed over time.
 
 %analyza??
+\todo{je potreba odkazat refem algoritmus z textu}
 
 \subsection{Flow Queue CoDel}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/fq_codel}
-	\caption{FQ CoDel state-machine}
-	
+	\caption{FQ-CoDel state-machine. \XX{Sipku vlevo nahore by to chtelo okomentovat jako `start' protoze takhle vypada trochu jako enqueue.}}
 	\label{fig06:fqcodel}
 \end{figure}
 
@@ -272,7 +288,7 @@ FQ CoDel is fast and simple enough to be deployed in ordinary home routers. Furt
 
 \section{Traffic shaping}
 
-In some applications, perfectly fair queueing (the same bandwidth for all) may not be emphasized. Instead, it is beneficial, to give up the best-effort basis in order to maintain good QoS for all users and services in the network, as different services have different needs and different users have different service level agreements. 
+In some applications, perfectly fair queueing (the same bandwidth for all) may not be emphasized\todo{applicable?}. Instead, it is beneficial\XX{,} to give up the best-effort basis in order to maintain good QoS for all users and services in the network, as different services have different needs and different users have different service level agreements. 
 
 Traffic shaping is set of techniques for regulating the average rate and burstiness of a flow of data that enters the network. The customer and ISP agree on certain traffic pattern (or shape) that provider then shall guarantee. ISP tries to suit all application's requirements for QoS. Also, the goal is to describe traffic patterns in a simple and robust way. Traffic shaping provides ISP with the ways to do it. It is also suitable for congestion avoidance, since it controls amount of traffic in network.
 
@@ -369,5 +385,5 @@ The yellow classes may only borrow from its parent, if it is not red. If it is y
 
 In other words, HTB uses the token bucket hierarchy to mark classes with colour and thus prioritize ones, that have not received $rate$. On the second level, it prioritizes classes with higher priority. On the third level, all classes are equal, thus it uses DRR. On the fourth level, there is usually FCFS queue to buffer the withheld packets. However, in the implementation in the Linux kernel, one may assign any qdisc to each class.
 
-%HFSC
+%HFSC --- asi neni potreba, mozna bys moh udelat jen nejakej rychlokapitolu s tim ze "other queueing disciplines" kde rychle zminis HFSC, CBQ, PIE, BLUE, Choke, QFQ a podobny kraviny a nejak rychle to uzavres.
 %zaver?

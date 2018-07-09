@@ -15,7 +15,7 @@
 %\let\openright=\clearpage
 
 %% Settings for two-sided (duplex) printing
-\documentclass[12pt,a4paper,oneside,openright]{report}
+\documentclass[12pt,a4paper,twoside,openright]{report}
 % \setlength\textwidth{145mm}
 % \setlength\textheight{247mm}
 % \setlength\oddsidemargin{14.2mm}
@@ -58,6 +58,8 @@
 \usepackage[a-2u]{pdfx}
 \setitemize{itemsep=0pt}
 %\usepackage[usenames]{xcolor}  % typesetting in color
+\usepackage[textsize=tiny]{todonotes}
+\newcommand{\XX}[1]{\textcolor{red}{#1}}
 
 %%% Basic information on the thesis
 
