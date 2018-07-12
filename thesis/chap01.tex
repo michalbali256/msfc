@@ -1,42 +1,59 @@
 \chapter{Traffic scheduling}
 \label{chap:gf}
 %trosku este prepisat tento uvod
-One of the pieces of puzzle that make the Internet and generally packet-switched networks work is traffic scheduling. It lies between the second and the~third layer of OSI (or the TCP/IP). That means its turn comes \todo{its turn in what? guess: in each single router} after the network layer does \XX{did?} its job: it \XX{determined the packet's next hop and particularly the link,} through which the device is going to transmit the packet. Before the device hands it over to the data link layer and actually sends it, it waits in a buffer. The buffer is needed because of asynchronism of packet-switched networks (further reasons why buffers are needed are discussed in \autoref{chap:bb}).
+One of the pieces of puzzle that make the Internet and generally packet-switched networks work is traffic scheduling. It lies between the second and the~third layer of OSI (or between link and internet layer of the TCP/IP). That means its turn in each single router comes after the network layer did its job: it \XX{determined the packet's next hop and particularly the link,} through which the device is going to transmit the packet. Before the device hands it over to the data link layer and actually sends it, it waits in a buffer. The buffer is needed because of asynchronism of packet-switched networks (further reasons why buffers are needed are discussed in \autoref{chap:bb}).
 
-As the Internet grows, more and more different traffic flows \todo{tady to flows vypada dost jako podstatny jmeno, jako "traffic flows do something"...mozna mirne prefrazovat} through and more pressure is put on maintaining acceptable quality of service \XX{QoS}. Ever-rising number of services are now provided \todo{spis chces asi rict `occupy' nebo tak neco} through internet protocol, that require \XX{certain} standards: IPTV, VoIP, teleconferencing. % The Internet consist of countless protocols, principles, ideas and algorithms. None of them are perfect, and perfecting any piece of puzzle may have far-reaching consequences.
+A traffic scheduler manages the sequence of packets that flow through a device. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue returns the next packet to transmit.
 
-%When people buy internet access, we pay for certain bandwidth, which Internet service provider (ISP) is obligated to guarantee. However, "internet speed" is not the only factor affecting our day-to-day experience. Great example is web browsing. Size of (most polite) web pages is negligible compared to bandwidth of today's connections. Still, it can take up to seconds to load a page, due to poor quality of service.
-%lepsi priklad^^
+The natural simplest traffic scheduler is a FIFO queue --- the packets are transmitted by the order of their arrival. In traffic scheduling context, the queue is often referred to as first-come first-serve (FCFS) queue. However, as shown throughout this chapter, problems arise from using such simple solution, that must be solved by using more sophisticated methods instead.
 
-The term quality of service is used to denote overall performance of the Internet service. Various measurements may be required for different services. Voice over Internet Protocol (VoIP), which enables us\todo{allows users to} to phone each other over the IP \XX{protocol} requires small delay\todo{of what?}, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements whatsoever. Here are some examples of measurements that affect quality of service\todo{tadyto by bylo dobry rict jako `tyhle kvality se bezne oznacujou za QoS a my je budeme pozorovat', at to ma nejakou definitorickou hodnotu. Vklidu do tabulky. V ty samy tabulce muzes udelat i nejakej `feature matrix' o tom jaky servicy potrebujou jaky vlastnosti}:
+Traffic scheduling severely affects overall performance of networks and particularly the Internet. Because of the universal Internet availability, ever-rising number of services now utilizes the internet protocol, instead of using traditional transfer media (e.g. IPTV, VoIP, teleconferencing). This results in more pressure on maintaining acceptable quality of service (QoS).
+
+The term quality of service is used to denote overall performance of the Internet. There are a few measurable qualities, that are considered to represent QoS well. They are also used to measure performance of traffic schedulers:
 \begin{itemize}
-	\item Throughput --- the bit rate --- number of bits that can be transmitted per second
+	\item Throughput --- the bit rate --- number of bits that are transmitted per second
 	\item Packet loss --- ratio of packets, that never reach their destination to all packets.
-	\item Packe\XX{r} errors --- packet error happens, when the delivered packet is different than the sent packet.
+	%\item Packet errors --- a packet error happens, when the delivered packet is different than the sent packet.
+	%packet error nesuvisi s traffis schedulingom, nevidim dovod preco ho spominat.
 	\item Delay --- time that elapses between packet sending and receiving.
 	\item Jitter --- variance in delay of consecutive packets.
 \end{itemize}
 
-The natural simplest solution \todo{for what} is to implement first-come first-serve (FCFS) queue\todo{dost lidi to zna jako FIFO, mozna by nebylo spatny to napsat i tady}. However, as shown throughout this chapter, problems arise\todo{from what and when?}, that can\todo{must} be solved by using more sophisticated methods instead.
+Various qualities may be required for different services. Voice over Internet Protocol (VoIP), which allows users to to phone each other over the IP requires small packet delay, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements whatsoever. Table \ref{tab:QoS} shows different services and their QoS requirements \cite{Tanenbaum:2002:CN:572404}.
 
-There is wide range of requirements ideal traffic scheduler should satisfy\todo{chce to predchozi pevnou definici traffic scheduleru}. \XX{It starts with}\todo{These include?} avoiding poor performance, and other negative phenomena observed in networks, continues with enforcing fairness for all applications (users). Internet service providers use scheduling to define the shape of traffic provided to customers. Researchers have realised the potential years ago and this chapter offers a summary of basic concepts used in the area.
+\begin{table}[]
+	\caption{Stringency of services’ quality-of-service requirements.}
+	\todo{nevyzera ta tabulka divno? trosku som ju zmensil, aby nafitovala sirku stranky}
+	\label{tab:QoS}
+	\centering
+	\resizebox{\columnwidth}{!}{%
+		\begin{tabular}{@{}lllll@{}}
+			\toprule
+			Service & Throughput & Delay & Jitter & Loss \\ \midrule
+			E-mail & Low & Low & Low & Medium \\
+			File sharing (e.g. FTP) & High & Low & Low & Medium \\
+			Web access (e.g. HTTP) & Medium & Medium & Low & Medium \\
+			Remote login (e.g. SSH) & Low & Medium & Medium & Medium \\
+			Audio on demand (e.g. Spotify) & Low & Low & High & Low \\
+			Video on demand (e.g. YouTube)& High & Low & High & Low \\
+			Telephony (e.g. VoIP) & Low & High & High & Low \\
+			Videoconferencing (e.g. Skype) & High & High & High & Low \\ \bottomrule
+		\end{tabular}
+	}
+\end{table}
 
-\todo{veta na zaver o carkach: Pred vedlejsima vetama ktery jde uvodit pomoci `that' se carka nedela, jen v extremnich pripadech kdy tam je fakt potreba pauza v reci. Pred and se carka nedela, krome Oxford Comma ktery slouzi pro odstraneni nejednoznacnosti. Obecne pokud je veta jednoznacne pochopitelna bez carky, carku nedelej.}
 
-
-%connection-oriented vs connectionless networks - connectionless are prone to statistical variations (bursts), while in connection-oriented it is easier to allocate the right amount of resources as the connection is began.
-
-
+There is a wide range of requirements an ideal traffic scheduler should satisfy. These include avoiding poor performance and other negative phenomena observed in networks and enforcing fairness for all applications (users). Internet service providers use scheduling to define the shape of traffic provided to customers. Researchers have realised the potential of a traffic scheduler years ago and this chapter offers a summary of basic concepts used in the area.
 
 
 
 \section{Bufferbloat}
 \label{chap:bb}
 
-In gateways of packet-switched networks, short-term differences between arrival and departure rate naturally happen\todo{mozna spis occurr naturally, as a result of XXX}. To balance these bursts, gateways use buffers --- packets \todo{which packets} wait in queues \todo{queues are buffers? where are the queues?} until they can be sent towards their destination. This helps avoiding outgoing link starvation \todo{mozna definice starvation} and \todo{therefore} increases throughput. Without buffers, the gateway has no place to store incoming packets and they get dropped\todo{in what situation}, which decreas\XX{e} throughput.
+In gateways of packet-switched networks, short-term differences between arrival and departure rate occur naturally, as a result of network multiplexing and applications' behaviour. To balance these bursts, gateways use buffers --- packets \todo{which packets} wait in queues \todo{queues are buffers? where are the queues?} until they can be sent towards their destination. This helps avoiding outgoing link starvation \todo{mozna definice starvation} and therefore increases throughput. Without buffers, the gateway has no place to store incoming packets and thus has to drop them, which decreases throughput.
 
 
-However\todo{tady jeste nemas nic proti cemu bys daval However --- mozna chces rict ze by asi ted mohlo vypadat, ze vetsi fronta je lepsi, jenze ne. :D}, the more packets are in a queue, the longer packets stay in it and the longer it takes \todo{for them} to be delivered\todo{forwarded?}. Unfortunately, queues in modern networks tend to fill up and stay 'bloated' \cite{Gettys:2012:BDB:2063176.2063196} --- some amount of packets always sta\XX{y} in the queue (it never becomes empty), even if there are no incoming bursts to balance. \todo{Proc to je spatne? (naprosto zbytecne se zveda ping)}
+However\todo{tady jeste nemas nic proti cemu bys daval However --- mozna chces rict ze by asi ted mohlo vypadat, ze vetsi fronta je lepsi, jenze ne. :D}, the more packets are in a queue, the longer packets stay in it and the longer it takes to be forwarded, which increases delay. Unfortunately, queues in modern networks tend to fill up and stay 'bloated' \cite{Gettys:2012:BDB:2063176.2063196} --- some amount of packets always stays in the queue (it never becomes empty), even if there are no incoming bursts to balance. \todo{Proc to je spatne? (naprosto zbytecne se zveda ping)}
 
 \begin{figure}
 	\centering
@@ -45,7 +62,7 @@ However\todo{tady jeste nemas nic proti cemu bys daval However --- mozna chces r
 	\label{fig01:no_bottle}
 \end{figure}
 
-To understand why queues become bloated, let's take a look at Transport \todo{Transmission!} Control Protocol (TCP), which is \todo{currently} the most widely used layer 4 protocol. It achieves its reliability with the following policy: After a packet is transmitted, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must the sender resend. \XX{But} waiting \XX{on} ACK after each packet would provide miserable throughput and most of the time both sides would wait for single packet. Instead, the sender goes ahead and transmi\XX{t} packets without getting ACKs on previous ones. This fills the whole route, so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing. The situation is displayed in Figure \ref{fig01:no_bottle}.
+To understand why queues become bloated, let's take a look at Transmission Control Protocol (TCP), which is \todo{currently} the most widely used layer 4 protocol. It achieves its reliability with the following policy: After a packet is transmitted, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must the sender resend. \XX{But} waiting \XX{on} ACK after each packet would provide miserable throughput and most of the time both sides would wait for single packet. Instead, the sender goes ahead and transmi\XX{t} packets without getting ACKs on previous ones. This fills the whole route, so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing. The situation is displayed in Figure \ref{fig01:no_bottle}.
 
 \todo{tadyto by chtelo trochu preskupit --- bufferbloat je obecne ten stav, ze buffery jsou zbytecne plny. To s tim TCP je jeden priklad toho, ze ani kdyz se endpointy dost snazej s tim neco udelat, tak maj solidni sanci to zmrsit. Also, chce to referenci na TCP RFC.}
 
@@ -146,7 +163,7 @@ Over the years, several variants of RED have been introduced. With Weighted RED,
 \label{CoDel}
 In 2012, Jacobson and Nichols introduced Controlled Delay (CoDel) algorithm \cite{CoDel}. Their AQM uses local minimum length \todo{nebylo by od veci rovnou rict ze `length' je casova a ne mnozstevni jednotka --- asi `local minimum waiting time'} of the queue as indication of bufferbloat. Additionally, it works only with sojourn time --- the time packets spend in queue. That means \todo{implies?} it is independent of bandwidths of adjacent links, \XX{because it only works with time} --- if it is deployed in a backbone\XX{,} with 10 Gb/s bandwidth, acceptable queue will be 50 Mb\todo{velikosti se bezne merej v bajtech, rychlosti v bitech. Coz je dementni, ale je fajn to dodrzovat. Doporucenej format jednotek je B,KB,MB,GB na velikosti a bps, Kbps, Mbps a Gbps pro rychlosti.} big. On the other hand, on an example slow 10 Mb/s link, the corresponding acceptable buffer is only 50 kb. CoDel measures the time packets spend in queue and if it exceeds a threshold for a longer uninterrupted time, it starts to drop packets.
 
-It \todo{what? aha codel.} has 2 parameters:
+CoDel has 2 parameters:
 \begin{itemize}
 	\item \emph{Target} \todo{bacha na matematiku -- kdyz vysazis $Target$, matematicky to je 6 pismennych nazvu promennych a vypada to bez kerningu hnusne. Spravny je jedno z $\frac{\text{Target}}{\textsc{Target}}$.} is the target delay CoDel tries to keep. Defaults at 5 ms. \todo{Defaults where? In most implementations? Recommended?}
 	\item \emph{Interval} sets period of time for which it is OK to exceed $Target$\todo{tosamy}. Defaults at 100 ms.
@@ -162,8 +179,6 @@ where count is the number of packets dropped since dropping state entry and Drop
 \todo{Tady bych ocekaval normalni algorithm listing s pseudokodem pro enqueue/dequeue.}
 
 \todo{Oponentova otazka: Proc je tam ta odmocnina? Je za tim trochu matematiky diky ktery to TCPckum ``akorat'' rekne o kolik maj zpomalit. Opsat tu matematiku z paperu by bylo fajn.}
-
---- je tu treba nejaky takyto transition? --- \XX{je fajn}
  
 CoDel and RED both address\XX{ed} the bufferbloat problem and both manag\XX{ed} to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation \todo{especially if multiple non-cooperating traffic streams try to use this single queue at once}. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
 
