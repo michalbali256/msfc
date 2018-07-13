@@ -157,7 +157,7 @@ where count is the number of packets dropped since dropping state entry and Drop
 CoDel and RED both addressed the bufferbloat problem and both managed to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
 
 \section{Fair queueing}
-
+\label{sec:fair_queueing}
 Research shows that simple first-come, first-serve (FCFS) scheduling does not treat all network users fairly in all situations. In many cases, we want to ensure that every user of a network is provided with the same quality of service. Further, it is beneficial if scheduling separates well and ill-behaved users, so that only the latter experience consequences of their behaviour. Set of algorithms that enable this is called fair queueing.
 
 In many of the proposed solutions, fairness is achieved by adding firewalls between different streams of packets traversing network, or flows. We use definition from \cite{Zhang:1990:VCN:99517.99525}. A flow has two properties:
