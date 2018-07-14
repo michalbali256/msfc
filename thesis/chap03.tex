@@ -21,7 +21,7 @@ The clients download and upload data. All the traffic flows between the server a
 
 The applications with variable bit rate turn on and off on irregular basis. During off period, it sends zero packets and during on time it sends packets at configured constant rate. The on times and off times are generated randomly --- using normal distribution $\mathcal{N}(1,1)$.
 
-The count ratio column specifies the ratio of number of applications installed per type. The values in the \autoref{tab:traffic} mean, that there are 30 times more HTTP flows than SSH flows. We set the total number of applications to 280 --- 2 applications are installed on every client. 
+The count ratio column specifies the ratio of number of applications installed per type. The values in the \autoref{tab:traffic} mean, that there are 30 times more HTTP flows than SSH flows. We set the total number of applications to 280 --- roughly 2 applications are installed on every client. 
 
 \begin{table}
 	\caption{Types of flows used in the simulations}
@@ -52,22 +52,28 @@ We measured throughput, packet loss, delay and jitter using ns-3 module FlowMoni
 \]
 where $P_N$ is the n-th received packet. We measure all the values in the IP layer. That means we count in IP header, but not frame header (link layer header). Also, TCP--retransmitted packets count separately.
 
+Using the testbed described, we ran several simulations with slightly different prioritization of flows. In each simulation, we assigned the same priority to all flows of the same type. We configured the simulation duration to 100 seconds.
 
-\section{Simulations}
+Also, we only present results of 'download' direction --- the upload direction does not have enough throughput, and since we use full--duplex point-to-point links, the results are not interesting. The traffic schedulers do not have effect, if the network has enough bandwidth to transmit all potential traffic. 
+
+
+
+
+
+
+\section{Simulation A}
 
 \todo{rozlozenie obrazkov a tabuliek na stranky a ich poradie}
  
 %\input{flows_prio.tex}
 
-\input{tab_flows_count.tex}
+\input{tab_flows_count_A.tex}
 
 \input{simulation_A.tex}
 
-%we only present results of 'download' direction, since the upload direction does not have enough throughput for the results to be interesting
 
-Using the testbed described, we ran several simulations with slightly different prioritization of flows. In each simulation, we assigned the same priority to all flows of the same type. The priorities are listed in Table \ref{tab:flows_prio}. The Table \ref{tab:flows_count} shows number of flows of individual types and priorities. It is the result of the flow classification from Table \ref{tab:flows_prio}, the count ratio from Table \ref{tab:traffic} and maximum number of flows equal to 280.  
+In simulation A, we assigned priorities to types of flows according to in Table \ref{tab:flows_count_A}. The Table \ref{tab:flows_count_A} shows also number of flows of individual types. It is the result of the flow priorities, the count ratio from Table \ref{tab:traffic} and maximum number of flows equal to 280.  
 
-\subsection{Simulation A}
 
 The overall results of simulation A are shown in Table \ref{tab:results_A}. It gives us general overview, however the average of delay and packet loss does not represent the data well. Table \ref{tab:delay_A} shows average delay of types of flows, Table \ref{tab:loss_A} shows number of lost packets and Table \ref{tab:throughput_A} shows how much throughput receive an average flow of particular type.
 
@@ -83,25 +89,12 @@ Another thing we can observe is, that MSFC responds to the assigned priorities w
 
 Figure \ref{fig:delay_flows} shows detailed comparison of delays of FQ CoDel and MSFC (we do not compare CoDel and pfifo\_fast, since their delay was much higher).
 
-\subsection{Simulation B}
-
-
-
-
-\section{Discussion}
-
-
-
-
-
-
-
-
 
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/overall-delay-down}
 	\caption{The distribution of delay in seconds. Packets with delay higher than 0.4 seconds are omitted in the distribution, but the means are computed from all values. This restriction results in displaying 93\% of data. However, the few packets have such high delay, that it considerably affects the arithmetic means. }
+	
 	\label{fig:overall_delay}
 \end{figure}
 
@@ -147,9 +140,77 @@ Figure \ref{fig:delay_flows} shows detailed comparison of delays of FQ CoDel and
 		{{\small Delay of Download flows}}    
 		\label{fig:delay_download}
 	\end{subfigure}
-	\caption[ The average and standard deviation of critical parameters ]
+	\caption[]
 	{\small The distribution of delay of different types of flows. We omit few extreme values to get better visualization, however the means are calculated from all values.} 
 	\label{fig:delay_flows}
 \end{figure*}
+
+
+
+
+
+\clearpage
+\subsection{Simulation B}
+
+\input{tab_flows_count_B}
+
+
+In second simulation we demonstrate that assigning the priorities to flows may not be as straightforward as it may seem when using MSFC. We ran the simulation with priorities according to Table \ref{tab:flows_count_B}. The overall results of the simulation is shown in Table \ref{tab:results_B}. The performance of all schedulers except MSFC remained unchanged, since MSFC is the only scheduler that takes priorities into consideration.
+
+The comparisons of delay, loss and throughput are shown in Tables \ref{tab:delay_B}, \ref{tab:loss_B} and \ref{tab:throughput_B}. The biggest difference is noticeable in the throughput of torrent flows. With this priority assignment, MSFC gave torrent almost two times higher throughput than FQ CoDel, although we assigned the lowest priority to the torrent flows. All the priority 1 flows have less throughput and worse delay. This unpleasant behaviour is caused by the distribution of flows into the priorities (see Table \ref{tab:flows_count_B}) and the fact, that MSFC treats flows of different priority classes absolutely separately. There are too many flows, that 'fight' for the bandwidth of priority 1 class, while there are few flows, that have whole priority 0 class reserved for them.
+
+The priority 2 flows results ended up without any notable difference. Also it is worth mentioning, that even though we assigned flows with low data rate to the priority 2 class, which reserves huge bandwidth, it did not affect the overall throughput negatively. When packets of the highest priority class were not available, its bandwidth was assigned to the rest of priority classes.
+
+
+\input{simulation_B.tex}
+
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{drawings/type1-delay-down}
+		\caption[]%
+		{{\small Delay of VoIP flows}}    
+		\label{fig:delay_voip}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.475\textwidth}  
+		\centering 
+		\includegraphics[width=\textwidth]{drawings/type3-delay-down}
+		\caption[]%
+		{{\small Delay of TV flows}}    
+		\label{fig:delay_tv}
+	\end{subfigure}
+	\par\bigskip % force a bit of vertical whitespace
+	\begin{subfigure}[b]{0.475\textwidth}   
+		\centering 
+		\includegraphics[width=\textwidth]{drawings/type4-delay-down}
+		\caption[]%
+		{{\small Delay of HTTP flows}}    
+		\label{fig:delay_http}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[b]{0.475\textwidth}   
+		\centering 
+		\includegraphics[width=\textwidth]{drawings/type5-delay-down}
+		\caption[]%
+		{{\small Delay of Download flows}}    
+		\label{fig:delay_download}
+	\end{subfigure}
+	\caption[]
+	{\small The distribution of delay of different types of flows. We omit few extreme values to get better visualization, however the means are calculated from all values.} 
+	\label{fig:delay_flows}
+\end{figure*}
+
+
+
+\section{Discussion}
+
+
+
+
+
+
 
 
