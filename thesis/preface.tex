@@ -15,10 +15,12 @@ MSFC ma priority iba ciselne, ziadny bandwidth allocation -- easier config, moze
 inspirovane fair queueing (SFQ) a codel(recent work)
 
 
+ MSFC only needs (and allows) only one piece of information about particular packet --- its priority. On the other hand, other traffic schedulers that are used to prioritize traffic, like HTB or HFSC need much more configuration --- maximum bandwidth, hierarchy of classes, service curves, etc. 
+
 \section*{Motivation}
 \addcontentsline{toc}{section}{Motivation}
 
-
+\clearpage
 \section*{Goals}
 \addcontentsline{toc}{section}{Goals}
 

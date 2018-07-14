@@ -1,7 +1,6 @@
 \chapter{Simulation}
 \label{chap:sidh}
 As discussed in previous chapter, we implemented MSFC in ns-3 to see how well it performs in simulated conditions and compare it to other traffic schedulers. We simulate part of wifi network an ISP may manage, since our scheduler aims to ordinary routers at the "last mile" of the Internet --- a few hops near the customer. We simulate several types of traffic common users generate and evaluate performance of commonly used traffic schedulers. 
-% dopisat uvod k vysledkom mby
 
 \section{Simulation testbed}
 
@@ -13,15 +12,15 @@ As discussed in previous chapter, we implemented MSFC in ns-3 to see how well it
 \end{figure}
 
 
-The simulated network is illustrated in Figure \ref{fig11:sim_layout}. The network is tree-shaped. The topmost node is server, it represents the rest of the Internet. Further, there is part of the infrastructure of an ISP. There are gateway nodes G1-G7. All gateways have 2-5 children. The leafs of this tree are access points (AP) of wireless networks. Finally, 8-12 clients (customers of ISP) are connected to each AP, with the default seed this results in 143 clients. 
+The simulated network is illustrated in Figure \ref{fig11:sim_layout}. The network is tree-shaped. The topmost node is server, it represents the rest of the Internet. Further, there is part of the infrastructure of an ISP. There are gateway nodes G1-G7. All gateways have 2-5 children. The leafs of this tree are access points (APs) of wireless networks. Finally, 8-12 clients (customers of ISP) are connected to each AP, with the default seed this results in total of 140 clients. 
 
-Each client is connected to exactly one AP. The clients are connected with 802.11ac Wi-Fi --- they share the Wi-Fi bandwidth. APs and gateways are connected with point-to-point links with 100Mbps bandwidth and 5ms delay. The server is connected to G1 with 1000Mbps link with 50ms delay.
+Each client is connected to exactly one AP. The clients are connected with 802.11ac Wi-Fi --- they share the Wi-Fi bandwidth. APs and gateways are connected with point-to-point links with 100Mbps bandwidth and 5ms delay. The server is connected to the root node G1 of the tree with 1000Mbps link with 50ms delay.
 
 The clients download and upload data. All the traffic flows between the server and one of the clients. There are several types of applications that model various behaviour of real-life clients. The types are listed in table \ref{tab01:traffic}. They vary in transport protocol used, size of a single packet and the data rate at which they generate traffic. The data rate may be constant --- in that case the application generates packets on regular basis (e.g. it sends a packet every 5 milliseconds), or it may be variable.
 
 The applications with variable bit rate turn on and off on irregular basis. During off period, it sends zero packets and during on time it sends packets at configured constant rate. The on times and off times are generated randomly --- using normal distribution $\mathcal{N}(1,1)$.
 
-The count ratio column specifies the ratio of number of applications installed per type. The values in the \autoref{tab:traffic} mean, that there are 30 times more HTTP flows than SSH flows. We set the total number of applications to 280 --- roughly 2 applications are installed on every client. 
+The count ratio column specifies the ratio of number of applications installed per type. The values in the Table \ref{tab:traffic} mean, that there are 20 times more \emph{HTTP} flows than \emph{SSH} flows. We set the total number of applications to 280 --- 2 applications are installed on every client. 
 
 \begin{table}
 	\caption{Types of flows used in the simulations}
@@ -44,7 +43,7 @@ The count ratio column specifies the ratio of number of applications installed p
 
 
 
-To evaluate MSFC, we ran multiple simulations with different schedulers. Each time, we installed the evaluated scheduler to all nodes (NetDevices) of the simulation. We tested PfifoFast, CoDel, FQ CoDel and MSFC. We have used all schedulers with default parameters. 
+To evaluate MSFC, we ran multiple simulations with different schedulers. Each time, we installed the evaluated scheduler to all nodes (NetDevices) of the simulation. We tested PfifoFast, CoDel, FQ CoDel and MSFC. We have used all schedulers with default parameters.
 
 We measured throughput, packet loss, delay and jitter using ns-3 module FlowMonitor \cite{flowMonitor}. Throughput is the rate at which packets flow through a node measured in bytes per second. Delay is the time taken to transmit a packet from sender to receiver. Jitter is variation of delay. FlowMonitor computes jitter of a packet simply, only relatively to the previous packet:
 \[
@@ -72,36 +71,35 @@ Also, we only present results of 'download' direction --- the upload direction d
 \input{simulation_A.tex}
 
 
-In simulation A, we assigned priorities to types of flows according to in Table \ref{tab:flows_count_A}. The Table \ref{tab:flows_count_A} shows also number of flows of individual types. It is the result of the flow priorities, the count ratio from Table \ref{tab:traffic} and maximum number of flows equal to 280.  
+In simulation A, we assigned priorities to types of flows according to Table \ref{tab:flows_count_A}. The Table \ref{tab:flows_count_A} also shows number of flows of individual types. It is the result of the flow priorities, the count ratio from Table \ref{tab:traffic} and maximum number of flows equal to 280.  
 
+The overall results of simulation A are shown in Table \ref{tab:results_A}. More detailed information is additional tables: Table \ref{tab:delay_A} shows average delay of types of flows, Table \ref{tab:loss_A} shows number of lost packets and Table \ref{tab:throughput_A} shows how much throughput receive an average flow of particular type.
 
-The overall results of simulation A are shown in Table \ref{tab:results_A}. It gives us general overview, however the average of delay and packet loss does not represent the data well. Table \ref{tab:delay_A} shows average delay of types of flows, Table \ref{tab:loss_A} shows number of lost packets and Table \ref{tab:throughput_A} shows how much throughput receive an average flow of particular type.
-
-We will shed some light on all the numbers. The throughput of the torrent flows in one--queue schedulers CoDel and pfifo\_fast is dramatically higher than FQ CoDel and MSFC. That naturally results in all other flows receiving less throughput, since all schedulers manage to utilize the links similarly (throughput row in Table \ref{tab:results_A}). The reason is, that UDP does not have any congestion control and thus sends as much packets as possible regardless of being dropped. CoDel and pfifo\_fast mix all the packets in one queue so the TCP flows notice the congestion and slow down. The result is, that misbehaving users are actually favored. FQ CoDel and MSFC employ fair queueing (see \autoref{sec:fair_queueing}) principles that isolate the misbehaving users.
+We will shed some light on all the numbers. The throughput of the \emph{torrent} flows in one--queue schedulers CoDel and pfifo\_fast is dramatically higher than FQ CoDel and MSFC. That naturally results in all other flows receiving less throughput, since all schedulers manage to utilize the links similarly (throughput row in Table \ref{tab:results_A}). The reason is, that UDP does not have any congestion control and thus sends as much packets as possible regardless of being dropped. CoDel and pfifo\_fast mix all the packets in one queue so the TCP flows notice the congestion and slow down. The result is, that misbehaving users are actually favoured. FQ CoDel and MSFC employ fair queueing (see \autoref{sec:fair_queueing}) principles that isolate the misbehaving users and thus reducing the throughput of misbehaving flows.
 
 The Tables \ref{tab:delay_A} and \ref{tab:loss_A} with delay and loss statistics confirm the same. CoDel and pfifo\_fast have higher delay of all flows, while FQ CoDel and MSFC manage to keep low delay of all TCP flows and isolate the UDP flows. 
 
-Additionally, because the average of packet delay may be too generalising, we present its distribution in Figure \ref{fig:overall_delay} Here we can see, that arithmetic mean does not represent the delay well, because there are few packets (less than 7\%) of the torrent type in FQ CoDel, CoDel and MSFC that have delay over 3 seconds. The Figure \ref{fig:torrent_delay} shows the distribution of torrent packets to illustrate the extreme delay.
+Additionally, because the average of packet delay may be too generalising, we present its distribution in Figure \ref{fig:overall_delay}. Here we can see, that arithmetic mean does not represent the delay well, because there is a fraction of packets (less than 7\%) of the \emph{torrent} type in FQ CoDel, CoDel and MSFC that have delay over 3 seconds. The Figure \ref{fig:torrent_delay} shows the distribution of \emph{torrent} packets to illustrate the extreme delay.
 
-The measured jitter is close to zero. The average values of 0-2 from Table \ref{tab:results_A} represent the jitter well and jitter of all types of flows was negligible --- always less than 6\% of delay.
+The measured jitter is close to zero. The average values of 0-2 from Table \ref{tab:results_A} represent the jitter well and jitter of all types of flows was negligible --- always less than 6\% of delay. The simulation testbed does not offer network big enough to observe any significant jitter. 
 
-Another thing we can observe is, that MSFC responds to the assigned priorities well. SSH, VoIP and Game flows achieved almost the same quality of service. Not surprisingly, since we assigned the highest priority to TV flows, average TV flow received 3185 kbps with MSFC, which is much more than 1327 kbps it got from FQ CoDel. Of course, the rest of flows with lesser priorities had less throughput, but the decrease again scaled with the priorities.
+Another thing we can observe is, that MSFC responds to the assigned priorities well. \emph{SSH}, \emph{VoIP} and \emph{game} flows achieved almost the same quality of service. Not surprisingly, since we assigned the highest priority to \emph{TV} flows, average \emph{TV} flow received 3185 kbps with MSFC, which is much more than 1327 kbps it got from FQ CoDel. Of course, the rest of flows with lesser priorities had less throughput, but the decrease again scaled with the priorities.
 
-Figure \ref{fig:delay_flows} shows detailed comparison of delays of FQ CoDel and MSFC (we do not compare CoDel and pfifo\_fast, since their delay was much higher).
+Figure \ref{fig:delay_flows_A} shows detailed comparison of delays of FQ CoDel and MSFC (we do not compare CoDel and pfifo\_fast, since their delay was much higher).
 
 
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/overall-delay-down}
-	\caption{The distribution of delay in seconds. Packets with delay higher than 0.4 seconds are omitted in the distribution, but the means are computed from all values. This restriction results in displaying 93\% of data. However, the few packets have such high delay, that it considerably affects the arithmetic means. }
+	\caption{The distribution of delay in seconds in simulation A. Packets with delay higher than 0.4 seconds are omitted in the distribution, but the means are computed from all values. This restriction results in displaying 93\% of data. However, the few packets have such high delay, that it considerably affects the arithmetic means. }
 	
 	\label{fig:overall_delay}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/type6-delay-down}
-	\caption{The distribution of delay of torrent packets in seconds.}
+	\includegraphics[width=137mm]{drawings/type6-delay-down_A}
+	\caption{The distribution of delay of \emph{torrent} packets in seconds in simulation A.}
 	\label{fig:torrent_delay}
 \end{figure}
 
@@ -111,38 +109,38 @@ Figure \ref{fig:delay_flows} shows detailed comparison of delays of FQ CoDel and
 	\centering
 	\begin{subfigure}[b]{0.475\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{drawings/type1-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type1-delay-down_A}
 		\caption[]%
-		{{\small Delay of VoIP flows}}    
+		{{\small Delay of \emph{VoIP} flows}}    
 		\label{fig:delay_voip}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[b]{0.475\textwidth}  
 		\centering 
-		\includegraphics[width=\textwidth]{drawings/type3-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type3-delay-down_A}
 		\caption[]%
-		{{\small Delay of TV flows}}    
+		{{\small Delay of \emph{TV} flows}}    
 		\label{fig:delay_tv}
 	\end{subfigure}
 	\par\bigskip % force a bit of vertical whitespace
 	\begin{subfigure}[b]{0.475\textwidth}   
 		\centering 
-		\includegraphics[width=\textwidth]{drawings/type4-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type4-delay-down_A}
 		\caption[]%
-		{{\small Delay of HTTP flows}}    
+		{{\small Delay of \emph{HTTP} flows}}    
 		\label{fig:delay_http}
 	\end{subfigure}
 	\quad
 	\begin{subfigure}[b]{0.475\textwidth}   
 		\centering 
-		\includegraphics[width=\textwidth]{drawings/type5-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type5-delay-down_A}
 		\caption[]%
-		{{\small Delay of Download flows}}    
+		{{\small Delay of \emph{download} flows}}    
 		\label{fig:delay_download}
 	\end{subfigure}
 	\caption[]
-	{\small The distribution of delay of different types of flows. We omit few extreme values to get better visualization, however the means are calculated from all values.} 
-	\label{fig:delay_flows}
+	{\small The distribution of delay of different types of flows in simulation A. We omit a small fraction of extreme values to get better visualization, however the means are calculated from all values.} 
+	\label{fig:delay_flows_A}
 \end{figure*}
 
 
@@ -155,9 +153,9 @@ Figure \ref{fig:delay_flows} shows detailed comparison of delays of FQ CoDel and
 \input{tab_flows_count_B}
 
 
-In second simulation we demonstrate that assigning the priorities to flows may not be as straightforward as it may seem when using MSFC. We ran the simulation with priorities according to Table \ref{tab:flows_count_B}. The overall results of the simulation is shown in Table \ref{tab:results_B}. The performance of all schedulers except MSFC remained unchanged, since MSFC is the only scheduler that takes priorities into consideration.
+In second simulation we demonstrate that assigning the priorities to flows may not be as straightforward as it may seem when using MSFC. We ran the simulation with priorities according to Table \ref{tab:flows_count_B}. The overall results of the simulation are shown in Table \ref{tab:results_B}. The Figure \ref{fig:delay_flows_B} shows distribution of selected types of flows. The performance of all schedulers except MSFC remained unchanged, since MSFC is the only scheduler that takes priorities into consideration.
 
-The comparisons of delay, loss and throughput are shown in Tables \ref{tab:delay_B}, \ref{tab:loss_B} and \ref{tab:throughput_B}. The biggest difference is noticeable in the throughput of torrent flows. With this priority assignment, MSFC gave torrent almost two times higher throughput than FQ CoDel, although we assigned the lowest priority to the torrent flows. All the priority 1 flows have less throughput and worse delay. This unpleasant behaviour is caused by the distribution of flows into the priorities (see Table \ref{tab:flows_count_B}) and the fact, that MSFC treats flows of different priority classes absolutely separately. There are too many flows, that 'fight' for the bandwidth of priority 1 class, while there are few flows, that have whole priority 0 class reserved for them.
+The comparisons of delay, loss and throughput are shown in Tables \ref{tab:delay_B}, \ref{tab:loss_B} and \ref{tab:throughput_B}. The biggest difference is noticeable in the throughput of \emph{torrent} flows. With this priority assignment, MSFC gave \emph{torrent} almost two times higher throughput than FQ CoDel, although we assigned the lowest priority to the \emph{torrent} flows. All the priority 1 flows have less throughput and worse delay. This unpleasant behaviour is caused by the distribution of flows into the priorities (see Table \ref{tab:flows_count_B}) and the fact, that MSFC treats flows of different priority classes absolutely separately. There are too many flows, that 'fight' for the bandwidth of priority 1 class, while there are few flows, for which MSFC reserves whole priority 0 class.
 
 The priority 2 flows results ended up without any notable difference. Also it is worth mentioning, that even though we assigned flows with low data rate to the priority 2 class, which reserves huge bandwidth, it did not affect the overall throughput negatively. When packets of the highest priority class were not available, its bandwidth was assigned to the rest of priority classes.
 
@@ -169,43 +167,54 @@ The priority 2 flows results ended up without any notable difference. Also it is
 	\centering
 	\begin{subfigure}[b]{0.475\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{drawings/type1-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type2-delay-down_B}
 		\caption[]%
-		{{\small Delay of VoIP flows}}    
-		\label{fig:delay_voip}
+		{{\small Delay of \emph{game} flows}}    
+		\label{fig:delay_voip_A}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[b]{0.475\textwidth}  
 		\centering 
-		\includegraphics[width=\textwidth]{drawings/type3-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type3-delay-down_B}
 		\caption[]%
-		{{\small Delay of TV flows}}    
-		\label{fig:delay_tv}
+		{{\small Delay of \emph{TV} flows}}    
+		\label{fig:delay_tv_B}
 	\end{subfigure}
 	\par\bigskip % force a bit of vertical whitespace
 	\begin{subfigure}[b]{0.475\textwidth}   
 		\centering 
-		\includegraphics[width=\textwidth]{drawings/type4-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type4-delay-down_B}
 		\caption[]%
-		{{\small Delay of HTTP flows}}    
-		\label{fig:delay_http}
+		{{\small Delay of \emph{HTTP} flows}}    
+		\label{fig:delay_http_B}
 	\end{subfigure}
 	\quad
 	\begin{subfigure}[b]{0.475\textwidth}   
 		\centering 
-		\includegraphics[width=\textwidth]{drawings/type5-delay-down}
+		\includegraphics[width=\textwidth]{drawings/type5-delay-down_B}
 		\caption[]%
-		{{\small Delay of Download flows}}    
-		\label{fig:delay_download}
+		{{\small Delay of \emph{download} flows}}    
+		\label{fig:delay_download_B}
 	\end{subfigure}
 	\caption[]
-	{\small The distribution of delay of different types of flows. We omit few extreme values to get better visualization, however the means are calculated from all values.} 
-	\label{fig:delay_flows}
+	{\small The distribution of delay of different types of flows in simulation B. We omit few extreme values to get better visualization, however the means are calculated from all values.} 
+	\label{fig:delay_flows_B}
 \end{figure*}
 
 
 
 \section{Discussion}
+
+First of all, the simulation A supported previous fair queueing research. Although UDP with no congestion control whatsoever is extreme example of flow misbehaviour, it confirmed that FQ (SFQ) principles are desired in traffic scheduling.
+
+Also, we showed that MSFC can be easily used to prioritize important traffic and services that have high requirements on network resources. The results of simulation A (see Table \ref{tab:throughput_A}) showed, that the prioritized \emph{TV} flows received much more bandwidth, while maintaining other flows' quality of service reasonably. In reality, this could be the difference between being able to watch TV and not. 
+
+In the simulation B, presented unintuitive behaviour of MSFC under certain conditions. By design, MSFC reserves certain amount of bandwidth to each priority class, regardless of number of flows in each class. This works well one way --- the more precious service are guaranteed to get certain bandwidth (as long as it is not the majority of flows). However, the opposite way of thinking --- to put a few less important or misbehaving flows in the lower priority class does not work, because they have certain bandwidth guaranteed as well in the lower priority class. Thus, they receive \emph{higher} bandwidth in the class with lower priority.
+
+However, with this in mind, MSFC can still be configured well using rough estimation of number of flows of different types. Another possibility would be to use more priority classes, so the lowest priority class is reserved less bandwidth. Other traffic schedulers have similar unintuitive behaviour --- one such corner case of HFSC in described in \cite[Corner cases]{hfsc}.
+
+
+
 
 
 

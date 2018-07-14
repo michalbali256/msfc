@@ -5,15 +5,15 @@
 	
 	\begin{tabular}{@{}l|cccc@{}}
 		\toprule
-		                                 & \multicolumn{4}{|c|}{Simulation A}               \\
-		\multicolumn{1}{c|}{type}        &          & P0 & P1  &            P2              \\ \midrule
-		SSH                              &    2     & 0  &  0  &             9              \\
-		VoIP                             &    2     & 0  &  0  &             9              \\
-		Game                             &    2     & 0  &  0  &             9              \\
-		TV                               &    2     & 0  &  0  &            27              \\
-		HTTP                             &    1     & 0  & 162 &             0              \\
-		Download                         &    0     & 40 &  0  &             0              \\
-		Torrent                          &    0     & 24 &  0  &             0              \\ \midrule
-		Total                            &          & 64 & 162 &            54              \\ \bottomrule
+		\multicolumn{1}{c|}{Application} & Priority & \multicolumn{3}{c}{Number of flows}  \\
+		\multicolumn{1}{c|}{type}        &          & Priority 0 & Priority 1 & Priority 2 \\ \midrule
+		SSH                              &    2     &     0      &     0      &     9      \\
+		VoIP                             &    2     &     0      &     0      &     9      \\
+		Game                             &    2     &     0      &     0      &     9      \\
+		TV                               &    2     &     0      &     0      &     27     \\
+		HTTP                             &    1     &     0      &    162     &     0      \\
+		Download                         &    0     &     40     &     0      &     0      \\
+		Torrent                          &    0     &     24     &     0      &     0      \\ \midrule
+		Total                            &          &     64     &    162     &     54     \\ \bottomrule
 	\end{tabular}
 \end{table}
