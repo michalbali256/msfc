@@ -1,0 +1,111 @@
+FlowCount 
+    prio0 24
+    prio1 229
+    prio2 27
+Delay 222
+    prio0 936
+    prio1 75
+    prio2 65
+Jitter 2
+    prio0 0
+    prio1 2
+    prio2 0
+Throughput 290372
+    prio0 101275
+    prio1 187442
+    prio2 1655.67
+Loss 1180488
+    prio0 1173852
+    prio1 6636
+    prio2 0
+SSH
+    Delay 64
+    Jitter 1
+    TotalThroughput 31.605
+    PerFlowThroughput 3.51167
+    PerAppGoodput 0.975
+    Loss 0
+    FlowCount 9
+        prio0 0
+        prio1 0
+        prio2 9
+    AppCount 9
+    PacketCount 5619
+voip
+    Delay 66
+    Jitter 0
+    TotalThroughput 657.141
+    PerFlowThroughput 73.0156
+    PerAppGoodput 58.5325
+    Loss 0
+    FlowCount 9
+        prio0 0
+        prio1 0
+        prio2 9
+    AppCount 9
+    PacketCount 32085
+game
+    Delay 64
+    Jitter 0
+    TotalThroughput 966.92
+    PerFlowThroughput 107.436
+    PerAppGoodput 97.52
+    Loss 0
+    FlowCount 9
+        prio0 0
+        prio1 0
+        prio2 9
+    AppCount 9
+    PacketCount 21966
+TVStream
+    Delay 73
+    Jitter 2
+    TotalThroughput 26116
+    PerFlowThroughput 967.257
+    PerAppGoodput 880.175
+    Loss 1009
+    FlowCount 27
+        prio0 0
+        prio1 27
+        prio2 0
+    AppCount 27
+    PacketCount 568643
+http
+    Delay 75
+    Jitter 2
+    TotalThroughput 122833
+    PerFlowThroughput 758.231
+    PerAppGoodput 688.065
+    Loss 4187
+    FlowCount 162
+        prio0 0
+        prio1 162
+        prio2 0
+    AppCount 162
+    PacketCount 2761442
+download
+    Delay 73
+    Jitter 2
+    TotalThroughput 38492.5
+    PerFlowThroughput 962.312
+    PerAppGoodput 875.667
+    Loss 1440
+    FlowCount 40
+        prio0 0
+        prio1 40
+        prio2 0
+    AppCount 40
+    PacketCount 838031
+torrent
+    Delay 936
+    Jitter 0
+    TotalThroughput 101275
+    PerFlowThroughput 4219.79
+    PerAppGoodput 4139.85
+    Loss 1173852
+    FlowCount 24
+        prio0 24
+        prio1 0
+        prio2 0
+    AppCount 24
+    PacketCount 877077

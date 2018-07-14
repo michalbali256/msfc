@@ -11,6 +11,7 @@ plotname = sys.stdin.readline()
 upcut = float(sys.argv[1])
 detail = int(sys.argv[2])
 
+
 dropped = []
 total = []
 visData = []
@@ -67,34 +68,45 @@ for one in allData:
     i += 1
     print h
 
-fig, ax = plt.subplots(figsize = (6,8))
+ameans = []
+ainds = []
+i = 1
+print "Arithmetic Means: "
+for one in allData:
+    a = np.mean(one)
+    if a <= upcut :
+        ameans.append(a)
+        ainds.append(i)
+    i += 1
+    print a
+
+fig, ax = plt.subplots(figsize = (6,8.5))
 fs = 12
 parts = ax.violinplot(visData, points=detail, widths=0.4,
                       showmeans=False, showextrema=False)
-#ax.set_title('Custom violinplot 1', fontsize=fs)
 
-#ax.yaxis.set_major_locator(loc)
 
 for pc in parts['bodies']:
     pc.set_facecolor('#D43F3A')
     pc.set_edgecolor('black')
     pc.set_alpha(1)
 
+
 names = names[1:]
 
 
-ax.scatter(inds, hmeans, marker='o', color='blue', s=15, zorder=3)
+l1 = ax.scatter(inds, hmeans, marker='o', color='blue', s=15, zorder=3)
+l2 = ax.scatter(ainds, ameans, marker='_', color='green', s=200, zorder=10)
 
 ax.get_xaxis().set_tick_params(direction='out')
 ax.xaxis.set_ticks_position('bottom')
 ax.set_xticks(np.arange(1, len(names) + 1))
 ax.set_xticklabels(names)
 ax.set_xlim(0.25, len(names) + 0.75)
-#ax.set_xlabel('Sample name')
+
+ax.legend([l1, l2], ['Harmonic mean', 'Arithmetic mean'])
 
 
-fig.suptitle(plotname)
-#fig.subplots_adjust(hspace=0.4)
 plt.savefig(plotname[0:-1] + ".pdf")
 plt.show()
 
