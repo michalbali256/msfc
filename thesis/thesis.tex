@@ -1,28 +1,8 @@
 %%% The main file. It contains definitions of basic parameters and includes all other parts.
 
-%% Settings for single-side (simplex) printing
-% Margins: left 40mm, right 25mm, top and bottom 25mm
-% (but beware, LaTeX adds 1in implicitly)
-%\documentclass[12pt,a4paper]{report}
-%\setlength\textwidth{145mm}
-%\setlength\textheight{247mm}
-%\setlength\oddsidemargin{15mm}
-%\setlength\evensidemargin{15mm}
-%\setlength\topmargin{0mm}
-%\setlength\headsep{0mm}
-%\setlength\headheight{0mm}
-% \openright makes the following text appear on a right-hand page
-%\let\openright=\clearpage
 
 %% Settings for two-sided (duplex) printing
 \documentclass[12pt,a4paper,twoside,openright]{report}
-% \setlength\textwidth{145mm}
-% \setlength\textheight{247mm}
-% \setlength\oddsidemargin{14.2mm}
-% \setlength\evensidemargin{0mm}
-% \setlength\topmargin{0mm}
-% \setlength\headsep{0mm}
-% \setlength\headheight{0mm}
 \let\openright=\cleardoublepage
 
 %% Character encoding: usually latin2, cp1250 or utf8:
@@ -44,11 +24,8 @@
 			    % of figures/tables are included in the table
 			    % of contents
 %\usepackage{dcolumn}        % improved alignment of table columns
-%\usepackage{booktabs}       % improved horizontal lines in tables
-%\usepackage{paralist}       % improved enumerate and itemize
 \usepackage{tikz}
-\usetikzlibrary{shapes,fit,positioning,snakes,mindmap,trees,decorations.text,arrows.meta}
-\usepackage{gnuplot-lua-tikz}
+%\usetikzlibrary{shapes,fit,positioning,snakes,mindmap,trees,decorations.text,arrows.meta}
 \usepackage{nomencl}
 \usepackage{epigraph}
 \makenomenclature
@@ -56,6 +33,14 @@
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{mwe}
+
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily,
+	showstringspaces=false,
+	commentstyle=\color{red},
+	keywordstyle=\color{blue}
+}
+
 \usepackage{pdfpages}
 
 \usepackage[textsize=tiny]{todonotes}
@@ -168,6 +153,9 @@ Lorem ipsum
 \renewcommand{\nomname}{List of Abbreviations}
 %\printnomenclature
 
+\appendix
+\include{userguide}
+
 %%% Attachments to the bachelor thesis, if any. Each attachment must be
 %%% referred to at least once from the text of the thesis. Attachments
 %%% are numbered.
@@ -181,11 +169,8 @@ Lorem ipsum
 \chapwithtoc{Attachments}
 
 \section*{Attachment A - the Enclosed CD}
-
-On the CD attached to this thesis (and on the online Thesis Repository of Charles University \cite{TRepo}) we enclose
-the source codes of the implemented software together with the source codes of its
-dependencies (GNU Nettle and GMP), and also the code of the SIDH Library, so it can
-be used for comparison when benchmarking.
+\label{attachment}
+On the CD attached to this thesis we enclose the source codes of ns-3.28 with implemented MSFC and ns-3 simulation used to evaluate the traffic scheduler together with simple scripts that analyse the results and produce plots used in the thesis.
 
 The electronic version of this thesis is also enclosed.
 
