@@ -16,7 +16,7 @@ The simulated network is illustrated in Figure \ref{fig11:sim_layout}. The netwo
 
 Each client is connected to exactly one AP. The clients are connected with 802.11ac Wi-Fi --- they share the Wi-Fi bandwidth. APs and gateways are connected with point-to-point links with 100Mbps bandwidth and 5ms delay. The server is connected to the root node G1 of the tree with 1000Mbps link with 50ms delay.
 
-The clients download and upload data. All the traffic flows between the server and one of the clients. There are several types of applications that model various behaviour of real-life clients. The types are listed in table \ref{tab01:traffic}. They vary in transport protocol used, size of a single packet and the data rate at which they generate traffic. The data rate may be constant --- in that case the application generates packets on regular basis (e.g. it sends a packet every 5 milliseconds), or it may be variable.
+The clients download and upload data. All the traffic flows between the server and one of the clients. There are several types of applications that model various behaviour of real-life clients. The types are listed in table \ref{tab:traffic}. They vary in transport protocol used, size of a single packet and the data rate at which they generate traffic. The data rate may be constant --- in that case the application generates packets on regular basis (e.g. it sends a packet every 5 milliseconds), or it may be variable.
 
 The applications with variable bit rate turn on and off on irregular basis. During off period, it sends zero packets and during on time it sends packets at configured constant rate. The on times and off times are generated randomly --- using normal distribution $\mathcal{N}(1,1)$.
 
@@ -209,7 +209,7 @@ Also, we showed that MSFC can be easily used to prioritize important traffic and
 
 In the simulation B, presented unintuitive behaviour of MSFC under certain conditions. By design, MSFC reserves certain amount of bandwidth to each priority class, regardless of number of flows in each class. This works well one way --- the more precious service are guaranteed to get certain bandwidth (as long as it is not the majority of flows). However, the opposite way of thinking --- to put a few less important or misbehaving flows in the lower priority class does not work, because they have certain bandwidth guaranteed as well in the lower priority class. Thus, they receive \emph{higher} bandwidth in the class with lower priority.
 
-However, with this in mind, MSFC can still be configured well using rough estimation of number of flows of different types. Another possibility would be to use more priority classes, so the lowest priority class is reserved less bandwidth. Other traffic schedulers have similar unintuitive behaviour --- one such corner case of HFSC in described in \cite[Corner cases]{hfsc}.
+However, with this in mind, MSFC can still be configured well using rough estimation of number of flows of different types. Another possibility would be to use more priority classes, so the lowest priority class is reserved less bandwidth. Other traffic schedulers have similar unintuitive behaviour --- one such corner case of HFSC in described in \cite[Corner cases]{hfscMan}.
 
 
 

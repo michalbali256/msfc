@@ -344,7 +344,7 @@ In the area of traffic shaping, it is important to be able to precisely define t
 Every node is guaranteed to receive \textit{at least} the specified rate at all time. We want the link to be utilized as much as possible at all times. For example, when CUNI only transmits 5 Mbps of video traffic, the excess 3 Mbps may be shared with the rest of classes - first with sibling ones, and if whole CUNI does not generate enough traffic, CTU gets more than the guaranteed 20 Mbps.
 
 
-Secondly, we need an algorithm, that would enforce the hierarchy. One such algorithm is Hierarchical Token Bucket (HTB) [ref??]. It divides traffic into classes that are further hierarchically grouped in a tree. Classes are divided into 8 levels of priority, which affects delay and distribution of excess resources, but not guaranteed rate. At actual dequeue, HTB uses deficit round-robin to serve all classes of the same priority, while conforming to token bucket limitations.
+Secondly, we need an algorithm, that would enforce the hierarchy. One such algorithm is Hierarchical Token Bucket (HTB) \cite{HTB}. It divides traffic into classes that are further hierarchically grouped in a tree. Classes are divided into 8 levels of priority, which affects delay and distribution of excess resources, but not guaranteed rate. At actual dequeue, HTB uses deficit round-robin to serve all classes of the same priority, while conforming to token bucket limitations.
 
 Every node of the tree takes several parameters:
 \begin{itemize}
