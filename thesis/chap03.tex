@@ -23,8 +23,6 @@ The applications with variable bit rate turn on and off on irregular basis. Duri
 The count ratio column specifies the ratio of number of applications installed per type. The values in the Table \ref{tab:traffic} mean, that there are 20 times more \emph{HTTP} flows than \emph{SSH} flows. We set the total number of applications to 280 --- 2 applications are installed on every client. 
 
 \begin{table}
-	\caption{Types of flows used in the simulations}
-	\label{tab:traffic}
 	\centering
 	
 	\begin{tabular}{@{}lllllll@{}}
@@ -39,6 +37,8 @@ The count ratio column specifies the ratio of number of applications installed p
 		Download & TCP      & unlimited & CBR   & down only  & 1450    & 5     \\
 		torrent  & UDP      & unlimited & CBR   & down only  & 1450    & 3     \\ \bottomrule
 	\end{tabular}
+	\caption{Types of flows used in the simulations}
+	\label{tab:traffic}
 \end{table}
 
 
@@ -90,7 +90,6 @@ Figure \ref{fig:delay_flows_A} shows detailed comparison of delays of FQ CoDel a
 	\centering
 	\includegraphics[width=137mm]{drawings/overall-delay-down}
 	\caption{The distribution of delay in seconds in simulation A. Packets with delay higher than 0.4 seconds are omitted in the distribution, but the means are computed from all values. This restriction results in displaying 93\% of data. However, the few packets have such high delay, that it considerably affects the arithmetic means. }
-	
 	\label{fig:overall_delay}
 \end{figure}
 
