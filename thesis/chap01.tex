@@ -50,12 +50,12 @@ There is a wide range of requirements an ideal traffic scheduler should satisfy.
 \section{Bufferbloat}
 \label{chap:bb}
 
-In gateways of packet-switched networks, short-term differences between arrival and departure rate occur naturally, as a result of network multiplexing and applications' behaviour. To balance these bursts, gateways use buffers --- a limited amount of memory, that stores packets, that were received and wait to be forwarded by another link. Traffic schedulers organise the packets in the buffers. In the following paragraphs, we demonstrate the negative effects of using traffic scheduler as simple as FIFO queue.
+In gateways of packet-switched networks, short-term differences between arrival and departure rate occur naturally as a result of network multiplexing and applications' behaviour. To balance these bursts, gateways use buffers --- a limited amount of memory, that stores packets, that were received and wait to be forwarded by another link. Traffic schedulers organise the packets in the buffers. In the following paragraphs, we demonstrate the negative effects of using traffic scheduler as simple as FIFO queue.
 
 
 If the buffer in a device is big enough, every time an outgoing link asks for the next packet, there in one available in the device regardles of differences in packets arrival and departure rate. That is desirable, because the throughput is maximized. Without buffers, the gateway has no place to store incoming packets and thus has to drop them, which decreases throughput.
 
-Even though it may seem, that bigger buffers are better, it is not true --- the more packets are in a queue, the longer packets stay in it and the longer it takes to be forwarded, which increases delay. Unfortunately, queues in modern networks tend to fill up and stay 'bloated' \cite{Gettys:2012:BDB:2063176.2063196} --- some amount of packets always stays in the queue (it never becomes empty), even if there are no incoming bursts to balance. This negative phenomenon of constantly full buffers is referred to as bufferbloat. It occupies precious space in buffers and pointlessly increases delay of packets.
+Even though it may seem that bigger buffers are better, it is not true --- the more packets are in a queue, the longer packets stay in it and the longer it takes to be forwarded, which increases delay. Unfortunately, queues in modern networks tend to fill up and stay 'bloated' \cite{Gettys:2012:BDB:2063176.2063196} --- some amount of packets always stays in the queue (it never becomes empty), even if there are no incoming bursts to balance. This negative phenomenon of constantly full buffers is referred to as bufferbloat. It occupies precious space in buffers and pointlessly increases delay of packets.
 
 \begin{figure}
 	\centering
@@ -102,38 +102,31 @@ The congestion windows are managed by the TCP endpoints, while congestion and bu
 
 Explicit Congestion Notification (ECN) \cite{rfc3168:ECN} is a protocol used by routers along network communication path to notify the endpoints that they should slow down, because there is ongoing congestion. There are 2 bits reserved for ECN directly in the IP header. It gives the routers ability to notify endpoints by marking packets instead of dropping them. Both sides have to support ECN - the receiver has to read the 2 bits and send ACK with the same bits back. The sender then may react like the ACK does not arrive at all. In May 2017, 70 \% of popular websites provided passive support for ECN\cite{ECN:proceedings}.
 
-This all indicates that simple tail drop queues that drop packets only when they are full may be suboptimal for internet usage, and can be superseded by more sophisticated queueing algorithms in the gateways. The algorithms involve counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. But the drop indicates a problem, while still having room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet.
-
-In the following sections, we 
-
-
-\todo{tady by to chtelo nejakou poznamku o tom ze ted zacnes rozvrtavat jednotlivy AQM. Pripadne na zacatku kapitoly.}
+This all indicates that simple tail drop queues that drop packets only when they are full may be suboptimal for internet usage, and can be superseded by more sophisticated queueing algorithms in the gateways. The algorithms involve counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. But the drop indicates a problem, while still having room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet. In the following sections, we describe basic AQM algorithms and concepts.
 
 \subsection{Random Early Detection}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/RED}
-	\caption{The Random Early Drop algorithm (Image taken from \XX{w}ikipedia \cite{RED:picture}) }
+	\caption{The Random Early Drop algorithm (Image taken from wikipedia \cite{RED:picture}) }
 	
 	\label{fig04:RED}
 \end{figure}
 
-%o TCP sychronization hovorim prvy krat az tu
-
 In 1993, Sally Floyd and Van Jacobson introduced Random Early Drop (RED) \cite{Floyd:1993:RED:169931.169935}. It monitored the average length of queue. Based on the average, it may drop (mark) incoming packet with certain (possibly 100 \%) probability, which is function of average. It addressed congestion avoidance problem as well as TCP synchronization problem, that were encountered using tail drop. However, it had quite a few parameters, which have to be set differently in various networks. Without this tuning, it functioned poorly, which led to general reluctance of deployment, although it was recommended by Internet Engineering Task Force \cite{rfc2309} in 1998.
 
-To determine the average\todo{of what over what}, RED uses exponential weighted moving average:
+To determine the average of time packets spend in queue, RED uses exponential weighted moving average:
 \[
-avg := (1 - w_q)avg+w_qq.
+\text{\emph{avg}} := (1 - \textsc{w}_q)\text{\emph{avg}}+\textsc{w}_qq.
 \]
-$q$ is number of packets in the queue and $w_q$ is parameter of RED that represents degree of weighting decrease, or how much the average responds to new packets and how much weight have the past states. Too high $w_q$ would mean bias against short bursts. With lower $w_q$, the average is more fluid and queue responds to congestion slower.
+$q$ is number of packets in the queue and $\textsc{w}_q$ is parameter of RED that represents degree of weighting decrease, or how much the average responds to new packets and how much weight have the past states. Too high $\textsc{w}_q$ would mean bias against short bursts. With lower $\textsc{w}_q$, the average is more fluid and queue responds to congestion slower.
 
-At each enqueue\todo{enqueue tady je poprvy jako operace, mozna by nebylo od veci dat jeste pred tuhle sekci drobnej prehled API vsech AQM}, the $avg$ is compared to two parameters $min_{th}$ and $max_{th}$, as shows Figure \ref{fig04:RED}. If it is lower than $min_{th}$, packet is just enqueued as is. If $avg$ is higher than $max_{th}$, the packet is marked (dropped). This ensures that if endpoints respond to the marking properly, or packets are actually dropped, the number of packets in queue will not exceed the maximum for long.
+At each enqueue, the \emph{avg} is compared to two parameters \textsc{MinThres} and \textsc{MaxThres}, as shows Figure \ref{fig04:RED}. If it is lower than \textsc{MinThres}, packet is just enqueued as is. If $avg$ is higher than \textsc{MaxThres}, the packet is marked (dropped). This ensures that if endpoints respond to the marking properly, or packets are actually dropped, the number of packets in queue will not exceed the maximum for long.
 
-If $avg$ is between the thresholds $min_{th}$ and $max_{th}$, the packet is marked (dropped) with probability $p_a$, that is function of the average and number of packets since the last drop. Let $p_b$ be linear function of $avg$ that varies from 0 to $max_p$ ($max_p$ is parameter of RED):
+If $avg$ is between the thresholds \textsc{MinThres} and \textsc{MaxThres}, the packet is marked (dropped) with probability $p_a$, that is function of the average and number of packets since the last drop. Let $p_b$ be linear function of $avg$ that varies from 0 to $\textsc{Max}_p$ ($\textsc{Max}_\textsc{p}$ is parameter of RED):
 \[
-  p_b = max_p \frac{(avg - min_{th})}{max_{th} - min_{th}}.
+  p_b = \textsc{Max}_\textsc{p} \frac{(avg - \textsc{MinThres})}{\textsc{MaxThres} - \textsc{MinThres}}.
 \]
 Further, the final marking probability $p_a$ depends on when was the last packet marked (dropped):
 \[
@@ -143,30 +136,29 @@ where $count$ is number of packets that were enqueued since the last mark (drop)
 
 RED has also the option to work based on number of bytes in the buffer instead the number of packets. In this case:
 \begin{align*}
-p_b &= max_p \frac{(avg - min_{th})}{max_{th} - min_{th}}\\
-p_b &= p_b \frac{size_{packet}}{size_{max}},\\
-p_a &= \frac{p_b}{1-count \cdot p_b},
+p_x &= \textsc{Max}_\textsc{p} \frac{(avg - \textsc{MinThres})}{\textsc{MaxThres} - \textsc{MinThres}}.\\
+p_b &= p_x \frac{\text{\emph{size}}_{packet}}{\text{\emph{size}}_{max}},\\
+p_a &= \frac{p_b}{1-\text{\emph{count}} \cdot p_b},
 \end{align*}
-\todo{ktera definice toho pb plati?}
-where $size_{packet}$ is size of the packet being enqueued and $size_{max}$ is maximum size of packet. This way, large packets are more likely to get marked, and the probability corresponds more precisely to actual time that the packets spend in the queue.
+
+where $\text{\emph{size}}_{packet}$ is size of the packet being enqueued and $\text{\emph{size}}_{\textsc{max}}$ is maximum size of packet. This way, large packets are more likely to get marked, and the probability corresponds more precisely to actual time that the packets spend in the queue.
 
 %!!!!!!!!!!!!!!!!!!je v pohode tam dat takyto odstavec o ktorom neviem vela?? ---vicemene jo, mas k tomu citace. Je vhodny dat tam nejaky varianty "other" a "we do not discuss this here" aby bylo jasny ze se tomu nechces venovat.
 Over the years, several variants of RED have been introduced. With Weighted RED, different packets have different probability functions for different classes of traffic (classified for example by DSCP). Adaptive RED \cite{Floyd01adaptivered:} tunes the RED algorithm to remove sensitivity to some of the parameters. Robust RED \cite{RRED} was proposed to counter low-rate Denial-of-Service attacks.
 
-\todo{Tady by slo pridat trochu matematiky (nedostatek matematiky vycetli marcelovi) --- neda se nekde vycist/najit jak se odvodi ocekavana plnost REDu a shrnout to tady?}
 
 \subsection{CoDel}
 \label{CoDel}
-In 2012, Jacobson and Nichols introduced Controlled Delay (CoDel) algorithm \cite{CoDel}. Their AQM uses local minimum length \todo{nebylo by od veci rovnou rict ze `length' je casova a ne mnozstevni jednotka --- asi `local minimum waiting time'} of the queue as indication of bufferbloat. Additionally, it works only with sojourn time --- the time packets spend in queue. That means \todo{implies?} it is independent of bandwidths of adjacent links, \XX{because it only works with time} --- if it is deployed in a backbone\XX{,} with 10 Gb/s bandwidth, acceptable queue will be 50 Mb\todo{velikosti se bezne merej v bajtech, rychlosti v bitech. Coz je dementni, ale je fajn to dodrzovat. Doporucenej format jednotek je B,KB,MB,GB na velikosti a bps, Kbps, Mbps a Gbps pro rychlosti.} big. On the other hand, on an example slow 10 Mb/s link, the corresponding acceptable buffer is only 50 kb. CoDel measures the time packets spend in queue and if it exceeds a threshold for a longer uninterrupted time, it starts to drop packets.
+In 2012, Jacobson and Nichols introduced Controlled Delay (CoDel) algorithm \cite{CoDel}. Their AQM uses local minimum waiting time of packets in queue as indication of bufferbloat. It works only with sojourn time --- the time packets spend in queue. That implies it is independent of bandwidths of adjacent links --- if it is deployed in a backbone with 10 Gbps bandwidth, acceptable queue will be 6.25MB big. On the other hand, on an example slow 10 Mbps link, the corresponding acceptable buffer is only 6.25 kB. CoDel measures the time packets spend in queue and if it exceeds a threshold for a longer uninterrupted time, it starts to drop packets.
 
 CoDel has 2 parameters:
 \begin{itemize}
-	\item \emph{Target} \todo{bacha na matematiku -- kdyz vysazis $Target$, matematicky to je 6 pismennych nazvu promennych a vypada to bez kerningu hnusne. Spravny je jedno z $\frac{\text{Target}}{\textsc{Target}}$.} is the target delay CoDel tries to keep. Defaults at 5 ms. \todo{Defaults where? In most implementations? Recommended?}
-	\item \emph{Interval} sets period of time for which it is OK to exceed $Target$\todo{tosamy}. Defaults at 100 ms.
+	\item \textsc{Target} is the target delay CoDel tries to keep.
+	\item \textsc{Interval} sets period of time for which it is OK to exceed \textsc{Target}.
 \end{itemize}
-With these parameters, CoDel drops packets if they spend more than $Target$ time in the queue for more than $Interval$ time. Also, CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue.\todo{tohle je takovej dovetek kterej tam je kvuli work-conservation, to muzes vklidu presunout bud do poznamek nebo do kapitoly o implementace}.
+With these parameters, CoDel drops packets if they spend more than \textsc{Target} time in the queue for more than \textsc{Interval} time.
 
-\todo{CoDel works in following way: } Every time a packet arrives, a time stamp is tagged to it. At dequeue, CoDel looks how long was the dequeued packet in the queue. If packets have exceeded the $Target$ time for at least $Interval$, CoDel enters dropping state. In this state, packets are dropped at an increasing rate until the sojourn time of packets at front is lower than $Target$. After each drop, the next drop time is calculated as follows:
+CoDel works in following way: every time a packet arrives, a time stamp is tagged to it. At dequeue, CoDel looks how long was the dequeued packet in the queue. If packets have exceeded the $Target$ time for at least $Interval$, CoDel enters dropping state. In this state, packets are dropped at an increasing rate until the sojourn time of packets at front is lower than $Target$. After each drop, the next drop time is calculated as follows:
 \[
   DropInterval = \frac{Interval}{\sqrt{count}},
 \]
@@ -176,7 +168,7 @@ where count is the number of packets dropped since dropping state entry and Drop
 
 \todo{Oponentova otazka: Proc je tam ta odmocnina? Je za tim trochu matematiky diky ktery to TCPckum ``akorat'' rekne o kolik maj zpomalit. Opsat tu matematiku z paperu by bylo fajn.}
  
-CoDel and RED both address\XX{ed} the bufferbloat problem and both manag\XX{ed} to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation \todo{especially if multiple non-cooperating traffic streams try to use this single queue at once}. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
+CoDel and RED both address\XX{ed} the bufferbloat problem and both manag\XX{ed} to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation especially if multiple non-cooperating traffic streams try to use this single queue at once. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
 
 \section{Fair queueing}
 
