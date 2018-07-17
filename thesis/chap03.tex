@@ -1,4 +1,5 @@
 \chapter{Simulation}
+\todo{cleny}
 \label{chap3}
 As discussed in previous chapter, we implemented MSFC in ns-3 to see how well it performs in simulated conditions and compare it to other traffic schedulers. We simulate part of wifi network an ISP may manage, since our scheduler aims to ordinary routers at the "last mile" of the Internet --- a few hops near the customer. We simulate several types of traffic common users generate and evaluate performance of commonly used traffic schedulers. 
 
@@ -148,7 +149,7 @@ Figure \ref{fig:delay_flows_A} shows detailed comparison of delays of FQ CoDel a
 \section{Simulation B}
 
 \input{tab_flows_count_B}
-
+\todo{zredukovat pocet tabuliek, nechat throughput}
 
 In second simulation we demonstrate that assigning the priorities to flows may not be as straightforward as it may seem when using MSFC. We ran the simulation with priorities according to Table \ref{tab:flows_count_B}. The overall results of the simulation are shown in Table \ref{tab:results_B}. The Figure \ref{fig:delay_flows_B} shows distribution of selected types of flows. The performance of all schedulers except MSFC remained unchanged, since MSFC is the only scheduler that takes priorities into consideration.
 
