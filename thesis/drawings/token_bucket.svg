@@ -107,8 +107,8 @@
      inkscape:snap-intersection-paths="true"
      inkscape:snap-bbox="true"
      inkscape:snap-nodes="false"
-     inkscape:window-width="1888"
-     inkscape:window-height="1057"
+     inkscape:window-width="2528"
+     inkscape:window-height="1417"
      inkscape:window-x="24"
      inkscape:window-y="-8"
      inkscape:window-maximized="1" />
@@ -120,7 +120,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -232,18 +232,26 @@
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.18031357px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15450428;"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.18031359px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15450428"
        x="21.807716"
        y="63.81797"
        id="text11259"><tspan
          sodipodi:role="line"
-         id="tspan13782">incomming </tspan><tspan
+         id="tspan13782"
+         x="22.8941"
+         y="63.81797">incoming </tspan><tspan
          sodipodi:role="line"
-         id="tspan13784">traffic takes</tspan><tspan
+         id="tspan13784"
+         x="21.807716"
+         y="71.543365">traffic takes</tspan><tspan
          sodipodi:role="line"
-         id="tspan13786">tokens/water</tspan><tspan
+         id="tspan13786"
+         x="21.807716"
+         y="79.268753">tokens/water</tspan><tspan
          sodipodi:role="line"
-         id="tspan13788">out</tspan></text>
+         id="tspan13788"
+         x="21.807716"
+         y="86.994148">out</tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot11261"
@@ -254,7 +262,7 @@
            height="172.73608"
            x="320.21835"
            y="52.768139" /></flowRegion><flowPara
-         id="flowPara11267"></flowPara></flowRoot>    <text
+         id="flowPara11267" /></flowRoot>    <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:6.62211704px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.16555293"
        x="74.639763"

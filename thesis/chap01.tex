@@ -102,7 +102,7 @@ The congestion windows are managed by the TCP endpoints, while congestion and bu
 
 Explicit Congestion Notification (ECN) \cite{rfc3168:ECN} is a protocol used by routers along network communication path to notify the endpoints that they should slow down, because there is ongoing congestion. There are 2 bits reserved for ECN directly in the IP header. It gives the routers ability to notify endpoints by marking packets instead of dropping them. Both sides have to support ECN - the receiver has to read the 2 bits and send ACK with the same bits back. The sender then may react like the ACK does not arrive at all. In May 2017, 70 \% of popular websites provided passive support for ECN\cite{ECN:proceedings}.
 
-This all indicates that simple tail drop queues that drop packets only when they are full may be suboptimal for internet usage, and can be superseded by more sophisticated queueing algorithms in the gateways. The algorithms involve counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. But the drop indicates a problem, while still having room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet. In the following sections, we describe basic AQM algorithms and concepts.
+This all indicates that simple tail drop queues that drop packets only when they are full may be suboptimal for internet usage, and can be superseded by more sophisticated queueing algorithms in the gateways. The algorithms involve counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. But the drop indicates a problem, while still having room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet. In the following sections, we describe AQM algorithms and concepts.
 
 \subsection{Random Early Detection}
 
@@ -156,25 +156,25 @@ CoDel has 2 parameters:
 	\item \textsc{Target} is the target delay CoDel tries to keep.
 	\item \textsc{Interval} sets period of time for which it is OK to exceed \textsc{Target}.
 \end{itemize}
-With these parameters, CoDel drops packets if they spend more than \textsc{Target} time in the queue for more than \textsc{Interval} time.
+With these parameters, CoDel drops packets if they spend more than \X{Target} time in the queue for more than \textsc{Interval} time.
 
-CoDel works in following way: every time a packet arrives, a time stamp is tagged to it. At dequeue, CoDel looks how long was the dequeued packet in the queue. If packets have exceeded the $Target$ time for at least $Interval$, CoDel enters dropping state. In this state, packets are dropped at an increasing rate until the sojourn time of packets at front is lower than $Target$. After each drop, the next drop time is calculated as follows:
+CoDel works in following way: every time a packet arrives, a time stamp is tagged to it. At dequeue, CoDel looks how long was the dequeued packet in the queue. If packets have exceeded the \X{Target} time for at least \textsc{Interval}, CoDel enters dropping state. In this state, packets are dropped at an increasing rate until the sojourn time of packets at front is lower than \X{Target}. After each drop, the next drop time is calculated as follows:
 \[
-  DropInterval = \frac{Interval}{\sqrt{count}},
+  \X{DropInterval} = \frac{\textsc{Interval}}{\sqrt{n}},
 \]
-where count is the number of packets dropped since dropping state entry and DropInterval is the time after the next packet will be dropped.
+where $n$ is the number of packets dropped since dropping state entry and DropInterval is the time after the next packet will be dropped \footnote{CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue}.
 
 \todo{Tady bych ocekaval normalni algorithm listing s pseudokodem pro enqueue/dequeue.}
 
 \todo{Oponentova otazka: Proc je tam ta odmocnina? Je za tim trochu matematiky diky ktery to TCPckum ``akorat'' rekne o kolik maj zpomalit. Opsat tu matematiku z paperu by bylo fajn.}
  
-CoDel and RED both address\XX{ed} the bufferbloat problem and both manag\XX{ed} to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation especially if multiple non-cooperating traffic streams try to use this single queue at once. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
+CoDel and RED both address the bufferbloat problem and both manage to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation especially if multiple non-cooperating traffic streams try to use this single queue at once. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
 
 \section{Fair queueing}
 
-Research shows \todo{`research shows' potrebuje citaci!} that simple first-come, first-serve (FCFS) scheduling does not treat all network users fairly in all situations. In many cases, we want to ensure that every user of a network is provided with the same quality of service. Further, it is beneficial if scheduling separates well and ill-behaved users, so that only the latter experience consequences of their behaviour. Set of \todo{AQM} algorithms that enable this is called fair queueing.
+Research shows \cite{Nagle:FQ} that simple first-come, first-serve (FCFS) scheduling does not treat all network users fairly in all situations. In many cases, we want to ensure that every user of a network is provided with the same quality of service. Further, it is beneficial if scheduling separates well and ill-behaved users, so that only the latter experience consequences of their behaviour. Set of AQM algorithms that enable this is called fair queueing.
 
-In many of the proposed solutions, fairness is achieved by adding firewalls \todo{definice firewallu? mozna chces pouzit uplne jiny slovo} between different streams of packets traversing network, or flows. We use definition from \cite{Zhang:1990:VCN:99517.99525}. A flow has two properties:
+In many of the proposed solutions, fairness is achieved by isolating different streams of packets traversing network, or flows. We use definition from \cite{Zhang:1990:VCN:99517.99525}. A flow has two properties:
 \begin{itemize}
 	\item A flow is a stream of packets that traverses the same route from the source to the destination and requires the same grade of service at each router or gateway in the path.
 	\item In addition, every packet can be uniquely assigned to a flow using prespecified fields in the packet header.
@@ -183,7 +183,7 @@ In many of the proposed solutions, fairness is achieved by adding firewalls \tod
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/parking_lot}
-	\caption{The parking lot problem. \XX{v captionu je potreba vysvetlit co znamenaj ty cisla}}
+	\caption{The parking lot problem. G1--G3 denote gateways, F1--F4 denote traffic flows. The rest of labels are ratios of flow bandwidths.}
 	
 	\label{fig05:ParkingLot}
 \end{figure}
@@ -196,31 +196,31 @@ To battle these problems, Nagle \cite{Nagle:FQ} proposed to use one FCFS queue p
 
 %flow stealing
 
-This solves both of mentioned problems, maintaining separate queue for each flow requires that the gateway to be able to map from flow identifiactor (for example source-destination address pair, ports and protocol may be considered too) to corresponding queue at each dequeue. This can be easily implemented in $O(log n)$ \todo{tohle si prosim vsude predelej na $\mathcal{O}(\log n)$.}, where n is number of queues, however that is not fast enough for simple routers with ever-rising bandwidths. McKenney discusses several possible implementations in \cite[Section 2]{SFQ}.
+This solves both of mentioned problems, maintaining separate queue for each flow requires that the gateway to be able to map from flow identifiactor (for example source-destination address pair, ports and protocol may be considered too) to corresponding queue at each dequeue. This can be easily implemented in $\mathcal{O}(\log n)$, where n is number of queues, however that is not fast enough for simple routers with ever-rising bandwidths. McKenney discusses several possible implementations \cite[Section 2]{SFQ}.
 
-Nagle's original algorithm has yet another flaw --- it doesn't take packet size into consideration. So if flow A sends only 100B packets, and flow B sends 500B packets, flow B gets five times more bandwidth. To address the flaw,  Demers et al. devised an ideal algorithm called bit-by-bit round-robin (BR) \cite{demers1989analysis}. It simulates that each queue sends one bit at a time in round-robin fashion. Based on this simulation, it computes time $t$ the whole packet would leave its queue. Then, BR inserts the packet in a queue sorted by $t$. Unfortunately, the best known algorithms that insert into sorted queue require $O(log n)$ time, where n is the number of flows (since at most one packet from each flow needs to be in the priority queue at the same time).
+Nagle's original algorithm has yet another flaw --- it doesn't take packet size into consideration. So if flow A sends only 100B packets, and flow B sends 500B packets, flow B gets five times more bandwidth. To address the flaw,  Demers et al. devised an ideal algorithm called bit-by-bit round-robin (BR) \cite{demers1989analysis}. It simulates that each queue sends one bit at a time in round-robin fashion. Based on this simulation, it computes time $t$ the whole packet would leave its queue. Then, BR inserts the packet in a queue sorted by $t$. Unfortunately, the best known algorithms that insert into sorted queue require $\mathcal{O}(\log n)$ time, where n is the number of flows (since at most one packet from each flow needs to be in the priority queue at the same time).
 
-Although the Nagle's FQ algorithm was perfected to be truly fair, it requires too much resources. Following algorithms have O(1) complexity, while being only slightly less fair.
+Although the Nagle's FQ algorithm was perfected to be truly fair, it requires too much resources. Following algorithms have $\mathcal{O}(1)$ complexity, while being only slightly less fair.
 
 
 \subsection{Stochastic Fairness Queueing}
-%aspon jednu figure bud z FQ alebo SFQ?
 
-SFQ was proposed by McKenney \cite{SFQ} to address the inefficiencies of Nagle’s algorithm. It uses hashing to determine the flow each packet belongs to. Although one would normally require one queue for every flow and thus use hashing with chaining, McKenney suggests using considerably less queues and allow collision. This guarantees $O(1)$ queue determination. The disadvantage is that some flows may collide, end up in the same queue, and thus be treated unfairly. However, if the number of queues is sufficiently larger than the number of active flows, probability of unfairness is low. To further beat this disadvantage, SFQ changes the hashing periodically (e.g. every 10 seconds) by varying salt of the hash function.
+
+SFQ was proposed by McKenney \cite{SFQ} to address the inefficiencies of Nagle’s algorithm. It uses hashing to determine the flow each packet belongs to. Although one would normally require one queue for every flow and thus use hashing with chaining, McKenney suggests using considerably less queues and allow collision. This guarantees $\mathcal{O}(1)$ queue determination. The disadvantage is that some flows may collide, end up in the same queue, and thus be treated unfairly. However, if the number of queues is sufficiently larger than the number of active flows, probability of unfairness is low. To further beat this disadvantage, SFQ changes the hashing periodically (e.g. every 10 seconds) by varying salt of the hash function.
 
 SFQ services its queues in round-robin fashion, without taking packet lengths into consideration, so it is unfair, if average packet size vary in the flows.
 
-SFQ uses bufferstealing: When there is no more space in the buffer, a packet is dropped from the queue with the highest number of packets instead of dropping packet being enqueued. To implement this in O(1), McKenney suggests bucket sorting technique: there is an array indexed by number of packets. In $i$-th field of the array, there is a list of all queues that contain $i$ packets.
+SFQ uses bufferstealing: When there is no more space in the buffer, a packet is dropped from the queue with the highest number of packets instead of dropping packet being enqueued. To implement this in $\mathcal{O}(1)$, McKenney suggests bucket sorting technique: there is an array indexed by number of packets. In $i$-th field of the array, there is a list of all queues that contain $i$ packets.
 
 McKenney's scheme is valuable for bufferstealing and stochastic approach, however does nothing about unfairness caused by flows having different size of packets.
 
 \subsection{Deficit round-robin}
 \label{DRR}
-Deficit round-robin \cite{EffDRR} is an algorithm that extends SFQ and takes packet length into consideration, so every flow gets the same bandwidth in the long term regardless of its packet characteristics. For each queue, it uses deficit counter that counts how many bytes were dequeued from the queue. If a packet can not be sent because it is too big, remaining bytes in the counter transfer to the next round. It still requires only $O(1)$ time for all the operations.
+Deficit round-robin \cite{EffDRR} is an algorithm that extends SFQ and takes packet length into consideration, so every flow gets the same bandwidth in the long term regardless of its packet characteristics. For each queue, it uses deficit counter that counts how many bytes were dequeued from the queue. If a packet can not be sent because it is too big, remaining bytes in the counter transfer to the next round. It still requires only $\mathcal{O}(1)$ time for all the operations.
 
 For each flow, DRR needs parameter $Q_i$, where $i$ is flow number. $Q_i$ roughly specifies how many bytes DRR can send from flow $i$. If $Q_i = Q_j$ for all $i$ and $j$, all queues get the same share of the bandwidth, and thus is fair. If $Q_i$ is twice $Q_j$, $i$-th to $j$-th bandwidth will be in ration $2:1$.
 
-Enqueue is done in the SFQ--way: DRR chooses queue based on hash of certain IP header fields. It keeps list of active queues and works in $O(1)$. When the buffer is full, packet is dropped from the fullest queue instead of dropping the incoming one.
+Enqueue is done in the SFQ--way: DRR chooses queue based on hash of certain IP header fields. It keeps list of active queues and works in $\mathcal{O}(1)$. When the buffer is full, packet is dropped from the fullest queue instead of dropping the incoming one.
 
 The novelty of DRR lies in modified round-robin. There is a state variable $DC_i$ for each flow. The $DC_i$ is set to $Q_i$. At each round, DRR sends at most $DC_i$ bytes. Once sending next packet would break this rule, DRR puts queue  at the back of active queues list and sets $DC_i$ :
 \[
