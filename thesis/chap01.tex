@@ -194,8 +194,6 @@ Second issue is related to behaviour of the users themselves. In gateways workin
 
 To battle these problems, Nagle \cite{Nagle:FQ} proposed to use one FCFS queue per one flow encountered by the gateway. At enqueue, router finds the right queue based on the IP header. Queues are dequeued in a round-robin fashion --- the queues take turns in fixed order. There is a list of all queues and at each dequeue gateway transmits the first packet of the first queue in the list. Then, the first queue is taken from the front and put in the back of the list. In other words, at each dequeue, the queue (flow) that was not served for the longest time is chosen (with the exception of brand new queues).
 
-%flow stealing
-
 This solves both of mentioned problems, maintaining separate queue for each flow requires that the gateway to be able to map from flow identifiactor (for example source-destination address pair, ports and protocol may be considered too) to corresponding queue at each dequeue. This can be easily implemented in $\mathcal{O}(\log n)$, where n is number of queues, however that is not fast enough for simple routers with ever-rising bandwidths. McKenney discusses several possible implementations \cite[Section 2]{SFQ}.
 
 Nagle's original algorithm has yet another flaw --- it doesn't take packet size into consideration. So if flow A sends only 100B packets, and flow B sends 500B packets, flow B gets five times more bandwidth. To address the flaw,  Demers et al. devised an ideal algorithm called bit-by-bit round-robin (BR) \cite{demers1989analysis}. It simulates that each queue sends one bit at a time in round-robin fashion. Based on this simulation, it computes time $t$ the whole packet would leave its queue. Then, BR inserts the packet in a queue sorted by $t$. Unfortunately, the best known algorithms that insert into sorted queue require $\mathcal{O}(\log n)$ time, where n is the number of flows (since at most one packet from each flow needs to be in the priority queue at the same time).
@@ -220,9 +218,9 @@ Deficit round-robin \cite{EffDRR} is an algorithm that extends SFQ and takes pac
 
 For each flow, DRR needs parameter $Q_i$, where $i$ is flow number. $Q_i$ roughly specifies how many bytes DRR can send from flow $i$. If $Q_i = Q_j$ for all $i$ and $j$, all queues get the same share of the bandwidth, and thus is fair. If $Q_i$ is twice $Q_j$, $i$-th to $j$-th bandwidth will be in ration $2:1$.
 
-Enqueue is done in the SFQ--way: DRR chooses queue based on hash of certain IP header fields. It keeps list of active queues and works in $\mathcal{O}(1)$. When the buffer is full, packet is dropped from the fullest queue instead of dropping the incoming one.
+Enqueue (pseudocode in algorithm \autoref{alg:DRR_deq}) is done in the SFQ--way: DRR chooses queue based on hash of certain IP header fields. It keeps list of active queues and works in $\mathcal{O}(1)$. When the buffer is full, packet is dropped from the fullest queue instead of dropping the incoming one.
 
-The novelty of DRR lies in modified round-robin. There is a state variable $DC_i$ for each flow. The $DC_i$ is set to $Q_i$. At each round, DRR sends at most $DC_i$ bytes. Once sending next packet would break this rule, DRR puts queue  at the back of active queues list and sets $DC_i$ :
+The novelty of DRR lies in modified round-robin. Enqueue (pseudocode in algorithm \autoref{alg:DRR_deq}) works this way: there is a state variable $DC_i$ for each flow. The $DC_i$ is set to $Q_i$. At each round, DRR sends at most $DC_i$ bytes. Once sending next packet would break this rule, DRR puts queue  at the back of active queues list and sets $DC_i$ :
 \[
   DC_i = DC_i - b_{sent} + Q_i.
 \]
@@ -230,10 +228,14 @@ $b_{sent}$ is number of bytes sent that round from queue i --- that is subtracte
 
 \begin{algorithm}[t]
 	\caption{DRR queueing algorithm}
-	\label{alg01:DRR_deq}
+	\label{alg:DRR_deq}
 	\begin{algorithmic}
-	\Function{enqueue}{}
-		\State \Return \XX{TODO}
+	\Function{enqueue}{Packet p}
+		\State FID $\leftarrow$ GetFlowIdentificator(p)
+		 \Comment {\parbox[t]{.4\linewidth}{Gets the identificator of flow that packet belongs to. Typically, it would be the five--tuple of source and destination addresses, source and destination ports and protocol, all from IP header of the packet}}
+		\State index $\leftarrow$ Hash(FID) \textbf{mod} NumberOfFlows
+		\State push(Queues[index], p)
+		\State \Return
 	\EndFunction
 	\Function{dequeue}{}
 		\While{true}
@@ -255,15 +257,12 @@ $b_{sent}$ is number of bytes sent that round from queue i --- that is subtracte
 
 Although DRR may not send exactly the same amount of bytes each round, it becomes fair (if all $Q_i$ are equal) in several rounds time, because every round, all that remains in $DC_i$ from the previous round transfers to the next. Thus, any unfairness caused by atomicity of packets are smoothed over time.
 
-%analyza??
-\todo{je potreba odkazat refem algoritmus z textu}
-
 \subsection{Flow Queue CoDel}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/fq_codel}
-	\caption{FQ-CoDel state-machine. \XX{Sipku vlevo nahore by to chtelo okomentovat jako `start' protoze takhle vypada trochu jako enqueue.}}
+	\caption{FQ-CoDel state-machine.}
 	\label{fig06:fqcodel}
 \end{figure}
 
@@ -273,13 +272,13 @@ In the context of FQ CoDel, term credits is used instead of deficit counter. How
 
 FQ CoDel processes the flows in the DRR fashion, however it divides active queues into two groups: new and old. The new ones are prioritized: packet is never dequeued from an old flow, if list of new queues is not empty. An empty queue becomes new, when a packet is enqueued to it. New queue becomes old (it is pushed at the back of old flows list), if it becomes empty, or its credits ($DC$) are exhausted. An old queue becomes empty, if there are no packets left in it. So every flow has its life cycle in this order: it is first empty, then new, old and empty again. The state machine is illustrated in Figure \ref{fig06:fqcodel}.
 
-FQ CoDel has parameters $Target$ and $Interval$ that configure the underlying CoDels. Further, there is $Quantum$, that is parallel of DRR's $Q_i$, however $Quantum$ applies to all queues. $Limit$ is the maximum number of packets the scheduler can hold at the same time.
+FQ CoDel has parameters \X{Target} and \X{Interval} that configure the underlying CoDels. Further, there is \X{Quantum}, that is parallel of DRR's $Q_i$, however \X{Quantum} applies to all queues. \X{Limit} is the maximum number of packets the scheduler can hold at the same time.
 
-When a packet is enqueued in FQ CoDel, its flow is found based on its IP header in the SFQ fashion. Then, CoDel takes it over - it is timestamped and put in the back. If the flow is empty, it is pushed back into the list of new queues and its credits are set to $Quantum$.
+When a packet is enqueued in FQ CoDel, its flow is found based on its IP header in the SFQ fashion. Then, CoDel takes it over - it is timestamped and put in the back. If the flow is empty, it is pushed back into the list of new queues and its credits are set to \X{Quantum}.
 
-To protect buffer from overload, FQ CoDel keeps track of total packets it is holding. Since a packet is just enqueued, $Limit$ may be exceeded. If it is, the algorithm finds queue with the largest byte count and drops 64 packets from the \textit{front}. Dropping several packets at once amortises the time needed to find the longest queue.
+To protect buffer from overload, FQ CoDel keeps track of total packets it is holding. Since a packet is just enqueued, \X{Limit} may be exceeded. If it is, the algorithm finds queue with the largest byte count and drops 64 packets from the \textit{front}. Dropping several packets at once amortises the time needed to find the longest queue.
 
-The algorithm does most of the work at dequeue. First, it chooses a flow $F$ to dequeue packet from --- either the head of new queues list, or the head of the old queues list, if the new one is empty. If $F$ has negative credits, it means FQ CoDel already served at least $Quantum$ bytes, and pushes it in the back of the old queues list and starts over with choosing $F$.
+The algorithm does most of the work at dequeue. First, it chooses a flow $F$ to dequeue packet from --- either the head of new queues list, or the head of the old queues list, if the new one is empty. If $F$ has negative credits, it means FQ CoDel already served at least \X{Quantum} bytes, and pushes it in the back of the old queues list and starts over with choosing $F$.
 
 Second, it dequeues packet from CoDel of flow $F$. Two things may happen:
 \begin{enumerate}
@@ -291,11 +290,9 @@ FQ CoDel is fast and simple enough to be deployed in ordinary home routers. Furt
 
 \section{Traffic shaping}
 
-In some applications, perfectly fair queueing (the same bandwidth for all) may not be emphasized\todo{applicable?}. Instead, it is beneficial\XX{,} to give up the best-effort basis in order to maintain good QoS for all users and services in the network, as different services have different needs and different users have different service level agreements. 
+In some applications, perfectly fair queueing (the same bandwidth for all) may not be applicable. Instead, it is beneficial to give up the best-effort basis in order to maintain good QoS for all users and services in the network, as different services have different needs and different users have different service level agreements. 
 
 Traffic shaping is set of techniques for regulating the average rate and burstiness of a flow of data that enters the network. The customer and ISP agree on certain traffic pattern (or shape) that provider then shall guarantee. ISP tries to suit all application's requirements for QoS. Also, the goal is to describe traffic patterns in a simple and robust way. Traffic shaping provides ISP with the ways to do it. It is also suitable for congestion avoidance, since it controls amount of traffic in network.
-
-%Traffic policing takes care of the opposite aspect of the SLA - limiting the services provided. ISP monitors traffic users generate and if it exceeds the agreed traffic pattern, it may drop packets.
 
 \subsection{Leaky bucket and Token bucket}
 \label{token_bucket}
@@ -321,11 +318,10 @@ Both use the same parameters - rate $R$, at which packets leave and size of buck
 	\label{fig08:token_leaky}
 \end{figure}
 
-Illustration of a leaky bucket is in Figure \ref{fig08:leaky}.The algorithm needs a counter variable $C$. If there is any water in the bucket ($C > 0$), it leaks ($C$ decreases) at rate $R$. Every time a packet comes, its size is added to this counter. If $C + PacketSize$ is more than $B$, packet must wait until $C + PacketSize < B$ holds (until enough water leaks) or is dropped. Note, that R is not the same as the output bandwidth. When the bucket is empty, the leaky bucket sends packets as they come until the bucket is filled. 
+Illustration of a leaky bucket is in Figure \ref{fig08:leaky}.The algorithm needs a counter variable $C$. If there is any water in the bucket ($C > 0$), it leaks ($C$ decreases) at rate $R$. Every time a packet comes, its size is added to this counter. If $C + \X{PacketSize}$ is more than $B$, packet must wait until $C + \X{PacketSize} < B$ holds (until enough water leaks) or is dropped. Note, that R is not the same as the output bandwidth. When the bucket is empty, the leaky bucket sends packets as they come until the bucket is filled. 
 
 Token bucket is in Figure \ref{fig08:token}. In this case, algorithm adds tokens to $C$ at rate $R$. Every time a packet passes, it takes tokens equal to its size from the bucket (its packet size is subtracted from $C$), or, if $C - PacketSize < 0$, the packet must wait until enough tokens are in $C$. 
 
-%The general concept is, that there is one bucket for each user.
 The concept may be used in two ways --- in the place of scheduler, that actually holds the packets in FCFS queue. Secondly, ISPs can use it in traffic policing, to enforce service level agreement. In that case, token/leaky bucket just manages the buckets based on packets that flow by, and drops them if the buckets are empty/full.
 
 The fundamental feature of the bucket concept is, that it enforces certain bandwidth, while allowing short-term bursts (that are necessary in networks). Let M be maximum output rate in B/s, and t the time between start of burst and dropping (withholding) first packet. Then it holds:
@@ -334,7 +330,7 @@ The fundamental feature of the bucket concept is, that it enforces certain bandw
 \]
 since water leaks from the bucket even after the burst begins. $B + RS$ is number of bytes bucket permits, $MS$ is the number of bytes output link is able transmit. Thus,
 \[
-	MaxBurstSize = MS = M\frac{B}{M - R}.
+	\X{MaxBurstSize} = MS = M\frac{B}{M - R}.
 \]
 
 \begin{figure}
