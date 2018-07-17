@@ -171,8 +171,9 @@ where $n$ is the number of packets dropped since dropping state entry and DropIn
 CoDel and RED both address the bufferbloat problem and both manage to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation especially if multiple non-cooperating traffic streams try to use this single queue at once. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
 
 \section{Fair queueing}
-
+\label{sec:fair_queueing}
 Research shows \cite{Nagle:FQ} that simple first-come, first-serve (FCFS) scheduling does not treat all network users fairly in all situations. In many cases, we want to ensure that every user of a network is provided with the same quality of service. Further, it is beneficial if scheduling separates well and ill-behaved users, so that only the latter experience consequences of their behaviour. Set of AQM algorithms that enable this is called fair queueing.
+
 
 In many of the proposed solutions, fairness is achieved by isolating different streams of packets traversing network, or flows. We use definition from \cite{Zhang:1990:VCN:99517.99525}. A flow has two properties:
 \begin{itemize}
@@ -359,7 +360,7 @@ In the area of traffic shaping, it is important to be able to precisely define t
 Every node is guaranteed to receive \textit{at least} the specified rate at all time. We want the link to be utilized as much as possible at all times. For example, when CUNI only transmits 5 Mbps of video traffic, the excess 3 Mbps may be shared with the rest of classes - first with sibling ones, and if whole CUNI does not generate enough traffic, CTU gets more than the guaranteed 20 Mbps.
 
 
-Secondly, we need an algorithm, that would enforce the hierarchy. One such algorithm is Hierarchical Token Bucket (HTB) [ref??]. It divides traffic into classes that are further hierarchically grouped in a tree. Classes are divided into 8 levels of priority, which affects delay and distribution of excess resources, but not guaranteed rate. At actual dequeue, HTB uses deficit round-robin to serve all classes of the same priority, while conforming to token bucket limitations.
+Secondly, we need an algorithm, that would enforce the hierarchy. One such algorithm is Hierarchical Token Bucket (HTB) \cite{HTB}. It divides traffic into classes that are further hierarchically grouped in a tree. Classes are divided into 8 levels of priority, which affects delay and distribution of excess resources, but not guaranteed rate. At actual dequeue, HTB uses deficit round-robin to serve all classes of the same priority, while conforming to token bucket limitations.
 
 Every node of the tree takes several parameters:
 \begin{itemize}

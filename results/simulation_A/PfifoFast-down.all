@@ -1,0 +1,111 @@
+FlowCount 
+    prio0 64
+    prio1 162
+    prio2 54
+Delay 168
+    prio0 174
+    prio1 153
+    prio2 157
+Jitter 0
+    prio0 0
+    prio1 0
+    prio2 0
+Throughput 290613
+    prio0 246611
+    prio1 35688.2
+    prio2 8314.25
+Loss 68259
+    prio0 48395
+    prio1 14232
+    prio2 5632
+SSH
+    Delay 183
+    Jitter 1
+    TotalThroughput 30.6841
+    PerFlowThroughput 3.40934
+    PerAppGoodput 0.964236
+    Loss 1709
+    FlowCount 9
+        prio0 0
+        prio1 0
+        prio2 9
+    AppCount 9
+    PacketCount 5228
+voip
+    Delay 160
+    Jitter 1
+    TotalThroughput 517.201
+    PerFlowThroughput 57.4668
+    PerAppGoodput 48.3678
+    Loss 311
+    FlowCount 9
+        prio0 0
+        prio1 0
+        prio2 9
+    AppCount 9
+    PacketCount 19773
+game
+    Delay 163
+    Jitter 1
+    TotalThroughput 600.347
+    PerFlowThroughput 66.7052
+    PerAppGoodput 60.2664
+    Loss 488
+    FlowCount 9
+        prio0 0
+        prio1 0
+        prio2 9
+    AppCount 9
+    PacketCount 13402
+TVStream
+    Delay 155
+    Jitter 0
+    TotalThroughput 7166.02
+    PerFlowThroughput 265.408
+    PerAppGoodput 240.135
+    Loss 3124
+    FlowCount 27
+        prio0 0
+        prio1 0
+        prio2 27
+    AppCount 27
+    PacketCount 156120
+http
+    Delay 153
+    Jitter 0
+    TotalThroughput 35688.2
+    PerFlowThroughput 220.297
+    PerAppGoodput 198.791
+    Loss 14232
+    FlowCount 162
+        prio0 0
+        prio1 162
+        prio2 0
+    AppCount 162
+    PacketCount 796439
+download
+    Delay 150
+    Jitter 0
+    TotalThroughput 13154.1
+    PerFlowThroughput 328.852
+    PerAppGoodput 297.554
+    Loss 4923
+    FlowCount 40
+        prio0 40
+        prio1 0
+        prio2 0
+    AppCount 40
+    PacketCount 286596
+torrent
+    Delay 178
+    Jitter 0
+    TotalThroughput 233456
+    PerFlowThroughput 9727.35
+    PerAppGoodput 9543.07
+    Loss 43472
+    FlowCount 24
+        prio0 24
+        prio1 0
+        prio2 0
+    AppCount 24
+    PacketCount 2021815

@@ -1,0 +1,389 @@
+<type3 nBins="29" >
+  <bin index="0" start="0" width="0.001" count="11239" />
+  <bin index="1" start="0.001" width="0.001" count="378" />
+  <bin index="2" start="0.002" width="0.001" count="129" />
+  <bin index="3" start="0.003" width="0.001" count="77" />
+  <bin index="4" start="0.004" width="0.001" count="48" />
+  <bin index="5" start="0.005" width="0.001" count="33" />
+  <bin index="6" start="0.006" width="0.001" count="28" />
+  <bin index="7" start="0.007" width="0.001" count="11" />
+  <bin index="8" start="0.008" width="0.001" count="3" />
+  <bin index="9" start="0.009" width="0.001" count="3" />
+  <bin index="10" start="0.01" width="0.001" count="2" />
+  <bin index="11" start="0.011" width="0.001" count="4" />
+  <bin index="12" start="0.012" width="0.001" count="2" />
+  <bin index="14" start="0.014" width="0.001" count="1" />
+  <bin index="15" start="0.015" width="0.001" count="1" />
+  <bin index="18" start="0.018" width="0.001" count="1" />
+  <bin index="20" start="0.02" width="0.001" count="1" />
+  <bin index="28" start="0.028" width="0.001" count="1" />
+</type3>
+<type3 nBins="28" >
+  <bin index="0" start="0" width="0.001" count="9565" />
+  <bin index="1" start="0.001" width="0.001" count="345" />
+  <bin index="2" start="0.002" width="0.001" count="111" />
+  <bin index="3" start="0.003" width="0.001" count="55" />
+  <bin index="4" start="0.004" width="0.001" count="58" />
+  <bin index="5" start="0.005" width="0.001" count="23" />
+  <bin index="6" start="0.006" width="0.001" count="18" />
+  <bin index="7" start="0.007" width="0.001" count="10" />
+  <bin index="8" start="0.008" width="0.001" count="8" />
+  <bin index="9" start="0.009" width="0.001" count="8" />
+  <bin index="10" start="0.01" width="0.001" count="5" />
+  <bin index="11" start="0.011" width="0.001" count="2" />
+  <bin index="12" start="0.012" width="0.001" count="2" />
+  <bin index="13" start="0.013" width="0.001" count="2" />
+  <bin index="19" start="0.019" width="0.001" count="1" />
+  <bin index="27" start="0.027" width="0.001" count="1" />
+</type3>
+<type3 nBins="28" >
+  <bin index="0" start="0" width="0.001" count="516" />
+  <bin index="1" start="0.001" width="0.001" count="58" />
+  <bin index="2" start="0.002" width="0.001" count="6" />
+  <bin index="3" start="0.003" width="0.001" count="3" />
+  <bin index="4" start="0.004" width="0.001" count="1" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+  <bin index="7" start="0.007" width="0.001" count="3" />
+  <bin index="8" start="0.008" width="0.001" count="1" />
+  <bin index="10" start="0.01" width="0.001" count="1" />
+  <bin index="13" start="0.013" width="0.001" count="1" />
+  <bin index="19" start="0.019" width="0.001" count="1" />
+  <bin index="23" start="0.023" width="0.001" count="1" />
+  <bin index="27" start="0.027" width="0.001" count="1" />
+</type3>
+<type3 nBins="37" >
+  <bin index="0" start="0" width="0.001" count="7627" />
+  <bin index="1" start="0.001" width="0.001" count="294" />
+  <bin index="2" start="0.002" width="0.001" count="66" />
+  <bin index="3" start="0.003" width="0.001" count="36" />
+  <bin index="4" start="0.004" width="0.001" count="8" />
+  <bin index="5" start="0.005" width="0.001" count="5" />
+  <bin index="6" start="0.006" width="0.001" count="2" />
+  <bin index="8" start="0.008" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="2" />
+  <bin index="10" start="0.01" width="0.001" count="1" />
+  <bin index="15" start="0.015" width="0.001" count="1" />
+  <bin index="32" start="0.032" width="0.001" count="1" />
+  <bin index="36" start="0.036" width="0.001" count="1" />
+</type3>
+<type3 nBins="34" >
+  <bin index="0" start="0" width="0.001" count="7263" />
+  <bin index="1" start="0.001" width="0.001" count="289" />
+  <bin index="2" start="0.002" width="0.001" count="78" />
+  <bin index="3" start="0.003" width="0.001" count="34" />
+  <bin index="4" start="0.004" width="0.001" count="6" />
+  <bin index="5" start="0.005" width="0.001" count="7" />
+  <bin index="6" start="0.006" width="0.001" count="3" />
+  <bin index="7" start="0.007" width="0.001" count="1" />
+  <bin index="10" start="0.01" width="0.001" count="1" />
+  <bin index="17" start="0.017" width="0.001" count="1" />
+  <bin index="33" start="0.033" width="0.001" count="1" />
+</type3>
+<type3 nBins="40" >
+  <bin index="0" start="0" width="0.001" count="7458" />
+  <bin index="1" start="0.001" width="0.001" count="253" />
+  <bin index="2" start="0.002" width="0.001" count="77" />
+  <bin index="3" start="0.003" width="0.001" count="38" />
+  <bin index="4" start="0.004" width="0.001" count="12" />
+  <bin index="5" start="0.005" width="0.001" count="2" />
+  <bin index="6" start="0.006" width="0.001" count="2" />
+  <bin index="7" start="0.007" width="0.001" count="4" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="10" start="0.01" width="0.001" count="1" />
+  <bin index="13" start="0.013" width="0.001" count="1" />
+  <bin index="25" start="0.025" width="0.001" count="1" />
+  <bin index="39" start="0.039" width="0.001" count="1" />
+</type3>
+<type3 nBins="40" >
+  <bin index="0" start="0" width="0.001" count="4785" />
+  <bin index="1" start="0.001" width="0.001" count="220" />
+  <bin index="2" start="0.002" width="0.001" count="69" />
+  <bin index="3" start="0.003" width="0.001" count="35" />
+  <bin index="4" start="0.004" width="0.001" count="8" />
+  <bin index="5" start="0.005" width="0.001" count="2" />
+  <bin index="6" start="0.006" width="0.001" count="3" />
+  <bin index="7" start="0.007" width="0.001" count="2" />
+  <bin index="8" start="0.008" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="22" start="0.022" width="0.001" count="1" />
+  <bin index="39" start="0.039" width="0.001" count="1" />
+</type3>
+<type3 nBins="33" >
+  <bin index="0" start="0" width="0.001" count="5897" />
+  <bin index="1" start="0.001" width="0.001" count="218" />
+  <bin index="2" start="0.002" width="0.001" count="70" />
+  <bin index="3" start="0.003" width="0.001" count="28" />
+  <bin index="4" start="0.004" width="0.001" count="6" />
+  <bin index="5" start="0.005" width="0.001" count="7" />
+  <bin index="6" start="0.006" width="0.001" count="5" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="10" start="0.01" width="0.001" count="2" />
+  <bin index="13" start="0.013" width="0.001" count="1" />
+  <bin index="30" start="0.03" width="0.001" count="1" />
+  <bin index="32" start="0.032" width="0.001" count="1" />
+</type3>
+<type3 nBins="36" >
+  <bin index="0" start="0" width="0.001" count="5193" />
+  <bin index="1" start="0.001" width="0.001" count="230" />
+  <bin index="2" start="0.002" width="0.001" count="79" />
+  <bin index="3" start="0.003" width="0.001" count="22" />
+  <bin index="4" start="0.004" width="0.001" count="15" />
+  <bin index="5" start="0.005" width="0.001" count="3" />
+  <bin index="6" start="0.006" width="0.001" count="3" />
+  <bin index="7" start="0.007" width="0.001" count="2" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="10" start="0.01" width="0.001" count="2" />
+  <bin index="25" start="0.025" width="0.001" count="1" />
+  <bin index="35" start="0.035" width="0.001" count="1" />
+</type3>
+<type3 nBins="42" >
+  <bin index="0" start="0" width="0.001" count="6998" />
+  <bin index="1" start="0.001" width="0.001" count="248" />
+  <bin index="2" start="0.002" width="0.001" count="88" />
+  <bin index="3" start="0.003" width="0.001" count="34" />
+  <bin index="4" start="0.004" width="0.001" count="11" />
+  <bin index="6" start="0.006" width="0.001" count="4" />
+  <bin index="15" start="0.015" width="0.001" count="1" />
+  <bin index="21" start="0.021" width="0.001" count="1" />
+  <bin index="41" start="0.041" width="0.001" count="1" />
+</type3>
+<type3 nBins="0" >
+</type3>
+<type3 nBins="31" >
+  <bin index="0" start="0" width="0.001" count="416" />
+  <bin index="1" start="0.001" width="0.001" count="36" />
+  <bin index="2" start="0.002" width="0.001" count="3" />
+  <bin index="3" start="0.003" width="0.001" count="4" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+  <bin index="6" start="0.006" width="0.001" count="1" />
+  <bin index="7" start="0.007" width="0.001" count="1" />
+  <bin index="8" start="0.008" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="12" start="0.012" width="0.001" count="1" />
+  <bin index="15" start="0.015" width="0.001" count="1" />
+  <bin index="22" start="0.022" width="0.001" count="1" />
+  <bin index="30" start="0.03" width="0.001" count="1" />
+</type3>
+<type3 nBins="936" >
+  <bin index="0" start="0" width="0.001" count="150" />
+  <bin index="1" start="0.001" width="0.001" count="31" />
+  <bin index="2" start="0.002" width="0.001" count="3" />
+  <bin index="4" start="0.004" width="0.001" count="1" />
+  <bin index="6" start="0.006" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="16" start="0.016" width="0.001" count="1" />
+  <bin index="30" start="0.03" width="0.001" count="1" />
+  <bin index="935" start="0.935" width="0.001" count="1" />
+</type3>
+<type3 nBins="25" >
+  <bin index="0" start="0" width="0.001" count="14135" />
+  <bin index="1" start="0.001" width="0.001" count="436" />
+  <bin index="2" start="0.002" width="0.001" count="126" />
+  <bin index="3" start="0.003" width="0.001" count="77" />
+  <bin index="4" start="0.004" width="0.001" count="46" />
+  <bin index="5" start="0.005" width="0.001" count="31" />
+  <bin index="6" start="0.006" width="0.001" count="15" />
+  <bin index="7" start="0.007" width="0.001" count="13" />
+  <bin index="8" start="0.008" width="0.001" count="11" />
+  <bin index="9" start="0.009" width="0.001" count="2" />
+  <bin index="10" start="0.01" width="0.001" count="4" />
+  <bin index="11" start="0.011" width="0.001" count="3" />
+  <bin index="12" start="0.012" width="0.001" count="2" />
+  <bin index="13" start="0.013" width="0.001" count="2" />
+  <bin index="18" start="0.018" width="0.001" count="1" />
+  <bin index="24" start="0.024" width="0.001" count="1" />
+</type3>
+<type3 nBins="32" >
+  <bin index="0" start="0" width="0.001" count="9065" />
+  <bin index="1" start="0.001" width="0.001" count="308" />
+  <bin index="2" start="0.002" width="0.001" count="117" />
+  <bin index="3" start="0.003" width="0.001" count="73" />
+  <bin index="4" start="0.004" width="0.001" count="39" />
+  <bin index="5" start="0.005" width="0.001" count="31" />
+  <bin index="6" start="0.006" width="0.001" count="19" />
+  <bin index="7" start="0.007" width="0.001" count="5" />
+  <bin index="8" start="0.008" width="0.001" count="12" />
+  <bin index="9" start="0.009" width="0.001" count="8" />
+  <bin index="10" start="0.01" width="0.001" count="2" />
+  <bin index="11" start="0.011" width="0.001" count="5" />
+  <bin index="12" start="0.012" width="0.001" count="3" />
+  <bin index="13" start="0.013" width="0.001" count="2" />
+  <bin index="14" start="0.014" width="0.001" count="1" />
+  <bin index="15" start="0.015" width="0.001" count="1" />
+  <bin index="31" start="0.031" width="0.001" count="1" />
+</type3>
+<type3 nBins="31" >
+  <bin index="0" start="0" width="0.001" count="393" />
+  <bin index="1" start="0.001" width="0.001" count="58" />
+  <bin index="2" start="0.002" width="0.001" count="7" />
+  <bin index="3" start="0.003" width="0.001" count="3" />
+  <bin index="4" start="0.004" width="0.001" count="2" />
+  <bin index="5" start="0.005" width="0.001" count="2" />
+  <bin index="7" start="0.007" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="13" start="0.013" width="0.001" count="1" />
+  <bin index="16" start="0.016" width="0.001" count="1" />
+  <bin index="24" start="0.024" width="0.001" count="1" />
+  <bin index="30" start="0.03" width="0.001" count="1" />
+</type3>
+<type3 nBins="29" >
+  <bin index="0" start="0" width="0.001" count="295" />
+  <bin index="1" start="0.001" width="0.001" count="39" />
+  <bin index="2" start="0.002" width="0.001" count="3" />
+  <bin index="4" start="0.004" width="0.001" count="2" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+  <bin index="6" start="0.006" width="0.001" count="2" />
+  <bin index="7" start="0.007" width="0.001" count="1" />
+  <bin index="11" start="0.011" width="0.001" count="2" />
+  <bin index="12" start="0.012" width="0.001" count="1" />
+  <bin index="14" start="0.014" width="0.001" count="1" />
+  <bin index="19" start="0.019" width="0.001" count="1" />
+  <bin index="28" start="0.028" width="0.001" count="1" />
+</type3>
+<type3 nBins="31" >
+  <bin index="0" start="0" width="0.001" count="470" />
+  <bin index="1" start="0.001" width="0.001" count="69" />
+  <bin index="2" start="0.002" width="0.001" count="8" />
+  <bin index="5" start="0.005" width="0.001" count="3" />
+  <bin index="6" start="0.006" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="10" start="0.01" width="0.001" count="2" />
+  <bin index="11" start="0.011" width="0.001" count="1" />
+  <bin index="13" start="0.013" width="0.001" count="2" />
+  <bin index="21" start="0.021" width="0.001" count="1" />
+  <bin index="30" start="0.03" width="0.001" count="1" />
+</type3>
+<type3 nBins="32" >
+  <bin index="0" start="0" width="0.001" count="447" />
+  <bin index="1" start="0.001" width="0.001" count="53" />
+  <bin index="2" start="0.002" width="0.001" count="5" />
+  <bin index="4" start="0.004" width="0.001" count="2" />
+  <bin index="5" start="0.005" width="0.001" count="3" />
+  <bin index="6" start="0.006" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="2" />
+  <bin index="11" start="0.011" width="0.001" count="1" />
+  <bin index="14" start="0.014" width="0.001" count="1" />
+  <bin index="18" start="0.018" width="0.001" count="1" />
+  <bin index="20" start="0.02" width="0.001" count="1" />
+  <bin index="31" start="0.031" width="0.001" count="1" />
+</type3>
+<type3 nBins="35" >
+  <bin index="0" start="0" width="0.001" count="5914" />
+  <bin index="1" start="0.001" width="0.001" count="254" />
+  <bin index="2" start="0.002" width="0.001" count="72" />
+  <bin index="3" start="0.003" width="0.001" count="23" />
+  <bin index="4" start="0.004" width="0.001" count="9" />
+  <bin index="5" start="0.005" width="0.001" count="4" />
+  <bin index="6" start="0.006" width="0.001" count="6" />
+  <bin index="8" start="0.008" width="0.001" count="2" />
+  <bin index="9" start="0.009" width="0.001" count="2" />
+  <bin index="11" start="0.011" width="0.001" count="1" />
+  <bin index="14" start="0.014" width="0.001" count="1" />
+  <bin index="16" start="0.016" width="0.001" count="1" />
+  <bin index="30" start="0.03" width="0.001" count="1" />
+  <bin index="34" start="0.034" width="0.001" count="1" />
+</type3>
+<type3 nBins="1003" >
+  <bin index="0" start="0" width="0.001" count="5645" />
+  <bin index="1" start="0.001" width="0.001" count="215" />
+  <bin index="2" start="0.002" width="0.001" count="62" />
+  <bin index="3" start="0.003" width="0.001" count="27" />
+  <bin index="4" start="0.004" width="0.001" count="13" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+  <bin index="6" start="0.006" width="0.001" count="6" />
+  <bin index="7" start="0.007" width="0.001" count="1" />
+  <bin index="8" start="0.008" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="3" />
+  <bin index="10" start="0.01" width="0.001" count="1" />
+  <bin index="14" start="0.014" width="0.001" count="1" />
+  <bin index="26" start="0.026" width="0.001" count="1" />
+  <bin index="31" start="0.031" width="0.001" count="1" />
+  <bin index="37" start="0.037" width="0.001" count="1" />
+  <bin index="1002" start="1.002" width="0.001" count="1" />
+</type3>
+<type3 nBins="34" >
+  <bin index="0" start="0" width="0.001" count="7907" />
+  <bin index="1" start="0.001" width="0.001" count="273" />
+  <bin index="2" start="0.002" width="0.001" count="70" />
+  <bin index="3" start="0.003" width="0.001" count="30" />
+  <bin index="4" start="0.004" width="0.001" count="7" />
+  <bin index="5" start="0.005" width="0.001" count="4" />
+  <bin index="6" start="0.006" width="0.001" count="3" />
+  <bin index="7" start="0.007" width="0.001" count="1" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="10" start="0.01" width="0.001" count="1" />
+  <bin index="12" start="0.012" width="0.001" count="1" />
+  <bin index="13" start="0.013" width="0.001" count="1" />
+  <bin index="16" start="0.016" width="0.001" count="1" />
+  <bin index="33" start="0.033" width="0.001" count="1" />
+</type3>
+<type3 nBins="2937" >
+  <bin index="0" start="0" width="0.001" count="12789" />
+  <bin index="1" start="0.001" width="0.001" count="385" />
+  <bin index="2" start="0.002" width="0.001" count="99" />
+  <bin index="3" start="0.003" width="0.001" count="70" />
+  <bin index="4" start="0.004" width="0.001" count="41" />
+  <bin index="5" start="0.005" width="0.001" count="24" />
+  <bin index="6" start="0.006" width="0.001" count="23" />
+  <bin index="7" start="0.007" width="0.001" count="9" />
+  <bin index="8" start="0.008" width="0.001" count="3" />
+  <bin index="9" start="0.009" width="0.001" count="4" />
+  <bin index="10" start="0.01" width="0.001" count="2" />
+  <bin index="11" start="0.011" width="0.001" count="2" />
+  <bin index="12" start="0.012" width="0.001" count="1" />
+  <bin index="13" start="0.013" width="0.001" count="2" />
+  <bin index="2936" start="2.936" width="0.001" count="1" />
+</type3>
+<type3 nBins="2941" >
+  <bin index="0" start="0" width="0.001" count="13300" />
+  <bin index="1" start="0.001" width="0.001" count="398" />
+  <bin index="2" start="0.002" width="0.001" count="147" />
+  <bin index="3" start="0.003" width="0.001" count="79" />
+  <bin index="4" start="0.004" width="0.001" count="56" />
+  <bin index="5" start="0.005" width="0.001" count="21" />
+  <bin index="6" start="0.006" width="0.001" count="19" />
+  <bin index="7" start="0.007" width="0.001" count="11" />
+  <bin index="8" start="0.008" width="0.001" count="3" />
+  <bin index="9" start="0.009" width="0.001" count="3" />
+  <bin index="10" start="0.01" width="0.001" count="3" />
+  <bin index="11" start="0.011" width="0.001" count="1" />
+  <bin index="15" start="0.015" width="0.001" count="1" />
+  <bin index="2940" start="2.94" width="0.001" count="1" />
+</type3>
+<type3 nBins="1925" >
+  <bin index="0" start="0" width="0.001" count="9031" />
+  <bin index="1" start="0.001" width="0.001" count="327" />
+  <bin index="2" start="0.002" width="0.001" count="144" />
+  <bin index="3" start="0.003" width="0.001" count="71" />
+  <bin index="4" start="0.004" width="0.001" count="44" />
+  <bin index="5" start="0.005" width="0.001" count="26" />
+  <bin index="6" start="0.006" width="0.001" count="17" />
+  <bin index="7" start="0.007" width="0.001" count="9" />
+  <bin index="8" start="0.008" width="0.001" count="13" />
+  <bin index="9" start="0.009" width="0.001" count="3" />
+  <bin index="10" start="0.01" width="0.001" count="3" />
+  <bin index="12" start="0.012" width="0.001" count="3" />
+  <bin index="13" start="0.013" width="0.001" count="1" />
+  <bin index="17" start="0.017" width="0.001" count="1" />
+  <bin index="18" start="0.018" width="0.001" count="1" />
+  <bin index="1924" start="1.924" width="0.001" count="1" />
+</type3>
+<type3 nBins="30" >
+  <bin index="0" start="0" width="0.001" count="444" />
+  <bin index="1" start="0.001" width="0.001" count="50" />
+  <bin index="2" start="0.002" width="0.001" count="13" />
+  <bin index="3" start="0.003" width="0.001" count="3" />
+  <bin index="4" start="0.004" width="0.001" count="1" />
+  <bin index="5" start="0.005" width="0.001" count="1" />
+  <bin index="7" start="0.007" width="0.001" count="3" />
+  <bin index="9" start="0.009" width="0.001" count="1" />
+  <bin index="11" start="0.011" width="0.001" count="1" />
+  <bin index="15" start="0.015" width="0.001" count="1" />
+  <bin index="22" start="0.022" width="0.001" count="1" />
+  <bin index="29" start="0.029" width="0.001" count="1" />
+</type3>
+<type3 nBins="936" >
+  <bin index="0" start="0" width="0.001" count="2" />
+  <bin index="30" start="0.03" width="0.001" count="1" />
+  <bin index="935" start="0.935" width="0.001" count="1" />
+</type3>

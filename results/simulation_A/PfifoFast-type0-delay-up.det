@@ -1,0 +1,49 @@
+<type0 nBins="69" >
+  <bin index="60" start="0.06" width="0.001" count="623" />
+  <bin index="61" start="0.061" width="0.001" count="2" />
+  <bin index="62" start="0.062" width="0.001" count="1" />
+  <bin index="68" start="0.068" width="0.001" count="1" />
+</type0>
+<type0 nBins="63" >
+  <bin index="60" start="0.06" width="0.001" count="601" />
+  <bin index="61" start="0.061" width="0.001" count="22" />
+  <bin index="62" start="0.062" width="0.001" count="1" />
+</type0>
+<type0 nBins="67" >
+  <bin index="60" start="0.06" width="0.001" count="612" />
+  <bin index="61" start="0.061" width="0.001" count="26" />
+  <bin index="66" start="0.066" width="0.001" count="1" />
+</type0>
+<type0 nBins="67" >
+  <bin index="60" start="0.06" width="0.001" count="608" />
+  <bin index="61" start="0.061" width="0.001" count="26" />
+  <bin index="66" start="0.066" width="0.001" count="1" />
+</type0>
+<type0 nBins="67" >
+  <bin index="60" start="0.06" width="0.001" count="620" />
+  <bin index="61" start="0.061" width="0.001" count="25" />
+  <bin index="62" start="0.062" width="0.001" count="1" />
+  <bin index="66" start="0.066" width="0.001" count="1" />
+</type0>
+<type0 nBins="68" >
+  <bin index="60" start="0.06" width="0.001" count="616" />
+  <bin index="61" start="0.061" width="0.001" count="25" />
+  <bin index="62" start="0.062" width="0.001" count="1" />
+  <bin index="67" start="0.067" width="0.001" count="1" />
+</type0>
+<type0 nBins="67" >
+  <bin index="65" start="0.065" width="0.001" count="596" />
+  <bin index="66" start="0.066" width="0.001" count="12" />
+</type0>
+<type0 nBins="70" >
+  <bin index="65" start="0.065" width="0.001" count="616" />
+  <bin index="66" start="0.066" width="0.001" count="7" />
+  <bin index="67" start="0.067" width="0.001" count="1" />
+  <bin index="68" start="0.068" width="0.001" count="2" />
+  <bin index="69" start="0.069" width="0.001" count="1" />
+</type0>
+<type0 nBins="70" >
+  <bin index="65" start="0.065" width="0.001" count="623" />
+  <bin index="66" start="0.066" width="0.001" count="3" />
+  <bin index="69" start="0.069" width="0.001" count="1" />
+</type0>
