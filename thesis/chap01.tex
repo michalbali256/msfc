@@ -1,5 +1,5 @@
 \chapter{Traffic scheduling}
-\label{chap:gf}
+\label{chap1}
 %trosku este prepisat tento uvod
 One of the pieces of puzzle that make the Internet and generally packet-switched networks work is traffic scheduling. It lies between the second and the~third layer of OSI (or between link and internet layer of the TCP/IP). That means its turn in each single router comes after the network layer did its job: it \XX{determined the packet's next hop and particularly the link,} through which the device is going to transmit the packet. Before the device hands it over to the data link layer and actually sends it, it waits in a buffer. The buffer is needed because of asynchronism of packet-switched networks (further reasons why buffers are needed are discussed in \autoref{chap:bb}).
 
