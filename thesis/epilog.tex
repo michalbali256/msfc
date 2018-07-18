@@ -9,12 +9,10 @@ In the \autoref{chap02} we have described the MSFC as well as its implementation
 
 In the \autoref{chap3} we have designed a simulation in order to benchmark MSFC. We have compared it to CoDel, FQ CoDel and pfifo\_fast. We have simulated a tree-shaped network similar to wireless-based ISP infrastructure and installed the benchmarked scheduler to all nodes of the network. We generated the same traffic in each run and measured the impact of traffic scheduler choice on quality of service.
 
-The simulation results showed that MSFC can be easily used to prioritize important traffic and services that have high requirements on network resources. To achieve this we did not use any information about the traffic shape; We only assigned higher priority to some of the flows.
+The simulation results showed that MSFC can be easily used to prioritize important traffic and services that have high requirements on network resources. To achieve this we did not use any information about the traffic shape; We only assigned higher priority to flows that require certain level of QoS. Furthermore, we did not require any information about the structure of the network: we installed MSFC to all nodes with the same configuration.
 
-
+The ns-3 with implemented MSFC, the benchmark and its results are available in Attachment A.
 
 \section*{Future work}
 \addcontentsline{toc}{section}{Future work}
-
-
 
