@@ -155,45 +155,45 @@ Over the years, several variants of RED have been introduced. With Weighted RED,
 	\caption{CoDel algorithm}
 	\label{alg:CoDel}
 	\begin{algorithmic}
-		\Function{controlLaw}{\textcolor{blue}{Time} t, \textcolor{blue}{Integer} count}
-		\State \Return t + \textsc{Interval} / sqrt(count)
+		\Function{controlLaw}{time, count}
+			\State \Return time + \textsc{Interval} / sqrt(count)
 		\EndFunction
-		\Function{enqueue}{\textcolor{blue}{Packet} pkt}
-		\State pkt.timestamp $\leftarrow$ clock()
-		\State push(queue, p)
+		\Function{enqueue}{pkt}
+			\State pkt.timestamp $\leftarrow$ clock()
+			\State push(queue, p)
 		\EndFunction
 		\Function{dequeue}{}
-		\State \textcolor{blue}{Time} now $\leftarrow$ clock()
-		\State \textcolor{blue}{DoDequeueResult} r $\leftarrow$ doDequeue(now)
+			\State now $\leftarrow$ clock()
+			\State pkt $\leftarrow$ pop(queue)
+			
+			\If {dropping} \Comment CoDel is in dropping state
+			\If{\textbf{not} okToDrop(pkt, now)}
+				\State \Comment {\parbox[t]{.8\linewidth}{ OkToDrop returns true, if sojourn time has been above \X{Target} for at least \X{Interval}.}} \vspace{3px}
+				\State dropping $\leftarrow$ false \Comment Enter dropping state
+			\EndIf
+			\State \Comment {\parbox[t]{.8\linewidth}{ Drop the current packet and compute time for the next drop. It is possible, that the next drop should happen now, hence the while loop.}}
+			\While{now \textgreater= nextDrop \textbf{and} dropping}
+				\State drop(pkt)
+				\State count += 1
+				\State pkt $\leftarrow$ pop(queue)
+				\\
+				\If{\textbf{not} okToDrop(pkt, now)}
+					\State dropping $\leftarrow$ false
+				\Else
+					\State nextDrop $\leftarrow$ controlLaw(nextDrop, count)
+				\EndIf	
+			\EndWhile 
 		
-		\If {dropping} \Comment CoDel is in dropping state
-		\If{\textbf{not} r.okToDrop} \Comment sojourn time below \X{Target}
-		\State dropping $\leftarrow$ false
-		\EndIf
-		\State \Comment {\parbox[t]{.8\linewidth}{ Drop the current packet and compute time for the next drop. It is possible, that the next drop should happen now, hence the while loop.}}
-		\While{now \textgreater= nextDrop \textbf{and} dropping}
-		\State drop(r.pkt)
-		\State count += 1
-		\State r $\leftarrow$ doDequeue(now)
-		\\
-		\If{\textbf{not} r.okToDrop}
-		\State dropping $\leftarrow$ false
-		\Else
-		\State nextDrop $\leftarrow$ controlLaw(nextDrop, count)
-		\EndIf	
-		\EndWhile 
+			\ElsIf{okToDrop(pkt, now)}
+				\State drop(pkt)
+				\\
+				\State pkt $\leftarrow$ pop(queue)
+				\State dropping $\leftarrow$ true
+				\State count $\leftarrow$ 1
+				\State nextDrop $\leftarrow$ controlLaw(nextDrop, count)
 		
-		\ElsIf{r.OkToDrop}
-		\State \Comment {\parbox[t]{.8\linewidth}{ OkToDrop returned true (sojourn time has been above \X{Target} for \X{Interval}), so enter dropping state}}
-		\State drop(r.pkt)
-		\\
-		\State r $\leftarrow$ doDequeue(now)
-		\State dropping $\leftarrow$ true
-		\State count $\leftarrow$ 1
-		\State nextDrop $\leftarrow$ controlLaw(nextDrop, count)
-		
-		\EndIf
-		\State \Return r.pkt
+			\EndIf
+			\State \Return pkt
 		\EndFunction
 		
 	\end{algorithmic}
@@ -238,7 +238,7 @@ In many of the proposed solutions, fairness is achieved by isolating different s
 	\label{fig05:ParkingLot}
 \end{figure}
 
-One of the issues addressed by fair queueing is the parking lot problem. Typically, routers accomplish some amount of fairness by giving fair access to traffic coming from different input links. However, this approach is not fair to all flows. Consider network displayed in Figure \ref{fig05:ParkingLot}. Gateway G1 treats both flows F1 and F2 equally, thus both flows occupy half of link G1--G2. G2 does the same, it gives half of the bandwidth to flow 3 and second half to the traffic from link G1--G2. However, from perspective of flows, F1 and F2 have only 1/4 of the bandwidth while F3 has half of the bandwidth. In the outcoming link of G3, situation is the same and F1 only has one 1/8 of the bandwidth. In other words, portion of bandwidth allocated to flow drops exponentially with number of hops it gets through.
+One of the issues addressed by fair queueing is the parking lot problem. Typically, routers accomplish some amount of fairness by giving fair access to traffic coming from different input links. However, this approach is not fair to all flows. Consider network displayed in Figure \ref{fig05:ParkingLot}. Gateway G1 treats both flows F1 and F2 equally, thus both flows occupy half of link G1--G2. G2 does the same, it gives half of the bandwidth to flow 3 and second half to the traffic from link G1--G2. However, from perspective of flows, F1 and F2 have only quarter of the bandwidth while F3 has half of the bandwidth. In the outcoming link of G3, situation is the same and F1 only has $\frac{1}{8}$ of the bandwidth. In other words, portion of bandwidth allocated to flow drops exponentially with number of hops it gets through.
 
 Second issue is related to behaviour of the users themselves. In gateways working on FCFS basis, misbehaving user that sends more traffic than others, and does not slow down on packet drops, may actually get bigger portion of bandwidth than well behaving users. Consider a router with several users connected on LAN, one of them is ill-behaved and generates traffic that by itself exceeds routers out--link. The rest of users detect congestion and slow down, resulting in leaving even bigger proportion of the bandwidth to the bad user. Furthermore, delay discussed in section \ref{chap:bb} is shared among all users and if one bloats the buffer, the others experience consequences too.
 
@@ -348,7 +348,7 @@ Traffic shaping is set of techniques for regulating the average rate and burstin
 \label{token_bucket}
 Leaky bucket (first described by Turner in \cite{turner1986new}) and token bucket are two terms used for the same concept, they only use a slightly different analogy with bucket and water/tokens as described in \cite[Section 5.4.2]{Tanenbaum:2002:CN:572404}. However, both schedule packets at constant rate and drop packets, if they flow too fast while allowing certain burstiness.
 
-Both use the same parameters - rate $R$, at which packets leave and size of bucket $B$, also called burst size.
+Both use the same parameters --- rate $R$, at which packets leave and size of bucket $B$, also called burst size.
 
 \begin{figure}
 	\centering
