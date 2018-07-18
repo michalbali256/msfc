@@ -149,6 +149,56 @@ Over the years, several variants of RED have been introduced. With Weighted RED,
 
 \subsection{CoDel}
 \label{CoDel}
+
+\algnewcommand\And{}
+\begin{algorithm}[p]
+	\caption{CoDel algorithm}
+	\label{alg:CoDel}
+	\begin{algorithmic}
+		\Function{controlLaw}{\textcolor{blue}{Time} t, \textcolor{blue}{Integer} count}
+		\State \Return t + \textsc{Interval} / sqrt(count)
+		\EndFunction
+		\Function{enqueue}{\textcolor{blue}{Packet} pkt}
+		\State pkt.timestamp $\leftarrow$ clock()
+		\State push(queue, p)
+		\EndFunction
+		\Function{dequeue}{}
+		\State \textcolor{blue}{Time} now $\leftarrow$ clock()
+		\State \textcolor{blue}{DoDequeueResult} r $\leftarrow$ doDequeue(now)
+		
+		\If {dropping} \Comment CoDel is in dropping state
+		\If{\textbf{not} r.okToDrop} \Comment sojourn time below \X{Target}
+		\State dropping $\leftarrow$ false
+		\EndIf
+		\State \Comment {\parbox[t]{.8\linewidth}{ Drop the current packet and compute time for the next drop. It is possible, that the next drop should happen now, hence the while loop.}}
+		\While{now \textgreater= nextDrop \textbf{and} dropping}
+		\State drop(r.pkt)
+		\State count += 1
+		\State r $\leftarrow$ doDequeue(now)
+		\\
+		\If{\textbf{not} r.okToDrop}
+		\State dropping $\leftarrow$ false
+		\Else
+		\State nextDrop $\leftarrow$ controlLaw(nextDrop, count)
+		\EndIf	
+		\EndWhile 
+		
+		\ElsIf{r.OkToDrop}
+		\State \Comment {\parbox[t]{.8\linewidth}{ OkToDrop returned true (sojourn time has been above \X{Target} for \X{Interval}), so enter dropping state}}
+		\State drop(r.pkt)
+		\\
+		\State r $\leftarrow$ doDequeue(now)
+		\State dropping $\leftarrow$ true
+		\State count $\leftarrow$ 1
+		\State nextDrop $\leftarrow$ controlLaw(nextDrop, count)
+		
+		\EndIf
+		\State \Return r.pkt
+		\EndFunction
+		
+	\end{algorithmic}
+\end{algorithm}
+
 In 2012, Jacobson and Nichols introduced Controlled Delay (CoDel) algorithm \cite{CoDel}. Their AQM uses local minimum waiting time of packets in queue as indication of bufferbloat. It works only with sojourn time --- the time packets spend in queue. That implies it is independent of bandwidths of adjacent links --- if it is deployed in a backbone with 10 Gbps bandwidth, acceptable queue will be 6.25MB big. On the other hand, on an example slow 10 Mbps link, the corresponding acceptable buffer is only 6.25 kB. CoDel measures the time packets spend in queue and if it exceeds a threshold for a longer uninterrupted time, it starts to drop packets.
 
 CoDel has 2 parameters:
@@ -162,9 +212,8 @@ CoDel works in following way: every time a packet arrives, a time stamp is tagge
 \[
   \X{DropInterval} = \frac{\textsc{Interval}}{\sqrt{n}},
 \]
-where $n$ is the number of packets dropped since dropping state entry and DropInterval is the time after the next packet will be dropped \footnote{CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue}.
+where $n$ is the number of packets dropped since dropping state entry and DropInterval is the time after the next packet will be dropped \footnote{CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue}. The pseudocode of the algorithm is in Algorithm \ref{alg:CoDel}.
 
-\todo{Tady bych ocekaval normalni algorithm listing s pseudokodem pro enqueue/dequeue.}
 
 \todo{Oponentova otazka: Proc je tam ta odmocnina? Je za tim trochu matematiky diky ktery to TCPckum ``akorat'' rekne o kolik maj zpomalit. Opsat tu matematiku z paperu by bylo fajn.}
  
@@ -227,7 +276,7 @@ The novelty of DRR lies in modified round-robin. Enqueue (pseudocode in algorith
 \]
 $b_{sent}$ is number of bytes sent that round from queue i --- that is subtracted from $DC_i$. Further, DRR replenishes the deficit counter, so it may send packets in the next round. If there are no packets in queue left, it is deactivated instead of putting it in the back.
 
-\begin{algorithm}[t]
+\begin{algorithm}[H]
 	\caption{DRR queueing algorithm}
 	\label{alg:DRR_deq}
 	\begin{algorithmic}
