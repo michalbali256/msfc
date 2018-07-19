@@ -1,23 +1,4 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/*
- * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA    02111-1307    USA
- *
- * Authors: Pasquale Imputato <p.imputato@gmail.com>
- *                    Stefano Avallone <stefano.avallone@unina.it>
-*/
 
 #include "ns3/log.h"
 #include "ns3/string.h"
@@ -281,6 +262,7 @@ bool MsfcQueueDisc::DoEnqueue(Ptr<QueueDiscItem> item)
     Ptr<MsfcPrioClass> pclass;
     Ptr<MsfcFlow> flow;
 
+    //we determine the priority class of the packet and create it if needed
     auto find = m_prioClassMap.find(prio);
     if (find == m_prioClassMap.end())
     {
@@ -293,6 +275,7 @@ bool MsfcQueueDisc::DoEnqueue(Ptr<QueueDiscItem> item)
     else
         pclass = find->second;
 
+    //we determine the flow of the packet in the priority class and create it if needed
     auto findFlow = pclass->m_flowsMap.find(h);
     if (findFlow == pclass->m_flowsMap.end())
     {
@@ -310,14 +293,17 @@ bool MsfcQueueDisc::DoEnqueue(Ptr<QueueDiscItem> item)
         flow = findFlow->second;
     }
 
+    
     if(!pclass->IsActive())
     {
+        //we enqueue the priority class into active prioclasses if it was not active before
         pclass->SetActive(true);
         if(pclass->GetDeficit() > (int32_t) pclass->GetQuantum())
             pclass->SetDeficit(pclass->GetQuantum());
         m_prioClasses.push_back(pclass);
     }
 
+    //we enqueue the flow into active flows if it was not active before
     if (!flow->IsActive())
     {
         flow->SetActive(true);
@@ -346,7 +332,9 @@ MsfcQueueDisc::DoDequeue(void)
     Ptr<MsfcFlow> flow = 0;
     Ptr<QueueDiscItem> item = 0;
     Ptr<MsfcPrioClass> prioClass = 0;
-    do
+
+    //while cycle is needed, because codel may delete all 
+    do //while
     {
         bool found = false;
         while (!found && !m_prioClasses.empty())
@@ -355,6 +343,7 @@ MsfcQueueDisc::DoDequeue(void)
 
             if(prioClass->GetDeficit() <= 0)
             {
+                //we have exhausted the credits the priority class had for this round
                 prioClass->IncreaseDeficit(prioClass->GetQuantum());
                 m_prioClasses.push_back(prioClass);
                 m_prioClasses.pop_front();
@@ -367,7 +356,7 @@ MsfcQueueDisc::DoDequeue(void)
 
         if(!found)
         {
-            //there are no prioclasses
+            //there are no prioclasses and thus no packets available
             return 0;
         }
         
@@ -378,6 +367,7 @@ MsfcQueueDisc::DoDequeue(void)
 
             if (flow->GetDeficit() <= 0)
             {
+                //we have exhausted the credits the flo had for this round inside the prioclass
                 flow->IncreaseDeficit(m_quantum);
                 prioClass->m_flows.push_back(flow);
                 prioClass->m_flows.pop_front();
@@ -402,6 +392,7 @@ MsfcQueueDisc::DoDequeue(void)
         
         if(!item)
         {
+            //flow is empty, deactivate it
             flow->SetActive(false);
             prioClass->m_flows.pop_front();
         }

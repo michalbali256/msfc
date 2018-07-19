@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#discs="CoDel FqCoDel Msfc PfifoFast"
-discs="FqCoDel Msfc"
+discs="CoDel FqCoDel Msfc PfifoFast"
+#discs="FqCoDel Msfc"
 {
 echo "$1"
 for disc in $discs; do
