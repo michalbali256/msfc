@@ -137,7 +137,7 @@ p_b &= p_x \frac{\text{\emph{size}}_{packet}}{\text{\emph{size}}_{max}},\\
 p_a &= \frac{p_b}{1-\text{\emph{count}} \cdot p_b},
 \end{align*}
 
-where $\text{\emph{size}}_{packet}$ is size of the packet being enqueued and $\text{\emph{size}}_{\textsc{max}}$ is maximum size of packet. This way, large packets are more likely to get marked, and the probability corresponds more precisely to actual time that the packets spend in the queue.
+where $\text{\emph{size}}_{packet}$ is size of the packet being enqueued and $\text{\emph{size}}_{\max}$ is maximum size of packet. This way, large packets are more likely to get marked, and the probability corresponds more precisely to actual time that the packets spend in the queue.
 
 Over the years, several variants of RED have been introduced that we do not discuss here. With Weighted RED, different packets have different probability functions for different classes of traffic (classified for example by DSCP). Adaptive RED \cite{Floyd01adaptivered:} tunes the RED algorithm to remove sensitivity to some of the parameters. Robust RED \cite{RRED} was proposed to counter low-rate Denial-of-Service attacks.
 
