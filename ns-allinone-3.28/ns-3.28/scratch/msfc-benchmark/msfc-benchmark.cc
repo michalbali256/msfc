@@ -1,23 +1,4 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/*
- * Copyright (c) 2015 Universita' degli Studi di Napoli Federico II
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Authors: Pasquale Imputato <p.imputato@gmail.com>
- *          Stefano Avallone <stefano.avallone@unina.it>
- */
 
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
@@ -45,8 +26,6 @@ int main(int argc, char *argv[])
     std::string serversDelay = "50ms";
     std::string connectionDelay = "5ms";
     std::string queueDiscType = "PfifoFast";
-
-    std::string flowsDatarate = "20Mbps";
 
     float startTime = 0.1; // in s
     float simDuration = 60;
@@ -106,15 +85,15 @@ int main(int argc, char *argv[])
     next.push(root.Get(0));
     stack.Install(root);
     
+    //the helper for the tree connections
     PointToPointHelper connP2PHelper;
     connP2PHelper.SetChannelAttribute("Delay", StringValue(connectionDelay));
     connP2PHelper.SetDeviceAttribute("DataRate", StringValue(connectionDatarate));
 
-    //generation of ISP tree. Numbers of children is in nChildren, it is generated in BFS-way
+    //generation of ISP tree. Numbers of children are in nChildren, it is generated in BFS-way
     size_t iTree = -1;
     while (!next.empty())
     {
-
         Ptr<Node> parent = next.front();
         next.pop();
 
@@ -140,6 +119,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    //each AP has 8-12 clients
     Ptr<UniformRandomVariable> clientNodesRandom = CreateObject<UniformRandomVariable>();
     clientNodesRandom->SetAttribute("Min", DoubleValue(8));
     clientNodesRandom->SetAttribute("Max", DoubleValue(12));
@@ -149,7 +129,7 @@ int main(int argc, char *argv[])
     Ipv4InterfaceContainer clientInterfaces;
     AsciiTraceHelper ascii;
     
-    //Creation of wifi APs and clients. 8-12 clients random, 
+    //Creation of wifi APs and clients. 8-12 clients random
     for (size_t i = 0; i < leaves.GetN(); ++i)
     {
         Ptr<Node> ap = leaves.Get(i);
@@ -239,7 +219,7 @@ int main(int argc, char *argv[])
 
     int a = 0;
     
-    //sets netDevices queue size, installs qdisc
+    //sets netDevices queue size proportionally to the channel bandwidth, installs the same qdiscs to all interfaces of the network.
     for (auto it = NodeList::Begin(); it != NodeList::End(); it++)
     {
 
@@ -270,6 +250,7 @@ int main(int argc, char *argv[])
             int discSize = rate / 8 * queueDiscQueueSize;
 
             QueueDiscContainer queDisc = InstallQDisc(device, queueDiscType, discSize, msfcMultiplier);
+
 
             if (qDiscQueueTrace)
             {
@@ -331,13 +312,15 @@ int main(int argc, char *argv[])
     uint32_t count = 0;
     uint32_t typeCount = 0;
     type = 0;
+
+    //here we install all the flows to clients and s1
     while(count < appCount)
     {
         std::vector<uint32_t> typesAssign(clientN);
         std::vector<bool> assigned(clientN);
         
         uint32_t c = 0;
-        
+        // this distributes the types of flows in the configured ratio across all clients
         while(c < clientN)
         {
             int assign = assignRandom->GetInteger();
@@ -360,27 +343,32 @@ int main(int argc, char *argv[])
             }
         }
         
+        //we install the distributed types of flows to the clients, one flow per client
         for (size_t i = 0; i < clientN; ++i)
         {
+            
             type = typesAssign[i];
             ++port;
+            //get the priority
             uint8_t prio;
             if (randomPriority)
                 prio = prioRandom->GetInteger();
             else
                 prio = Types[type].Priority;
             flowPrio.push_back(prio);
-            
+            //installs the onoff application and sink
             Ptr<PacketSink> s = SetupOnOff(clientApps, Types[type].OnTime, Types[type].OffTime, prio << 2, Types[type].IsTCP,
                                     s1.Get(0), clients.Get(i), clientInterfaces.GetAddress(i), port, Types[type].PacketSize,
                                     Types[type].DataRate, queueDiscType, samplingPeriod, stopTime,
                                     std::to_string(i) + "-prio" + std::to_string(prio) + "-down");
+            //collects info about the flows for later analysis
             downSinks.Add(s);
             flowTypes.push_back(type + 1);
             flowTypes.push_back(-(type + 1));
             flowSinks.push_back(s);
             
             ++port;
+            //adds the second direction for bidirectional flows
             if (Types[type].IsBi)
             {
                 
@@ -406,10 +394,10 @@ int main(int argc, char *argv[])
     (*appsAssign->GetStream()).flush();
     Simulator::Schedule(Seconds(0), &TimeBar, 0.2);
 
-    Ptr<OutputStreamWrapper> totalGoodputDownStream = ascii.CreateFileStream(queueDiscType + "-total-godput-down" + ".txt");
+    Ptr<OutputStreamWrapper> totalGoodputDownStream = ascii.CreateFileStream(queueDiscType + "-total-goodput-down" + ".txt");
     Simulator::Schedule(Seconds(samplingPeriod), &GoodputSampling, downSinks, totalGoodputDownStream, samplingPeriod, Seconds(0), 0);
 
-    Ptr<OutputStreamWrapper> totalGoodputUpStream = ascii.CreateFileStream(queueDiscType + "-total-godput-up" + ".txt");
+    Ptr<OutputStreamWrapper> totalGoodputUpStream = ascii.CreateFileStream(queueDiscType + "-total-goodput-up" + ".txt");
     Simulator::Schedule(Seconds(samplingPeriod), &GoodputSampling, upSinks, totalGoodputUpStream, samplingPeriod, Seconds(0), 0);
 
     clientApps.Start(Seconds(0 + 0.1));

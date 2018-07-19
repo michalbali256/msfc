@@ -1,41 +1,4 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/*
- * Copyright (c) 2015 Universita' degli Studi di Napoli Federico II
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Authors: Pasquale Imputato <p.imputato@gmail.com>
- *          Stefano Avallone <stefano.avallone@unina.it>
- */
-
-// This example serves as a benchmark for all the queue discs (with BQL enabled or not)
-//
-// Network topology
-//
-//                192.168.1.0                             192.168.2.0
-// n1 ------------------------------------ n2 ----------------------------------- n3
-//   point-to-point (access link)                point-to-point (bottleneck link)
-//   100 Mbps, 0.1 ms                            bandwidth [10 Mbps], delay [5 ms]
-//   qdiscs PfifoFast with capacity              qdiscs queueDiscType in {PfifoFast, ARED, CoDel, FqCoDel, PIE} [PfifoFast]
-//   of 1000 packets                             with capacity of queueDiscSize packets [1000]
-//   netdevices queues with size of 100 packets  netdevices queues with size of netdevicesQueueSize packets [100]
-//   without BQL                                 bql BQL [false]
-//   *** fixed configuration ***
-//
-//
-// If you use an AQM as queue disc on the bottleneck netdevices, you can observe that the ping Rtt
-// decrease. A further decrease can be observed when you enable BQL.
 
 #ifndef MSFC_HELPER_H
 #define MSFC_HELPER_H
@@ -61,6 +24,7 @@ typedef std::pair<Ipv4Address, Ipv4Address> AddressPair;
 
 const uint32_t MAX_PRIOS = 10;
 
+
 class FlowType
 {
 
@@ -85,6 +49,7 @@ class FlowType
 
 std::vector<FlowType> Types;
 
+//counts statistics for one type of flow
 struct TypeStats
 {
   public:
@@ -105,6 +70,7 @@ struct TypeStats
     
 };
 
+//represents statistics of one quality of service, e.g. delay, loss, ...
 template <typename T>
 struct MeasurementStats
 {
@@ -175,6 +141,8 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
     std::string du = down ? "down" : "up";
     AsciiTraceHelper ascii;
     
+    //statistics and strams initialization
+
     std::map<uint32_t, TypeStats> typeStats;
     MeasurementStats<Time> delay;
     MeasurementStats<Time> jitter;
@@ -199,6 +167,7 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
     int64_t prioPacketCount[MAX_PRIOS]{};
     int64_t prioFlowCount[MAX_PRIOS]{};
     
+    //iterates through all flows and counts the QoS of individual types of flows and overall statistics
     for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator iter = stats.begin(); iter != stats.end(); ++iter)
     {
         Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow(iter->first);
@@ -213,6 +182,7 @@ WriteStats(bool down, const std::map<FlowId, FlowMonitor::FlowStats> & stats, Pt
         prio = flowPrios[port];
         type = flowTypes[port];
         
+        //filters out the ACK flows
         if ((type <= 0 && down) || (type >= 0 && !down) || type == 0)
         {
             if(type == 0)
@@ -335,13 +305,6 @@ SetupOnOff(ApplicationContainer &clientApps, std::string onTime, std::string off
 {
 
     AsciiTraceHelper ascii;
-    /*auto estimator = CreateObject<DelayJitterEstimation>();
-    Ptr<OutputStreamWrapper> delayStream = ascii.CreateFileStream (queueDiscType + "-" + streamName + "-delay" + ".txt");
-    Ptr<OutputStreamWrapper> jitterStream = ascii.CreateFileStream (queueDiscType + "-" + streamName + "-jitter" + ".txt");
-
-    Simulator::Schedule (Seconds (samplingPeriod + 0.4), &DelayJitterSample, delayStream, jitterStream, estimator, 0.01);*/
-
-    //sink
     ApplicationContainer s1Sink;
     Address addS1(InetSocketAddress(Ipv4Address::GetAny(), port));
 
@@ -353,13 +316,8 @@ SetupOnOff(ApplicationContainer &clientApps, std::string onTime, std::string off
         sinkHelperS1.SetAttribute("Protocol", TypeIdValue(UdpSocketFactory::GetTypeId()));
     s1Sink.Add(sinkHelperS1.Install(sink));
 
-    //s1Sink.Get(0)->TraceConnectWithoutContext("Rx", MakeBoundCallback(&RxRecord, estimator));
-
     s1Sink.Start(Seconds(0));
     s1Sink.Stop(Seconds(stopTime));
-
-    //Ptr<OutputStreamWrapper> goodputStream = ascii.CreateFileStream (queueDiscType + "-" + streamName + "-goodput" + ".txt");
-    //Simulator::Schedule (Seconds (samplingPeriod), &GoodputSampling, s1Sink, goodputStream, samplingPeriod, Seconds(0), 0);
 
     //application
     InetSocketAddress socketAddress = InetSocketAddress(remoteAddress, port);
@@ -381,18 +339,6 @@ SetupOnOff(ApplicationContainer &clientApps, std::string onTime, std::string off
     auto socket = DynamicCast<OnOffApplication>(app.Get(0))->GetSocket();
 
     clientApps.Add(app);
-
-    //Ptr<OutputStreamWrapper> RTTeStream = ascii.CreateFileStream (queueDiscType+ "-" + streamName + "-RTTe" + ".txt");
-    //Simulator::Schedule (Seconds (0.2), &RTTEstSampl, RTTeStream, DynamicCast<OnOffApplication> (app.Get(0)));
-
-    //app.Get(0)->TraceConnectWithoutContext("Tx",MakeBoundCallback(&TxPrepare,estimator));
-
-    /*4PingHelper ping = V4PingHelper(remoteAddress);
-    
-    ApplicationContainer pingContainer = ping.Install(source);
-    Ptr<V4Ping> png = DynamicCast<V4Ping>(pingContainer.Get(0));
-    Ptr<OutputStreamWrapper> RTTmStream = ascii.CreateFileStream (queueDiscType+ "-" + streamName + "-RTTm" + ".txt");
-    png->TraceConnectWithoutContext("Rtt", MakeBoundCallback (&PingRtt, RTTmStream));*/
     
     return DynamicCast<PacketSink> (s1Sink.Get(0));
 }
@@ -402,13 +348,16 @@ void FlowType::LoadTypes(std::string flowsInFileName)
     using namespace std;
     ifstream flin(flowsInFileName);
 
-    while (!flin.eof()) 
+    std::string line;
+    while (std::getline(flin, line)) 
     {
+        std::istringstream stream(line); 
+
         string name, dataRate, onTime, offTime;
         string bi, tcp;
         uint32_t packetSize, priority, appCount;
-        flin >> name >> tcp >> appCount >> dataRate >> priority >> bi >> packetSize >> onTime >> offTime;
-        //cout << name << tcp << dataRate << bi << packetSize << onTime << " " << offTime << "\n";
+        stream >> name >> tcp >> appCount >> dataRate >> priority >> bi >> packetSize >> onTime >> offTime;
+
         Types.emplace_back(name, tcp == "TCP", appCount, dataRate, bi == "bi", packetSize, onTime, offTime, priority);
     }
 }

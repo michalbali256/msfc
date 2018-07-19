@@ -55,7 +55,6 @@ print total
 print "Omitted: "
 print dropped 
 
-#loc = plticker.MultipleLocator(base=0.002) # this locator puts ticks at regular intervals
 hmeans = []
 inds = []
 i = 1
