@@ -1,9 +1,9 @@
 \chapter{Traffic scheduling}
 \label{chap1}
-%trosku este prepisat tento uvod
-One of the pieces of puzzle that make the Internet and generally packet-switched networks work is traffic scheduling. It lies between the second and the~third layer of OSI (or between link and internet layer of the TCP/IP). That means its turn in each single router comes after the network layer did its job: it \XX{determined the packet's next hop and particularly the link,} through which the device is going to transmit the packet. Before the device hands it over to the data link layer and actually sends it, it waits in a buffer. The buffer is needed because of asynchronism of packet-switched networks (further reasons why buffers are needed are discussed in \autoref{chap:bb}).
 
-A traffic scheduler manages the sequence of packets that flow through a device. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue returns the next packet to transmit.
+Devices use packet buffering due to handle the asynchronous nature of the data transfer in packet-switched networks. In general, it is hard to tell how many packets should a device hold in buffer at a moment: too small buffers result in big packet loss and too big buffers result in delay increase. 
+
+A traffic scheduler manages the packets that are stored in the buffer. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue returns the next packet to transmit.
 
 The natural simplest traffic scheduler is a FIFO queue --- the packets are transmitted by the order of their arrival. In traffic scheduling context, the queue is often referred to as first-come first-serve (FCFS) queue. However, as shown throughout this chapter, problems arise from using such simple solution, that must be solved by using more sophisticated methods instead.
 
@@ -12,9 +12,7 @@ Traffic scheduling severely affects overall performance of networks and particul
 The term quality of service is used to denote overall performance of the Internet. There are a few measurable qualities, that are considered to represent QoS well. They are also used to measure performance of traffic schedulers:
 \begin{itemize}
 	\item Throughput --- the bit rate --- number of bits that are transmitted per second
-	\item Packet loss --- ratio of packets, that never reach their destination to all packets.
-	%\item Packet errors --- a packet error happens, when the delivered packet is different than the sent packet.
-	%packet error nesuvisi s traffis schedulingom, nevidim dovod preco ho spominat.
+	\item Packet loss --- ratio of packets that never reach their destination to all packets.
 	\item Delay --- time that elapses between packet sending and receiving.
 	\item Jitter --- variance in delay of consecutive packets.
 \end{itemize}
@@ -43,14 +41,12 @@ Various qualities may be required for different services. Voice over Internet Pr
 \end{table}
 
 
-There is a wide range of requirements an ideal traffic scheduler should satisfy. These include avoiding poor performance and other negative phenomena observed in networks and enforcing fairness for all applications (users). Internet service providers use scheduling to define the shape of traffic provided to customers. Researchers have realised the potential of a traffic scheduler years ago and this chapter offers a summary of basic concepts used in the area.
-
-
+There is a wide range of requirements an ideal traffic scheduler should satisfy. These include avoiding poor QoS and enforcing fairness for all applications (users). Internet service providers use scheduling to define the shape of traffic provided to customers. This chapter offers a summary of basic concepts used in the traffic scheduling.
 
 \section{Bufferbloat}
 \label{chap:bb}
 
-In gateways of packet-switched networks, short-term differences between arrival and departure rate occur naturally as a result of network multiplexing and applications' behaviour. To balance these bursts, gateways use buffers --- a limited amount of memory, that stores packets, that were received and wait to be forwarded by another link. Traffic schedulers organise the packets in the buffers. In the following paragraphs, we demonstrate the negative effects of using traffic scheduler as simple as FIFO queue.
+In gateways of packet-switched networks, short-term differences between arrival and departure rate of network traffic occur naturally as a result of network multiplexing and applications' behaviour. To balance these bursts of incoming traffic, gateways use buffers --- a limited amount of memory, that stores packets, that were received and wait to be forwarded by another link. In the following paragraphs, we demonstrate the negative effects of using traffic scheduler as simple as FIFO queue.
 
 
 If the buffer in a device is big enough, every time an outgoing link asks for the next packet, there in one available in the device regardles of differences in packets arrival and departure rate. That is desirable, because the throughput is maximized. Without buffers, the gateway has no place to store incoming packets and thus has to drop them, which decreases throughput.
@@ -64,16 +60,17 @@ Even though it may seem that bigger buffers are better, it is not true --- the m
 	\label{fig01:no_bottle}
 \end{figure}
 
-To understand why queues become bloated, let's take a look at Transmission Control Protocol (TCP) \cite{rfc793}, which is currently the most widely used layer 4 protocol. It achieves its reliability with the following policy: After a packet is transmitted, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must the sender resend. Waiting for ACK after each packet would provide miserable throughput and most of the time both sides would wait for single packet. Instead, the sender goes ahead and transmits packets without getting ACKs on previous ones. This fills the whole route, so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing. The situation is displayed in Figure \ref{fig01:no_bottle}.
+To understand why the queues become bloated, let us take a look at Transmission Control Protocol (TCP) \cite{rfc793}, which is currently the most widely used layer 4 protocol. It achieves the reliability of packet delivery with the following policy: After a packet is transmitted and received, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must be resent. Waiting for ACK after each packet would provide miserable throughput since most of the time both sides would wait a for single packet. Instead, the sender goes ahead and transmits packets without getting ACKs on previous ones. This fills the whole route (see Figure \ref{fig01:no_bottle}), so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing.
 
-Figure \ref{fig01:no_bottle} shows connection with constant bandwidth along whole path, which is rarely the case in today's Internet. Typical path between the communicants consists of many hops with links of different bandwidth. That means somewhere must be a bottleneck - a link with lowest bandwidth. If the sender transmitted at the rate of the adjacent link, the network would become congested. The bottleneck link would not be able to forward all the incoming traffic, its buffer would fill, and the rest of the arriving packets would be dropped. That actually induces even more traffic, because sender would try to resend the dropped packets.
+Figure \ref{fig01:no_bottle} shows connection with constant bandwidth along whole path, which is, unfortunately, rarely the case in today Internet. Typical path between the communicants consists of many hops with links of different bandwidth. One of the links will inevitably become a bottleneck --- a link with lowest bandwidth. In the resulting situation, if the sender would transmit at the rate of the adjacent link, the network would become congested. The bottleneck link would not be able to forward all the incoming traffic, its buffer would fill, and the rest of the arriving packets would be dropped. That would actually induce even more traffic, because the sender would try to resend the dropped packets.
 
+To avoid this problem, TCP was designed to limit the upstream rate. In ideal case, it would transmit at the rate of the slowest link. However, the sender does not have any information about bottleneck. To approximate this rate, TCP uses a congestion window approach: there is an amount of bytes TCP can send without receiving an ACK. When an ACK is received, it frees space in congestion window, and TCP may permit sending the next packet, filling the window again. The time it takes to transmit a packet through path sender-receiver-sender is called RTT; this time can be also approximated from the time between sending the data and rcving ACK.
 
-TCP must limit the upstream rate. In ideal case, it would work at the rate of the slowest link. However, the sender does not have any information about bottleneck whatsoever. Thus, TCP uses congestion window: it is amount of bytes TCP can send without receiving an ACK. When an ACK is received, it frees space in congestion window, and TCP may permit sending the next packet, filling the window again. The sender receives the first ACK after round trip time (RTT) - the time it takes to transmit a packet through path sender-receiver-sender.
+If the sender does not receive an ACK of a packet for certain amount of time referred to as timeout, the packet is considered lost and the sender resends it.
 
-To maximize throughput, size of congestion window should be at least the (bottleneck) bandwidth-delay product (product of bandwidth and RTT) bytes. In this case, the sender fills the pipe with packets just before it receives the first ACK and is allowed to send the following packets. On the other hand, if the congestion window exceeds the bandwidth-delay product, the excessive packets stay in queues along the path and cause delay. 
+To maximize throughput, size of congestion window should be at least the (bottleneck) bandwidth-delay product (product of bandwidth and RTT) bytes. In that case, the sender fills the pipe with packets just before it receives the first ACK and is allowed to send the following packets. On the other hand, if the congestion window exceeds the bandwidth-delay product, the excessive packets stay in queues along the path and cause delay. 
 
-One of reasons of bufferbloat is mismatch between congestion window and actual RTT \cite{CoDel}. In reality, estimating the window size is difficult. Always-changing network load affect both RTT and bandwidth, paths change thanks to rerouteing. Buffers can really only be measured at the bottleneck and even there it is hard to differentiate between useful and useless buffers that only cause delay.
+One of reasons of bufferbloat is mismatch between the size of the congestion window and actual RTT \cite{CoDel}. In reality, estimating the window size is difficult: always-changing network load affects both RTT and bandwidth and paths change due to rerouting.
 
 \begin{figure}
 	\centering
@@ -84,9 +81,9 @@ One of reasons of bufferbloat is mismatch between congestion window and actual R
 \end{figure}
 
 
-We will take a look at an example to demonstrate that we can observe bufferbloat even in simple situations. Figure \ref{fig02:bottle_1} shows a starting TCP communication. The illustrated network consists of 3 subnetworks. The left and the right have bandwidth 30 Mb/s, the middle one has 10 Mb/s. One packet has 30kb. The TCP Congestion window is 20 packets. The sender starts by transmitting whole window of packets back to back. They arrive at edge of the bottleneck network and get enqueued there, because of the bandwidth difference between left and middle subnetworks. A packet arrives from the left network every 1 ms, but only every 3 ms is one dequeued. At the right side, they retain spacing given by bottleneck as shown in Figure \ref{fig03:bottle_2}. The receiver turns incoming packets into ACKs with the same spacing. The sender then sends one packet of data for each ACK it gets.
+We will take a look at an example to demonstrate that we can observe bufferbloat even in simple situations. Figure \ref{fig02:bottle_1} shows a starting TCP communication. The illustrated network consists of 3 subnetworks. The left and the right have bandwidth 6 Mbps, the middle one has 2 Mbps. One packet has 750 B. The TCP Congestion window is set to the size of 20 packets. The sender starts by transmitting whole window of packets which arrive at the edge of the bottleneck network and get enqueued there, because of the bandwidth difference between left and middle subnetworks. After continuing to the right subnetwork, the packets retain spacing given by the bottleneck, as shown in Figure \ref{fig03:bottle_2}. The receiver turns incoming packets into ACKs with the same spacing. 
 
-This way, after one RTT, the whole connection gets into state of equilibrium. The bottleneck is fully utilized, so the throughput is as high as possible. However, the queue at the middle network never gets empty. At first, it has to hold the burst of the whole congestion window. Once all 20 packets are sent, 14 of them are waiting in the queue, 6 are already forwarded towards the middle network. Then, no packets are enqueued, and every 3 ms one is dequeued. Until one RTT passes, first ACK is delivered, and next packet is sent into left network. After that, one packet arrives and one leaves every 3 ms. 5 packets stay there and every one of them waits long 15 milliseconds. Also, they block buffer space other connections could use. 
+This way, after one RTT, TCP approximated the bandwidth of the bottleneck and the whole connection gets into state of equilibrium --- the sender sends one packet of data for each ACK it gets. The bottleneck is fully utilized --- the throughput is as high as possible. However, the buffer between the left and the middle network is never empty, which pointlessly increases RTT.
 
 \begin{figure}
 	\centering
@@ -96,13 +93,13 @@ This way, after one RTT, the whole connection gets into state of equilibrium. Th
 	\label{fig03:bottle_2}
 \end{figure}
 
-The reason why the packets stay in the buffer in Figure \ref{fig03:bottle_2} is that the congestion window is set to 5 more packets than the bandwidth-delay product. Determining the size of the congestion window is not an easy task. At start of TCP, slow start algorithm \cite{Jacobson:1988:CAC:52324.52356} is used to determine the size of congestion window. It grows exponentially, increasing size of the window with each ACK received, until a threshold is reached or a packet is dropped. After that, congestion avoidance takes over to maintain it. Over the years of TCP in service, many variants were introduced. Currently, CUBIC \cite{CUBIC} is used widely. 
+The reason why the packets stay in the buffer in Figure \ref{fig03:bottle_2} is that the congestion window is set to 5 more packets than the bandwidth-delay product. Determining the size of the congestion window is not an easy task. At start of TCP communication, slow start algorithm \cite{Jacobson:1988:CAC:52324.52356} is commonly used to determine the size of congestion window. The algorithm sets the congestion window to grow exponentially, increasing size of the window with each ACK received, until a threshold is reached or a packet is dropped. After that, congestion avoidance continues to maintain it. Over the years of TCP in service, many variants were introduced. Currently, CUBIC \cite{CUBIC} is used widely. 
 
-The congestion windows are managed by the TCP endpoints, while congestion and bufferbloat takes place in gateways along the path. There is no direct communication channel between them. When the buffer becomes full, the next packets must be dropped simply because there is no room for them. When TCP does not receive an ACK, it the congestion avoidance algorithm reduces the window and slows down.
+The congestion windows are managed by the TCP endpoints, while congestion and bufferbloat takes place in gateways along the path. In an ideal world, the gateways on the path of a conversation could communicate with the endpoints directly in order to notify them of congestion instead of dropping packets.
 
 Explicit Congestion Notification (ECN) \cite{rfc3168:ECN} is a protocol used by routers along network communication path to notify the endpoints that they should slow down, because there is ongoing congestion. There are 2 bits reserved for ECN directly in the IP header. It gives the routers ability to notify endpoints by marking packets instead of dropping them. Both sides have to support ECN - the receiver has to read the 2 bits and send ACK with the same bits back. The sender then may react like the ACK does not arrive at all. In May 2017, 70 \% of popular websites provided passive support for ECN\cite{ECN:proceedings}.
 
-This all indicates that simple tail drop queues that drop packets only when they are full may be suboptimal for internet usage, and can be superseded by more sophisticated queueing algorithms in the gateways. The algorithms involve counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. But the drop indicates a problem, while still having room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet. In the following sections, we describe AQM algorithms and concepts.
+This all indicates that simple tail drop queues that drop packets only when they are full may be suboptimal for internet usage, and can be superseded by more sophisticated queueing algorithms in the gateways. The algorithms involve counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. The drop indicates a problem to the endpoints that may start to optimize the upstream rate, while still having some room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet. In the following sections, we describe AQM algorithms and concepts.
 
 \subsection{Random Early Detection}
 
@@ -364,7 +361,7 @@ Both use the same parameters --- rate $R$, at which packets leave and size of bu
 		\caption{Leaky bucket}
 		\label{fig08:leaky}
 	\end{subfigure}
-	\caption{\XX{sem je potreba napsat nejakej pokec co to vlastne je. Btw myslim ze incoming se pise s jednim M, dve M se davaj do podobnyho slova ktery nejspis nesouvisi.}}
+	\caption{The equivalent ideas behind token bucket and leaky bucket algorithms.}
 	\label{fig08:token_leaky}
 \end{figure}
 
