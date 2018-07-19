@@ -1,0 +1,13 @@
+
+torrent misto HD stream
+neomezenej
+prio 0
+
+Diskuze:
+- je potreba udrzovat spodni tridy plny (admin a/nebo automat, future work)
+- priklad neintuitivniho chovani (HTB i HFSC delaj podobny veci (man 7 tc-hfsc, corner cases))
+
+- matematika: RED ma stejne bufferbloat, akorat mensi
+- matematika: proc je v codelu odmocnina? Jak se implementuje odmocnina v kernelu? (do implementace) TODO najit clanek
+
+Appendix A- hacking guide

@@ -1,7 +1,27 @@
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion}
 
+In this thesis, we have described, implemented and benchmarked the Multilevel Stochastic Fairness CoDel --- a traffic scheduler built on the principles of fair queuing and CoDel, that is able to handle flows of various priorities. At the same time, the configuration is kept as simple as possible. 
 
-\section*{Further Development}
-\addcontentsline{toc}{section}{Further Development}
+In the \autoref{chap1} we have discussed issues connected to network scheduling and related research. We have described basic qualities that can be measured in packet-switching networks commonly referred to as QoS. We described the bufferbloat and schedulers that aimed to mitigate its consequences: RED and CoDel. Next, we described the the need of fairness in networks as well as means to achieve it. Finally, we have taken a look at a traffic scheduler from a different category: HTB is a classful scheduler that uses hierarchical configuration to differentiate between categories of flows present in the network.
 
+In the \autoref{chap02} we have described the MSFC as well as its implementations: for Linux operating system and for ns-3. Firstly, we have provided a brief overview of the Linux kernel API that every traffic scheduler must implement in order to describe the existing Linux implementation of MSFC written by supervisor of this thesis. Secondly, we have taken a look at the model of Network Simulator 3, its API for traffic scheduling and finally the MSFC implementation.
+
+In the \autoref{chap3} we have designed a simulation in order to benchmark MSFC. We have compared it to CoDel, FQ CoDel and pfifo\_fast. We have simulated a tree-shaped network similar to wireless-based ISP infrastructure and installed the benchmarked scheduler to all nodes of the network. We generated the same traffic in each run and measured the impact of traffic scheduler choice on quality of service.
+
+The simulation results showed that MSFC can be easily used to prioritize important traffic and services that have high requirements on network resources. To achieve this we did not use any information about the traffic shape; we only used externally supplied information about flow priority. This information can be easily created by packet marking present in current routers. Furthermore, we did not require any information about the structure of the network: we installed MSFC to all nodes with the same configuration.
+
+
+
+The ns-3 with implemented MSFC, the benchmark and its results are available in Attachment A. The Linux implementation of MSFC written by the supervisor of this thesis is also included in the attachment. 
+
+\section*{Future work}
+\addcontentsline{toc}{section}{Future work}
+
+We recognize the following as possible future work related to this thesis:
+\begin{itemize}
+	\item We would like to improve behaviour of MSFC in the corner case we described in \autoref{chap3}. Although it is caused mainly by wrong configuration of the priorities, we would like to minimize the impact of this deficiency.
+	\item In order to widely deploy the scheduler, we need to test and benchmark the Linux implementation either by emulation or on real hardware. Widespread deployment of the scheduler could be very simplified if the Linux kernel module could be included in the mainline Linux kernel.
+	\item The currently available Linux implementation is written only for Linux kernel version 4.8. Current version of Linux kernel is 4.16.
+	\item We theorize about a scheduler with design similar to MSFC that could assign priorities to flows automatically based on the behaviour of the flow, e.g. to assign higher priority to flows that do not trigger the CoDel dropping behaviour very frequently.
+\end{itemize}
