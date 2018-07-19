@@ -97,7 +97,7 @@ The reason why the packets stay in the buffer in Figure \ref{fig03:bottle_2} is 
 
 The congestion windows are managed by the TCP endpoints, while congestion and bufferbloat takes place in gateways along the path. In an ideal world, the gateways on the path of a conversation could communicate with the endpoints directly in order to notify them of congestion instead of dropping packets.
 
-Explicit Congestion Notification (ECN) \cite{rfc3168:ECN} is a protocol used by routers along network communication path to notify the endpoints that they should slow down, because there is ongoing congestion. There are 2 bits reserved for ECN directly in the IP header. It gives the routers ability to notify endpoints by marking packets instead of dropping them. Both sides have to support ECN - the receiver has to read the 2 bits and send ACK with the same bits back. The sender then may react like the ACK does not arrive at all. In May 2017, 70 \% of popular websites provided passive support for ECN\cite{ECN:proceedings}.
+Explicit Congestion Notification (ECN) \cite{rfc3168:ECN} is a protocol used by routers along network communication path to notify the endpoints that they should slow down, because there is ongoing congestion. There are 2 bits reserved for ECN directly in the IP header. It gives the routers ability to notify endpoints by marking packets instead of dropping them. Both sides have to support ECN --- the receiver has to read the 2 bits and send ACK with the same bits back. The sender then may react like the ACK does not arrive at all. In May 2017, 70 \% of popular websites provided passive support for ECN\cite{ECN:proceedings}.
 
 This all indicates that simple tail drop queues that drop packets only when they are full may be suboptimal for internet usage, and can be superseded by more sophisticated queueing algorithms in the gateways. The algorithms involve counter-intuitive idea of dropping perfectly good packets even if buffer is not full yet. The drop indicates a problem to the endpoints that may start to optimize the upstream rate, while still having some room for balancing bursts. This approach is called Active Queue Management (AQM), and is recommended to use throughout the Internet. In the following sections, we describe AQM algorithms and concepts.
 
@@ -140,8 +140,7 @@ p_a &= \frac{p_b}{1-\text{\emph{count}} \cdot p_b},
 
 where $\text{\emph{size}}_{packet}$ is size of the packet being enqueued and $\text{\emph{size}}_{\textsc{max}}$ is maximum size of packet. This way, large packets are more likely to get marked, and the probability corresponds more precisely to actual time that the packets spend in the queue.
 
-%!!!!!!!!!!!!!!!!!!je v pohode tam dat takyto odstavec o ktorom neviem vela?? ---vicemene jo, mas k tomu citace. Je vhodny dat tam nejaky varianty "other" a "we do not discuss this here" aby bylo jasny ze se tomu nechces venovat.
-Over the years, several variants of RED have been introduced. With Weighted RED, different packets have different probability functions for different classes of traffic (classified for example by DSCP). Adaptive RED \cite{Floyd01adaptivered:} tunes the RED algorithm to remove sensitivity to some of the parameters. Robust RED \cite{RRED} was proposed to counter low-rate Denial-of-Service attacks.
+Over the years, several variants of RED have been introduced that we do not discuss here. With Weighted RED, different packets have different probability functions for different classes of traffic (classified for example by DSCP). Adaptive RED \cite{Floyd01adaptivered:} tunes the RED algorithm to remove sensitivity to some of the parameters. Robust RED \cite{RRED} was proposed to counter low-rate Denial-of-Service attacks.
 
 
 \subsection{CoDel}
@@ -292,7 +291,7 @@ Deficit round-robin \cite{EffDRR} is an algorithm that extends SFQ and takes pac
 
 For each flow, DRR needs parameter $Q_i$, where $i$ is flow number. $Q_i$ roughly specifies how many bytes DRR can send from flow $i$. If $Q_i = Q_j$ for all $i$ and $j$, all queues get the same share of the bandwidth, and thus is fair. If $Q_i$ is twice $Q_j$, $i$-th to $j$-th bandwidth will be in ration $2:1$.
 
-Enqueue (pseudocode in algorithm \autoref{alg:DRR_deq}) is done in the SFQ--way: DRR chooses queue based on hash of certain IP header fields. It keeps list of active queues and works in $\mathcal{O}(1)$. When the buffer is full, packet is dropped from the fullest queue instead of dropping the incoming one.
+Enqueue (pseudocode in algorithm \autoref{alg:DRR_deq}) is done in the SFQ-way: DRR chooses queue based on hash of certain IP header fields. It keeps list of active queues and works in $\mathcal{O}(1)$. When the buffer is full, packet is dropped from the fullest queue instead of dropping the incoming one.
 
 The novelty of DRR lies in modified round-robin. Enqueue (pseudocode in algorithm \autoref{alg:DRR_deq}) works this way: there is a state variable $DC_i$ for each flow. The $DC_i$ is set to $Q_i$. At each round, DRR sends at most $DC_i$ bytes. Once sending next packet would break this rule, DRR puts queue  at the back of active queues list and sets $DC_i$ :
 \[
@@ -306,7 +305,7 @@ $b_{sent}$ is number of bytes sent that round from queue i --- that is subtracte
 	\begin{algorithmic}
 	\Function{enqueue}{Packet p}
 		\State FID $\leftarrow$ GetFlowIdentificator(p)
-		 \Comment {\parbox[t]{.4\linewidth}{Gets the identificator of flow that packet belongs to. Typically, it would be the five--tuple of source and destination addresses, source and destination ports and protocol, all from IP header of the packet}}
+		 \Comment {\parbox[t]{.4\linewidth}{Gets the identificator of flow that packet belongs to. Typically, it would be the five-tuple of source and destination addresses, source and destination ports and protocol, all from IP header of the packet}}
 		\State index $\leftarrow$ Hash(FID) \textbf{mod} NumberOfFlows
 		\State push(Queues[index], p)
 		\State \Return
@@ -348,7 +347,7 @@ FQ CoDel processes the flows in the DRR fashion, however it divides active queue
 
 FQ CoDel has parameters \X{Target} and \X{Interval} that configure the underlying CoDels. Further, there is \X{Quantum}, that is parallel of DRR's $Q_i$, however \X{Quantum} applies to all queues. \X{Limit} is the maximum number of packets the scheduler can hold at the same time.
 
-When a packet is enqueued in FQ CoDel, its flow is found based on its IP header in the SFQ fashion. Then, CoDel takes it over - it is timestamped and put in the back. If the flow is empty, it is pushed back into the list of new queues and its credits are set to \X{Quantum}.
+When a packet is enqueued in FQ CoDel, its flow is found based on its IP header in the SFQ fashion. Then, CoDel takes it over --- it is timestamped and put in the back. If the flow is empty, it is pushed back into the list of new queues and its credits are set to \X{Quantum}.
 
 To protect buffer from overload, FQ CoDel keeps track of total packets it is holding. Since a packet is just enqueued, \X{Limit} may be exceeded. If it is, the algorithm finds queue with the largest byte count and drops 64 packets from the \textit{front}. Dropping several packets at once amortises the time needed to find the longest queue.
 
@@ -430,7 +429,7 @@ The layout of TBF is shown in Figure \ref{fig09:tbf}. TBF enqueues packets into 
 \end{figure}
 In the area of traffic shaping, it is important to be able to precisely define traffic shape, and to have an algorithm that can follow this definition as precisely as possible. Hierarchic definitions are a natural way to do so. One such hierarchy is shown in Figure \ref{fig10:hierarchy}. It shows a link with 45 Mbps of bandwidth. Two organizations: CUNI and CTU share this link. The first one is guaranteed 25 Mbps and the latter 20 Mbps of the bandwidth. Both organizations define their internal traffic shape they want to have guaranteed.
 
-Every node is guaranteed to receive \textit{at least} the specified rate at all times. Additionally, we want the link to be always utilized as much as possible. For example, when CUNI only transmits 5 Mbps of video traffic, the excess 3 Mbps may be shared with the rest of the classes - first with sibling ones, and if whole CUNI does not generate enough traffic, CTU gets more than the guaranteed 20 Mbps.
+Every node is guaranteed to receive \textit{at least} the specified rate at all times. Additionally, we want the link to be always utilized as much as possible. For example, when CUNI only transmits 5 Mbps of video traffic, the excess 3 Mbps may be shared with the rest of the classes --- first with sibling ones, and if whole CUNI does not generate enough traffic, CTU gets more than the guaranteed 20 Mbps.
 
 
 We need an algorithm, that would enforce the hierarchy. One such algorithm is Hierarchical Token Bucket (HTB) \cite{HTB}. It divides traffic into classes that are further hierarchically grouped in a tree. The classes are divided into 8 levels of priority, which affects delay and distribution of excess resources but not the guaranteed rate. At actual dequeue, HTB uses deficit round-robin to serve all classes of the same priority, while conforming to token bucket limitations.
