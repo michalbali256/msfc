@@ -15,8 +15,8 @@ It has following parameters:
 	\item \X{Prios} --- the number of priority classes.
 	\item \X{Flows} --- the number of queues (CoDels) in each priority class (so there are $\X{Prios}*\X{Flows}$ total independent CoDels)
 	\item \X{Quantum} --- the quantum parameter of the inner fair DRR (see \autoref{DRR})
-	\item \X{Target} --- target delay parameter for CoDel algorithm (see \autoref{CoDel})
-	\item \X{Interval} --- Interval parameter for CoDel algorithm (see \autoref{CoDel})
+	\item \X{Target} --- target delay parameter for CoDel algorithm (see \autoref{CoDel}).
+	\item \X{Interval} --- Interval parameter for CoDel algorithm.
 	\item \X{Ratio} --- specifies the ratio of bandwidth of two adjacent priority classes. The ratio is enforced by the outer DRR. MSFC uses \X{Ratio} to compute quantums of all priority classes. The quantums rise exponentially:
 	\[
 	Q_p = \X{Quantum} \cdot \X{Ratio}^p,
@@ -78,7 +78,7 @@ Ns-3 (Network Simulator 3) is a discrete-event computer network simulator \cite{
 
 One of key abstractions of ns-3 is \emph{node}. It represents a network device --- a computer, router, server, etc. Node itself does not have any functionality; It is a container, into which we may install applications, network interfaces and protocols.
 
-\emph{Netdevice} is an abstraction of network interface of a computer. One node may contain more Netdevices, just like a common notebook may contain both Wi-Fi and Ethernet interface cards\todo{je mozny ze oponent uz videl stroj se 600 sitovejma kartama}. Netdevices are closely tied to channels. A channel represents connection between nodes (more specifically two or more Netdevices). For example, it may model something as simple as an Ethernet cable, but also as complex as a three-dimensional space full of obstructions in case of a Wi-Fi channel. The simplest channel is a point-to-point channel, which connects two Netdevices with a configured bandwidth and delay.
+\emph{Netdevice} is an abstraction of network interface of a computer. One node may contain more Netdevices, just like a common notebook may contain both Wi-Fi and Ethernet interface cards. Netdevices are closely tied to channels. A channel represents connection between nodes (more specifically two or more Netdevices). For example, it may model something as simple as an Ethernet cable, but also as complex as a three-dimensional space full of obstructions in case of a Wi-Fi channel. The simplest channel is a point-to-point channel, which connects two Netdevices with a configured bandwidth and delay.
 
 \begin{figure}
 	\centering

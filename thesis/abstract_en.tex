@@ -1,0 +1,7 @@
+Service differentiation, the ability of the QoS-providing mechanisms to satisfy different requirements of different network traffic types, is an important part of the Internet service delivery. Usual methods of improving differentiated service QoS require centralized traffic scheduling, which on the other hand can not react to disturbances in transit network of typical ISPs.
+
+In this thesis we describe, implement and benchmark a traffic scheduler that is simple enough to be placed at the
+exact bottleneck of the network where it precisely react to network problems; at the same time it
+supports a multi-flow multi-priority stochastical traffic scheduling that guarantees a level of fairness and service differentiation. The design is built on previous research in the area --- it combines the ideas of CoDel with SFQ.  
+
+We implement the resulting traffic scheduler, called Multilevel Stochastically Fair CoDel (MSFC), in the ns-3 network simulator. Benchmarks on a simulated ISP-like network show improvements in QoS of the differentiated services in comparison with other non-centralized classless traffic schedulers.
