@@ -1,23 +1,23 @@
 \chapter{Traffic scheduling}
 \label{chap1}
 
-Devices use packet buffering due to the asynchronous nature of the data transfer in packet-switched networks. In general, it is hard to tell how many packets should a device hold in the buffer at a moment: too small buffers result in big packet loss and too big buffers result in delay increase. 
+The devices in packet-switched networks use packet buffering in order to correctly handle the asynchronous nature of the data transfer and avoid data collisions at outbound network interfaces. In general, it is hard to tell how large queue of packets the device should allow in the buffer: too small buffers result in unnecessary packet loss, large buffers result in an undesirable delay of packet transfer when the buffers is full.
 
-A traffic scheduler manages the packets that are stored in the buffer. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Additionally, a traffic scheduler may decide to drop a packet --- to delete it. Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue returns the next packet to transmit.
+A traffic scheduler is an algorithm that manages the packets stored in the buffer. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Additionally, a traffic scheduler may decide to drop a packet (i.e. to delete it without transmitting). Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue should return the next packet that the device will transmit.
 
-The natural simplest traffic scheduler is a FIFO queue --- the packets are transmitted by the order of their arrival. In traffic scheduling context, the queue is often referred to as first-come first-serve (FCFS) queue. However, as shown throughout this chapter, problems arise from using such simple solution, that must be solved by using more sophisticated methods instead.
+The simplest reasonable traffic scheduler is a FIFO queue --- the packets are transmitted by the order of their arrival. In traffic scheduling context, the queue is often referred to as first-come first-serve (FCFS) queue. However, as shown in this chapter, problems arise when using such simple solution, that must be solved by using more sophisticated methods instead.
 
-Traffic scheduling severely affects overall performance of networks and particularly the Internet. Because of the universal Internet availability, ever-rising number of services now utilizes the internet protocol, instead of using traditional transfer media (e.g. IPTV, VoIP, teleconferencing). This results in more pressure on maintaining acceptable quality of service (QoS).
+Traffic scheduling affects overall performance of networks and particularly the Internet. Because of the widespread Internet availability, an ever-rising number of services now utilizes the internet protocol, even for purposes that replace other traditional transfer media (e.g. IPTV, VoIP or teleconferencing). This results in a need to maintain quality of internet service (QoS) that is comparable with the original media on a network that is already occupied by different services (e.g. HTTP, remote access and file-sharing services).
 
-The term quality of service is used to denote overall performance of the Internet. There are a few measurable qualities, that are considered to represent QoS well. They are also used to measure performance of traffic schedulers:
+The term \emph{quality of service} is used to denote overall performance of the Internet. There are several measurable qualities that are considered to represent QoS well. These may also be used to measure performance of traffic schedulers:
 \begin{itemize}
-	\item Throughput --- the bit rate --- number of bits that are transmitted per second
-	\item Packet loss --- ratio of packets that never reach their destination to all packets.
-	\item Delay --- time that elapses between packet sending and receiving.
-	\item Jitter --- variance in delay of consecutive packets.
+	\item Throughput --- the `bit rate' --- amount of data that transmitted per second
+	\item Packet loss --- ratio of packets that fail to reach their destination
+	\item Delay --- time that elapses between packet sending and receiving
+	\item Jitter --- variance in the delay of packets
 \end{itemize}
 
-Various qualities may be required for different services. Voice over Internet Protocol (VoIP), which allows users to to phone each other over the IP requires small packet delay, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements. Table \ref{tab:QoS} shows different services and their QoS requirements \cite{Tanenbaum:2002:CN:572404}.
+Various qualities may be required for different services. For example, Voice over Internet Protocol (VoIP), which allows users to phone each other over the IP, requires small packet delay, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements. Table \ref{tab:QoS} shows different types of services and their QoS requirements \cite{Tanenbaum:2002:CN:572404}.
 
 \begin{table}
 	\caption{Stringency of services’ quality-of-service requirements.}
@@ -41,13 +41,12 @@ Various qualities may be required for different services. Voice over Internet Pr
 \end{table}
 
 
-There is a wide range of requirements an ideal traffic scheduler should satisfy. These include avoiding poor QoS and enforcing fairness for all applications (users). Also, Internet service providers use scheduling to define the shape of traffic provided to customers. This chapter offers a summary of basic concepts used in the traffic scheduling.
+There is a wide range of requirements that an ideal traffic scheduler should satisfy. These include avoiding poor QoS and enforcing fairness for all applications (users). Also, Internet service providers use scheduling to define the shape of traffic provided to customers. This chapter offers a summary of basic concepts used in the traffic scheduling.
 
 \section{Bufferbloat}
 \label{chap:bb}
 
 In gateways of packet-switched networks, short-term differences between arrival and departure rate of network traffic occur naturally as a result of network multiplexing and applications' behaviour. To balance these bursts of incoming traffic, gateways use buffers --- a limited amount of memory, that stores packets that were received and wait to be forwarded by another link. In the following paragraphs we demonstrate the negative effects of using traffic scheduler as simple as FIFO queue.
-
 
 If the buffer in a device is big enough, every time an outgoing link asks for the next packet, there in one available in the device regardles of differences in packets arrival and departure rate. That is desirable, because the throughput is maximized. Without buffers, the gateway has no place to store incoming packets and thus has to drop them, which decreases throughput.
 
@@ -55,7 +54,7 @@ Even though it may seem that bigger buffers are better, it is not true --- the m
 
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/tcp_no_bottleneck}
+	\includegraphics[width=.8\linewidth]{drawings/tcp_no_bottleneck}
 	\caption{TCP without bottleneck. The grey rectangles are packets. Horizontal dimension is time, vertical is bandwidth. That means the area of rectangle is size of packet.}
 	\label{fig01:no_bottle}
 \end{figure}
@@ -74,7 +73,7 @@ One of reasons of bufferbloat is mismatch between the size of the congestion win
 
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/tcp_bottleneck_1}
+	\includegraphics[width=.8\linewidth]{drawings/tcp_bottleneck_1}
 	\caption{Start of a TCP communication.}
 	
 	\label{fig02:bottle_1}
@@ -87,7 +86,7 @@ This way, after one RTT, TCP approximated the bandwidth of the bottleneck and th
 
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/tcp_bottleneck_2}
+	\includegraphics[width=.8\linewidth]{drawings/tcp_bottleneck_2}
 	\caption{TCP after one RTT}
 	
 	\label{fig03:bottle_2}
@@ -105,7 +104,7 @@ This all indicates that simple tail drop queues that drop packets only when they
 
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/RED}
+	\includegraphics[width=.8\linewidth]{drawings/RED}
 	\caption{The Random Early Drop algorithm (Image taken from wikipedia \cite{RED:picture}) }
 	
 	\label{fig04:RED}
@@ -225,7 +224,7 @@ In many of the proposed solutions, fairness is achieved by isolating different s
  
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/parking_lot}
+	\includegraphics[width=.8\linewidth]{drawings/parking_lot}
 	\caption{The parking lot problem. G1--G3 denote gateways, F1--F4 denote traffic flows. The rest of labels are ratios of flow bandwidths.}
 	
 	\label{fig05:ParkingLot}
@@ -334,7 +333,7 @@ Although DRR may not send exactly the same amount of bytes each round, it become
 
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/fq_codel}
+	\includegraphics[width=.8\linewidth]{drawings/fq_codel}
 	\caption{FQ-CoDel state-machine.}
 	\label{fig06:fqcodel}
 \end{figure}
@@ -377,13 +376,13 @@ Both use the same parameters --- rate $R$, at which packets leave and size of bu
 	\centering
 	\begin{subfigure}{.6\linewidth}
 		\centering
-		\includegraphics[width=75mm]{drawings/token_bucket}
+		\includegraphics[width=.9\linewidth]{drawings/token_bucket}
 		\caption{Token bucket}
 		\label{fig08:token}
 	\end{subfigure}%
 	\begin{subfigure}{.4\linewidth}
 		\centering
-		\includegraphics[width=47mm]{drawings/leaky_bucket}
+		\includegraphics[width=.9\linewidth]{drawings/leaky_bucket}
 		\caption{Leaky bucket}
 		\label{fig08:leaky}
 	\end{subfigure}
@@ -408,7 +407,7 @@ since water leaks from the bucket even after the burst begins. $B + Rt$ is numbe
 
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/tbf}
+	\includegraphics[width=.8\linewidth]{drawings/tbf}
 	\caption{Token bucket filter. Picture taken from wikipedia \cite{TBF:picture}}
 	
 	\label{fig09:tbf}
@@ -422,7 +421,7 @@ The layout of TBF is shown in Figure \ref{fig09:tbf}. TBF enqueues packets into 
 \subsection{Hierarchical token bucket}
 \begin{figure}
 	\centering
-	\includegraphics[width=137mm]{drawings/hierarchy}
+	\includegraphics[width=.8\linewidth]{drawings/hierarchy}
 	\caption{Traffic pattern organized in a hierarchy.}
 	
 	\label{fig10:hierarchy}
