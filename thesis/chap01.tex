@@ -17,7 +17,7 @@ The term quality of service is used to denote overall performance of the Interne
 	\item Jitter --- variance in delay of consecutive packets.
 \end{itemize}
 
-Various qualities may be required for different services. Voice over Internet Protocol (VoIP), which allows users to to phone each other over the IP requires small packet delay, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements whatsoever. Table \ref{tab:QoS} shows different services and their QoS requirements \cite{Tanenbaum:2002:CN:572404}.
+Various qualities may be required for different services. Voice over Internet Protocol (VoIP), which allows users to to phone each other over the IP requires small packet delay, packet loss and jitter. Internet protocol television (IPTV) additionally requires sufficient throughput. On the other hand, e-mail does have little requirements. Table \ref{tab:QoS} shows different services and their QoS requirements \cite{Tanenbaum:2002:CN:572404}.
 
 \begin{table}
 	\caption{Stringency of services’ quality-of-service requirements.}
@@ -46,7 +46,7 @@ There is a wide range of requirements an ideal traffic scheduler should satisfy.
 \section{Bufferbloat}
 \label{chap:bb}
 
-In gateways of packet-switched networks, short-term differences between arrival and departure rate of network traffic occur naturally as a result of network multiplexing and applications' behaviour. To balance these bursts of incoming traffic, gateways use buffers --- a limited amount of memory, that stores packets, that were received and wait to be forwarded by another link. In the following paragraphs, we demonstrate the negative effects of using traffic scheduler as simple as FIFO queue.
+In gateways of packet-switched networks, short-term differences between arrival and departure rate of network traffic occur naturally as a result of network multiplexing and applications' behaviour. To balance these bursts of incoming traffic, gateways use buffers --- a limited amount of memory, that stores packets that were received and wait to be forwarded by another link. In the following paragraphs we demonstrate the negative effects of using traffic scheduler as simple as FIFO queue.
 
 
 If the buffer in a device is big enough, every time an outgoing link asks for the next packet, there in one available in the device regardles of differences in packets arrival and departure rate. That is desirable, because the throughput is maximized. Without buffers, the gateway has no place to store incoming packets and thus has to drop them, which decreases throughput.
@@ -60,7 +60,7 @@ Even though it may seem that bigger buffers are better, it is not true --- the m
 	\label{fig01:no_bottle}
 \end{figure}
 
-To understand why the queues become bloated, let us take a look at Transmission Control Protocol (TCP) \cite{rfc793}, which is currently the most widely used layer 4 protocol. It achieves the reliability of packet delivery with the following policy: After a packet is transmitted and received, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must be resent. Waiting for ACK after each packet would provide miserable throughput since most of the time both sides would wait a for single packet. Instead, the sender goes ahead and transmits packets without getting ACKs on previous ones. This fills the whole route (see Figure \ref{fig01:no_bottle}), so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing.
+To understand why the queues become bloated, let us take a look at Transmission Control Protocol (TCP) \cite{rfc793}, which is currently the most widely used layer 4 protocol. It achieves the reliability of packet delivery with the following policy: After a packet is transmitted and received, the receiver sends an ACK packet back to sender, to let him know which packets were successfully received, and which packets must be resent. Waiting for an ACK after each packet would provide miserable throughput since most of the time both sides would wait a for single packet. Instead, the sender goes ahead and transmits packets without getting ACKs on previous ones. This fills the whole route (see Figure \ref{fig01:no_bottle}), so at all times one packet is being sent, and one packet is being received. The ACKs that come back retain the same spacing.
 
 Figure \ref{fig01:no_bottle} shows connection with constant bandwidth along whole path, which is, unfortunately, rarely the case in today Internet. Typical path between the communicants consists of many hops with links of different bandwidth. One of the links will inevitably become a bottleneck --- a link with lowest bandwidth. In the resulting situation, if the sender would transmit at the rate of the adjacent link, the network would become congested. The bottleneck link would not be able to forward all the incoming traffic, its buffer would fill, and the rest of the arriving packets would be dropped. That would actually induce even more traffic, because the sender would try to resend the dropped packets.
 
@@ -209,11 +209,8 @@ CoDel works in following way: every time a packet arrives, a time stamp is tagge
 \[
   \X{DropInterval} = \frac{\textsc{Interval}}{\sqrt{n}},
 \]
-where $n$ is the number of packets dropped since dropping state entry and DropInterval is the time after the next packet will be dropped \footnote{CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue}. The pseudocode of the algorithm is in Algorithm \ref{alg:CoDel}.
+where $n$ is the number of packets dropped since dropping state entry and DropInterval is the time after the next packet will be dropped \footnote{CoDel does not drop packets, if fewer that MTU (Maximum Transmission Unit) worth of bytes is in queue.}. The pseudocode of the algorithm is in Algorithm \ref{alg:CoDel}.
 
-
-\todo{Oponentova otazka: Proc je tam ta odmocnina? Je za tim trochu matematiky diky ktery to TCPckum ``akorat'' rekne o kolik maj zpomalit. Opsat tu matematiku z paperu by bylo fajn.}
- 
 CoDel and RED both address the bufferbloat problem and both manage to mitigate the problem at the very least. CoDel superseded RED by its easiness to deploy. However, both algorithms work above a single FIFO queue, which is their limitation especially if multiple non-cooperating traffic streams try to use this single queue at once. The next section shows how traffic scheduling may benefit from using multiple queues in parallel.
 
 \section{Fair queueing}
@@ -261,6 +258,36 @@ McKenney's scheme is valuable for bufferstealing and stochastic approach, howeve
 
 \subsection{Deficit round-robin}
 \label{DRR}
+
+\begin{algorithm}[t]
+	\caption{DRR queueing algorithm}
+	\label{alg:DRR_deq}
+	\begin{algorithmic}
+		\Function{enqueue}{Packet p}
+		\State FID $\leftarrow$ GetFlowIdentificator(p)
+		\Comment {\parbox[t]{.4\linewidth}{Gets the identificator of flow that packet belongs to. Typically, it would be the five--tuple of source and destination addresses, source and destination ports and protocol, all from IP header of the packet}}
+		\State index $\leftarrow$ Hash(FID) \textbf{mod} NumberOfFlows
+		\State push(Queues[index], p)
+		\State \Return
+		\EndFunction
+		\Function{dequeue}{}
+		\While{true}
+		\State F $\leftarrow$ pop(ActiveQueues);
+		\If {empty(F)}
+		\State Deactivate(F)
+		\ElsIf{F.DC \textgreater~head(F).PacketSize}
+		
+		\State {F.DC $\leftarrow$ F.DC - head(F).PacketSize}
+		\State \Return pop(F)
+		\Else \Comment{The packet is bigger than DC}
+		\State F.DC $\leftarrow$ F.DC + Q
+		\State push(ActiveQueues, F)
+		\EndIf
+		\EndWhile
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
 Deficit round-robin \cite{EffDRR} is an algorithm that extends SFQ and takes packet length into consideration, so every flow gets the same bandwidth in the long term regardless of its packet characteristics. For each queue, it uses deficit counter that counts how many bytes were dequeued from the queue. If a packet can not be sent because it is too big, remaining bytes in the counter transfer to the next round. It still requires only $\mathcal{O}(1)$ time for all the operations.
 
 For each flow, DRR needs parameter $Q_i$, where $i$ is flow number. $Q_i$ roughly specifies how many bytes DRR can send from flow $i$. If $Q_i = Q_j$ for all $i$ and $j$, all queues get the same share of the bandwidth, and thus is fair. If $Q_i$ is twice $Q_j$, $i$-th to $j$-th bandwidth will be in ration $2:1$.
@@ -273,7 +300,7 @@ The novelty of DRR lies in modified round-robin. Enqueue (pseudocode in algorith
 \]
 $b_{sent}$ is number of bytes sent that round from queue i --- that is subtracted from $DC_i$. Further, DRR replenishes the deficit counter, so it may send packets in the next round. If there are no packets in queue left, it is deactivated instead of putting it in the back.
 
-\begin{algorithm}[H]
+\begin{algorithm}[t]
 	\caption{DRR queueing algorithm}
 	\label{alg:DRR_deq}
 	\begin{algorithmic}
@@ -339,7 +366,7 @@ FQ CoDel is fast and simple enough to be deployed in ordinary home routers. Furt
 
 In some applications, perfectly fair queueing (the same bandwidth for all) may not be applicable. Instead, it is beneficial to give up the best-effort basis in order to maintain good QoS for all users and services in the network, as different services have different needs and different users have different service level agreements. 
 
-Traffic shaping is set of techniques for regulating the average rate and burstiness of a flow of data that enters the network. The customer and ISP agree on certain traffic pattern (or shape) that provider then shall guarantee. ISP tries to suit all application's requirements for QoS. Also, the goal is to describe traffic patterns in a simple and robust way. Traffic shaping provides ISP with the ways to do it. It is also suitable for congestion avoidance, since it controls amount of traffic in network.
+Traffic shaping is set of techniques for regulating the average rate and burstiness of a flow of data that enters the network. The customer and ISP agree on certain traffic pattern (or shape) that provider then shall guarantee. ISP tries to suit all application requirements for QoS. Also, the goal is to describe traffic patterns in a simple and robust way. Traffic shaping provides ISP with the ways to do it. It is also suitable for congestion avoidance since it controls amount of traffic in network.
 
 \subsection{Leaky bucket and Token bucket}
 \label{token_bucket}
@@ -365,19 +392,19 @@ Both use the same parameters --- rate $R$, at which packets leave and size of bu
 	\label{fig08:token_leaky}
 \end{figure}
 
-Illustration of a leaky bucket is in Figure \ref{fig08:leaky}.The algorithm needs a counter variable $C$. If there is any water in the bucket ($C > 0$), it leaks ($C$ decreases) at rate $R$. Every time a packet comes, its size is added to this counter. If $C + \X{PacketSize}$ is more than $B$, packet must wait until $C + \X{PacketSize} < B$ holds (until enough water leaks) or is dropped. Note, that R is not the same as the output bandwidth. When the bucket is empty, the leaky bucket sends packets as they come until the bucket is filled. 
+Illustration of a leaky bucket is in Figure \ref{fig08:leaky}. The algorithm needs a counter variable $C$. If there is any water in the bucket ($C > 0$), it leaks ($C$ decreases) at rate $R$. Every time a packet comes, its size is added to this counter. If $C + \X{PacketSize}$ is more than $B$, packet must wait until $C + \X{PacketSize} < B$ holds (until enough water leaks) or is dropped. Note, that R is not the same as the output bandwidth. When the bucket is empty, the leaky bucket sends packets as they come until the bucket is filled. 
 
-Token bucket is in Figure \ref{fig08:token}. In this case, algorithm adds tokens to $C$ at rate $R$. Every time a packet passes, it takes tokens equal to its size from the bucket (its packet size is subtracted from $C$), or, if $C - PacketSize < 0$, the packet must wait until enough tokens are in $C$. 
+Token bucket is in Figure \ref{fig08:token}. In this case, algorithm adds tokens to $C$ at rate $R$. Every time a packet passes, it takes tokens equal to its size from the bucket (its packet size is subtracted from $C$), or, if $C - PacketSize < 0$, the packet must wait until enough tokens are in the bucket. 
 
 The concept may be used in two ways --- in the place of scheduler, that actually holds the packets in FCFS queue. Secondly, ISPs can use it in traffic policing, to enforce service level agreement. In that case, token/leaky bucket just manages the buckets based on packets that flow by, and drops them if the buckets are empty/full.
 
-The fundamental feature of the bucket concept is, that it enforces certain bandwidth, while allowing short-term bursts (that are necessary in networks). Let M be maximum output rate in B/s, and t the time between start of burst and dropping (withholding) first packet. Then it holds:
+The fundamental feature of the bucket concept is, that it enforces certain bandwidth, while allowing short-term bursts (that are necessary in packet switching networks). Let M be maximum output rate in B/s, and t the time between start of burst and dropping (withholding) first packet. Then it holds:
 \[
-	B + RS = MS,
+	B + Rt = Mt,
 \]
-since water leaks from the bucket even after the burst begins. $B + RS$ is number of bytes bucket permits, $MS$ is the number of bytes output link is able transmit. Thus,
+since water leaks from the bucket even after the burst begins. $B + Rt$ is number of bytes bucket permits, $Mt$ is the number of bytes output link is able to transmit. Thus,
 \[
-	\X{MaxBurstSize} = MS = M\frac{B}{M - R}.
+	\X{MaxBurstSize} = Mt = M\frac{B}{M - R}.
 \]
 
 \begin{figure}
@@ -389,9 +416,9 @@ since water leaks from the bucket even after the burst begins. $B + RS$ is numbe
 \end{figure}
 
 \subsection{Token Bucket Filter}
-Token Bucket Filter (TBF) is traffic scheduler implemented in the Linux kernel. It uses the token bucket with FCFS queue. Additionally, it limits peak maximum output rate by adding second small bucket. This bucket is only the size of the maximum transmission unit (MTU), and has the higher configurable peak rate --- TBF never transmits at higher rate that this peak. It prevents the scheduler from taking all the bandwidth of the output link.
+Token Bucket Filter (TBF) is a traffic scheduler (qdisc) implemented in the Linux kernel. It uses the token bucket with FCFS queue. Additionally, it limits peak maximum output rate by adding second small bucket. This bucket is only the size of the maximum transmission unit (MTU), and has a configurable peak rate --- TBF never transmits at higher rate than this peak. It prevents the scheduler from taking all the bandwidth of the output link.
 
-It is shown in Figure \ref{fig09:tbf}. TBF enqueues packets into common FCFS queue. It may become full, if number of bytes in it exceeds $Limit$ --- then incoming packet is simply dropped. The dequeue is controlled by two token buckets --- both of them must have enough tokens to allow packet sending. The smaller bucket is size of MTU, $Rate$, $PeakRate$ as well as size of the bigger bucket $Burst$ are parameters of the algorithm.
+The layout of TBF is shown in Figure \ref{fig09:tbf}. TBF enqueues packets into a FCFS queue. It may become full, if number of bytes in it exceeds $Limit$ --- then incoming packet is simply dropped. The dequeue is controlled by two token buckets --- both of them must have enough tokens to allow packet sending. The smaller bucket size is MTU, \X{Rate}, \X{PeakRate} as well as the size of the bigger bucket \X{Burst} are parameters of the algorithm.
 
 \subsection{Hierarchical token bucket}
 \begin{figure}
@@ -401,35 +428,35 @@ It is shown in Figure \ref{fig09:tbf}. TBF enqueues packets into common FCFS que
 	
 	\label{fig10:hierarchy}
 \end{figure}
-In the area of traffic shaping, it is important to be able to precisely define traffic shape, and to have an algorithm that can follow this definition as precisely as possible. Hierarchic definitions are a natural way to do so. One such hierarchy is shown in Figure \ref{fig10:hierarchy}. It shows a link with 45 Mbps of bandwidth. Two organizations: CUNI and CTU share this link. The first one is guaranteed 25 Mbps and the latter 20 Mbps of the bandwidth. Both organizations then define their internal traffic shape they want to have guaranteed.
+In the area of traffic shaping, it is important to be able to precisely define traffic shape, and to have an algorithm that can follow this definition as precisely as possible. Hierarchic definitions are a natural way to do so. One such hierarchy is shown in Figure \ref{fig10:hierarchy}. It shows a link with 45 Mbps of bandwidth. Two organizations: CUNI and CTU share this link. The first one is guaranteed 25 Mbps and the latter 20 Mbps of the bandwidth. Both organizations define their internal traffic shape they want to have guaranteed.
 
-Every node is guaranteed to receive \textit{at least} the specified rate at all time. We want the link to be utilized as much as possible at all times. For example, when CUNI only transmits 5 Mbps of video traffic, the excess 3 Mbps may be shared with the rest of classes - first with sibling ones, and if whole CUNI does not generate enough traffic, CTU gets more than the guaranteed 20 Mbps.
+Every node is guaranteed to receive \textit{at least} the specified rate at all times. Additionally, we want the link to be always utilized as much as possible. For example, when CUNI only transmits 5 Mbps of video traffic, the excess 3 Mbps may be shared with the rest of the classes - first with sibling ones, and if whole CUNI does not generate enough traffic, CTU gets more than the guaranteed 20 Mbps.
 
 
-Secondly, we need an algorithm, that would enforce the hierarchy. One such algorithm is Hierarchical Token Bucket (HTB) \cite{HTB}. It divides traffic into classes that are further hierarchically grouped in a tree. Classes are divided into 8 levels of priority, which affects delay and distribution of excess resources, but not guaranteed rate. At actual dequeue, HTB uses deficit round-robin to serve all classes of the same priority, while conforming to token bucket limitations.
+We need an algorithm, that would enforce the hierarchy. One such algorithm is Hierarchical Token Bucket (HTB) \cite{HTB}. It divides traffic into classes that are further hierarchically grouped in a tree. The classes are divided into 8 levels of priority, which affects delay and distribution of excess resources but not the guaranteed rate. At actual dequeue, HTB uses deficit round-robin to serve all classes of the same priority, while conforming to token bucket limitations.
 
 Every node of the tree takes several parameters:
 \begin{itemize}
-	\item priority --- classes with higher priority are served first. 0 is the highest priority and 8 is the lowest.
-	\item rate --- guaranteed rate the class gets.
-	\item ceil --- maximum rate the class can get.
-	\item burst --- size of the main bucket (see \ref{token_bucket}).
-	\item cburst --- size of the ceil (peak) bucket, should be set small, like average size of packet.
+	\item \X{Priority} --- the classes with higher priority are served first.
+	\item \X{Rate} --- the guaranteed rate the class gets.
+	\item \X{Ceil} --- the maximum rate the class can get.
+	\item \X{Burst} --- size of the main bucket (see \ref{token_bucket}).
+	\item \X{Cburst} --- size of the ceil (peak) bucket. It should be set to a size close to the average size of packet.
 \end{itemize}
 
-There are two token buckets in each class, one with size $burst$ and rate $rate$, the second determines maximum rate, has size $cburst$ and rate $ceil$. The main idea of HTB that allows distribution of excess resources is, that child classes can borrow tokens from their parents, if they have exceeded $rate$ (and do not have any tokens left in the main bucket). They are, however, still limited by $ceil$. According to this, classes can be divided into 3 groups. Then:
+There are two token buckets in each class, one with size \X{Burst} and rate \X{Rate}. The second which has size \X{Cburst} and rate \X{Ceil} determines maximum rate. The main idea of HTB that allows distribution of excess resources is that a child class can borrow tokens from its parents, if the child has exceeded \X{Rate} (and do not have any tokens left in the main bucket). Each class is, however, still limited by the second smaller bucket --- with the \X{Ceil} rate. Classes can be divided into 3 groups during the scheduler operation:
 \begin{itemize}
-	\item Green --- Class has enough tokens (does not exceed $rate$)
-	\item Yellow --- Class exceeds $rate$, but does not exceed $ceil$. It may borrow from parent class(es).
-	\item Red --- Class exceeds $ceil$, and packets must be backlogged until it gets more tokens (either its own or borrowed).
+	\item Green --- The class has enough tokens (did not exceed \X{Rate})
+	\item Yellow --- The class exceeds \X{Rate}, but does not exceed \X{Ceil}. It may borrow from parent class(es).
+	\item Red --- The class exceeds \X{Ceil}, and packets must be backlogged until the class gets more tokens (either its own or borrowed).
 \end{itemize}
 
 
-When HTB determines which class to dequeue, it chooses the colour of class first. It serves an yellow class only if there are no green ones. Red classes are never served. Green classes are the ones that do not reach the guaranteed rate yet and thus have highest priority. Next, it filters classes based on priority: HTB never chooses class of priority $i$ if any of the priorities $\left\langle0,i\right)$ are available. If there are more classes of the same priority and color, they are served in round-robin fashion using DRR with the quantums of classes set according to the class $rate$. By default, quantum is 1/10 of $rate$. 
+When HTB determines from which class to dequeue, first it chooses the colour of the class. It serves a yellow class only if there are no green ones. Red classes are never served. The green classes have not reached the guaranteed rate yet and thus have the highest priority.
 
-The yellow classes may only borrow from its parent, if it is not red. If it is yellow, it results in recursion --- parent has to borrow tokens from grandparent and so on.
+Next, HTB filters classes based on priority: HTB never chooses class of priority $i$ if any of the priorities $\left\langle0,i\right)$ is available. If there are more classes of the same priority and color, they are served in round-robin fashion using DRR with the \X{Quantum} of classes set proportionally to the \X{Rate} of the class. By default, \X{Quantum} is $\frac{\X{rate}}{10}$. 
 
-In other words, HTB uses the token bucket hierarchy to mark classes with colour and thus prioritize ones, that have not received $rate$. On the second level, it prioritizes classes with higher priority. On the third level, all classes are equal, thus it uses DRR. On the fourth level, there is usually FCFS queue to buffer the withheld packets. However, in the implementation in the Linux kernel, one may assign any qdisc to each class.
+The yellow classes may only borrow from its parent, if it is not red. If it is yellow, it results in recursion --- the parent has to borrow tokens from grandparent and so on.
 
-%HFSC --- asi neni potreba, mozna bys moh udelat jen nejakej rychlokapitolu s tim ze "other queueing disciplines" kde rychle zminis HFSC, CBQ, PIE, BLUE, Choke, QFQ a podobny kraviny a nejak rychle to uzavres.
-%zaver?
+In other words, HTB uses the token bucket hierarchy to mark classes with colour and thus prioritize ones that have not received \X{Rate}. On the second level, it prioritizes classes with higher priority. On the third level, all classes are equal, thus it uses DRR. On the fourth level, there is usually FCFS queue to buffer the withheld packets. However, in the implementation in the Linux kernel, one may assign any qdisc to each class.
+
