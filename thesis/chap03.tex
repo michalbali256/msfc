@@ -47,12 +47,12 @@ The count ratio column specifies the ratio of number of applications installed p
 	\centering
 	\begin{tabular}{@{}llll@{}}
 		\toprule
-		             & CoDel  & FQ CoDel  & MSFC      \\ \midrule
-		\X{Target}   & 5 ms   & 5 ms      & 5 ms      \\
-		\X{Interval} & 100 ms & 100 ms    & 100 ms    \\
-		\X{Flows}    & n/a    & \XX{TODO} & \XX{TODO} \\
-		\X{Quantum}  & n/a    & MTU       & MTU       \\
-		\X{Ratio}    & n/a    & n/a       & 2         \\ \bottomrule
+		             & CoDel  & FQ CoDel & MSFC   \\ \midrule
+		\X{Target}   & 5 ms   & 5 ms     & 5 ms   \\
+		\X{Interval} & 100 ms & 100 ms   & 100 ms \\
+		\X{Flows}    & n/a    & 1024     & 1024   \\
+		\X{Quantum}  & n/a    & MTU      & MTU    \\
+		\X{Ratio}    & n/a    & n/a      & 2      \\ \bottomrule
 	\end{tabular}
 	\caption{The traffic scheduler parameters used in the simulation.}
 	\label{tab:parameters}
@@ -101,7 +101,7 @@ Figure \ref{fig:delay_flows_A} shows detailed comparison of delays of FQ CoDel a
 \begin{figure}
 	\centering
 	\includegraphics[width=137mm]{drawings/type6-delay-down_A}
-	\caption{The distribution of delay of \emph{torrent} packets in seconds in simulation A.}
+	\caption{The distribution of delay of \emph{torrent} packets in seconds.}
 	\label{fig:torrent_delay}
 \end{figure}
 
@@ -124,7 +124,7 @@ Figure \ref{fig:delay_flows_A} shows detailed comparison of delays of FQ CoDel a
 		{{\small Delay of \emph{TV} flows}}    
 		\label{fig:delay_tv}
 	\end{subfigure}
-	\par\bigskip % force a bit of vertical whitespace
+
 	\begin{subfigure}[b]{0.475\textwidth}   
 		\centering 
 		\includegraphics[width=\textwidth]{drawings/type4-delay-down_A}
@@ -141,7 +141,7 @@ Figure \ref{fig:delay_flows_A} shows detailed comparison of delays of FQ CoDel a
 		\label{fig:delay_download}
 	\end{subfigure}
 	\caption[]
-	{\small The distribution of delay of different types of flows. We omit a small fraction of extreme values to get better visualization, however the means are calculated from all values.} 
+	{\small The distribution of delay of different types of flows. We omit a small fraction of extreme values to get better visualization, however the means are calculated from all values. The quantization observable especially on MSFC delay on TV flows is caused by the fact that queue sizes (that cause the delay) are always multiples of a relatively large packet size.} 
 	\label{fig:delay_flows_A}
 \end{figure*}
 
@@ -155,6 +155,8 @@ Figure \ref{fig:delay_flows_A} shows detailed comparison of delays of FQ CoDel a
 We ran a simulation with priorities according to Table \ref{tab:flows_count_B}. The prioritization demonstrates wrong configuration of MSFC --- the lowest priority is assigned to very few flows. The configuration in fact indicates, that \emph{most} of the traffic should be prioritized. However, that is impossible by design.
 
 The notable difference is noticeable in the throughput of \emph{torrent} flows, see Table \ref{tab:throughput_B}. With this priority assignment, MSFC gave \emph{torrent} almost two times higher throughput than FQ CoDel, although we assigned the lowest priority to the \emph{torrent} flows. All the priority 1 flows have less throughput and worse delay. This unpleasant behaviour is caused by the distribution of flows into the priorities (see Table \ref{tab:flows_count_B}) and the fact, that MSFC treats flows of different priority classes absolutely separately. There are too many flows, that 'fight' for the bandwidth of priority 1 class, while there are few flows, for which MSFC reserves whole priority 0 class.
+
+Figure \ref{fig:delay_flows_B} shows the distribution of delays delays of FQ CoDel and MSFC in this configuration.
 
 The priority 2 flows results ended up without any notable difference. Also it is worth mentioning that even though we assigned flows with low data rate to the priority 2 class, which reserves huge bandwidth, it did not affect the overall throughput negatively. When packets of the highest priority class were not available, its bandwidth was assigned to the rest of priority classes.
 
@@ -196,7 +198,7 @@ The priority 2 flows results ended up without any notable difference. Also it is
 		\label{fig:delay_download_B}
 	\end{subfigure}
 	\caption[]
-	{\small The distribution of delay of different types of flows in simulation B. We omit few extreme values to get better visualization, however the means are calculated from all values.} 
+	{\small The distribution of delay of different types of flows in simulation, that demonstrates wrong configuration of priorities. We omit few extreme values to get better visualization, however the means are calculated from all values.} 
 	\label{fig:delay_flows_B}
 \end{figure*}
 

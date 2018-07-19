@@ -49,7 +49,7 @@ There are three kinds of objects used in traffic control: qdisc (queuing discipl
 
 When kernel decides a packet is ready to be sent, it enqueues the packet in root qdisc (that exists in every configuration). If the root qdisc is classful, it may end up in any of its child classes. An arbitrary number of filters may be assigned to every class. When a packet arrives to a qdisc with multiple child classes, it calls the filters one by one, until one of them returns with a verdict. The qdisc then enqueues the packet in the child qdisc of the chosen class.
 
-However, the concept of classes and filters is not obligatory to use, it depends on implementation of particular queueing discipline. For example, a classful qdisc may not use any filters to classify a packet, but use a different method instead (e.g. Type of Service field in IP header). Also, a qdisc may be classless in relation to Linux kernel, but still use internal 'classes' --- treat different groups of packets differently.
+However, the concept of classes and filters is not obligatory to use, it depends on implementation of particular queueing discipline. For example, a classful qdisc may not use any filters to classify a packet, but use a different method instead (e.g. Type of Service field in IP header). Also, a qdisc may be classless in relation to Linux kernel, but still use internal `classes' --- treat different groups of packets differently.
 
 In the kernel, packets are represented by struct \TT{sk\_buff} (socket buffer). This avoids copying of packets and provides attributes like a pointer to the socket where the packet was created, timestamps, length, etc. One of the attributes is (queuing) priority. By default, the kernel sets the priority to the value of the field Type of Service from packet IP header. However, the adminitrator may configure the system to change the priority in postrouting mangle phase (see Figure \ref{fig12:linux}) and thus classify packets before they come to qdisc.
 
@@ -92,6 +92,7 @@ The concept of nodes, Netdevices and channels works generally for all networks. 
 
 The ns-3 traffic control simulates the traffic control objects in the Linux kernel. Qdisc is represented by \TT{QueueDisc}, class is \TT{QueueDiscClass} and the filter is named \TT{QueueDiscFilter}. We implemented MSFC as \TT{QueueDisc} and CoDel flow as \TT{QueueDiscClass}. We use filters (one for IPv4 and one for IPv6) to hash packet headers to classify them into the CoDel flows.
 
+\sloppypar
 The implementation is as straightforward as possible. We extend the C++ abstract class \TT{QueueDisc}, the most important methods are \TT{DoDequeue} and \TT{DoEnqueue}. We represent the MSFC priority class by C++ class \TT{MsfcPrioClass} and one flow is represented by class \TT{MsfcFlow}. We use the ns-3 implementation of the CoDel algorithm --- there is a CoDel \TT{QueueDisc} assigned to each \TT{MsfcFlow} (using general \TT{QueueDiscClass} mechanism). The actual packets are enqueued in the CoDel \TT{QueueDisc}.
 
 By default, we determine priority of a packet simply by DSCP field in its IP header. However user can change this easily using ns-3 attribute system by providing a different method that classifies packets. 
