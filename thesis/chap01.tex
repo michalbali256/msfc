@@ -1,9 +1,9 @@
 \chapter{Traffic scheduling}
 \label{chap1}
 
-Devices use packet buffering due to handle the asynchronous nature of the data transfer in packet-switched networks. In general, it is hard to tell how many packets should a device hold in buffer at a moment: too small buffers result in big packet loss and too big buffers result in delay increase. 
+Devices use packet buffering due to the asynchronous nature of the data transfer in packet-switched networks. In general, it is hard to tell how many packets should a device hold in the buffer at a moment: too small buffers result in big packet loss and too big buffers result in delay increase. 
 
-A traffic scheduler manages the packets that are stored in the buffer. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue returns the next packet to transmit.
+A traffic scheduler manages the packets that are stored in the buffer. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Additionally, a traffic scheduler may decide to drop a packet --- to delete it. Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue returns the next packet to transmit.
 
 The natural simplest traffic scheduler is a FIFO queue --- the packets are transmitted by the order of their arrival. In traffic scheduling context, the queue is often referred to as first-come first-serve (FCFS) queue. However, as shown throughout this chapter, problems arise from using such simple solution, that must be solved by using more sophisticated methods instead.
 
@@ -41,7 +41,7 @@ Various qualities may be required for different services. Voice over Internet Pr
 \end{table}
 
 
-There is a wide range of requirements an ideal traffic scheduler should satisfy. These include avoiding poor QoS and enforcing fairness for all applications (users). Internet service providers use scheduling to define the shape of traffic provided to customers. This chapter offers a summary of basic concepts used in the traffic scheduling.
+There is a wide range of requirements an ideal traffic scheduler should satisfy. These include avoiding poor QoS and enforcing fairness for all applications (users). Also, Internet service providers use scheduling to define the shape of traffic provided to customers. This chapter offers a summary of basic concepts used in the traffic scheduling.
 
 \section{Bufferbloat}
 \label{chap:bb}
