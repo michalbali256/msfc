@@ -8,24 +8,26 @@ The modified ns-3 source codes are available in Attachment A
 
 Ns-3 is supported on Linux. The only prerequisites for building the ns-3 are a c++ compiler --- g++ or clang and python interpreter.
 
-We can build the ns-3 using following commands:
-
-\begin{lstlisting}[language=bash,caption={}]
-cd msfc/ns-allinone-3.28/ns-3.28/
-./waf -d optimized configure
-./waf
-\end{lstlisting}
+We can build the ns-3 using following commands: 
+\vspace{3mm}
+\texttt{\small \\
+cd msfc/ns-allinone-3.28/ns-3.28/ \\
+./waf -d optimized configure      \\
+./waf  
+}
+\vspace{3mm}
 
 Further detailed instructions are available on the official ns-3 website\footnote{\url{https://www.nsnam.org/~pdbarnes/docs-related/build.html}}.
 
 \section{Running simulation}
 
 To run our benchmark that we used to evaluate MSFC, we need to execute following commands:
-
-\begin{lstlisting}[language=bash,caption={}]
-cd msfc/ns-allinone-3.28/ns-3.28/
+\vspace{3mm}
+\texttt{\small \\
+cd msfc/ns-allinone-3.28/ns-3.28/     \\
 ./waf [--cwd=outputDirectory] --run "msfc-benchmark [arguments]"
-\end{lstlisting}
+}
+\vspace{3mm}
 
 The \texttt{outputDirectory} is the directory where the results of the simulation will be available once the it is ended.
 
@@ -45,22 +47,23 @@ There are two places where the benchmark is configured: a file with description 
 
 The Name is just identifier of the flow type that will be displayed in the results. For the description of the rest of the flow type characteristics excapt random variables, refer to the simulation testbed in \autoref{testbed}.
 
-The random variable characteristics allows any random variable that is implemented in ns-3. We only used \\ \texttt{\small ns3::ConstantRandomVariable[Constant=<number>]}, which always returns \\ \texttt{\small number} and \texttt{ ns3::NormalRandomVariable[Mean=1|Variance=1|Bound=1]}, which only returns random numbers between 0 and 2, with normal distribution with mean 1 and variance 1. For the full list of ns-3 random variables with various distributions see the ns-3 manual\footnote{\url{https://www.nsnam.org/docs/release/3.28/manual/ns-3-manual.pdf}}.
+\sloppypar
+The random variable characteristics allows any random variable that is implemented in ns-3. We only used  \texttt{\small ns3::ConstantRandomVariable[Constant=<number>]}, which always returns  \texttt{\small number} and \texttt{ ns3::NormalRandomVariable[Mean=1|Variance=1|Bound=1]}, which only returns random numbers between 0 and 2, with normal distribution with mean 1 and variance 1. For the full list of ns-3 random variables with various distributions see the ns-3 manual\footnote{\url{https://www.nsnam.org/docs/release/3.28/manual/ns-3-manual.pdf}}.
 
-The Some parameters can be changed using command line parameters. All the arguments and their values are case-sensitive. Here is the list of them: 
+Some parameters can be changed using command line parameters. All the arguments and their values are case-sensitive. Here is the list of them: 
 
 \begin{itemize}
-	\item queueDiscType --- the traffic scheduler that will be installed to all nodes. Possible values are PfifoFast, CoDel, FqCoDel, Msfc.
-	\item simDuration --- the duration of the simulation in seconds.
-	\item connectionDatarate --- sets the bandwidth of the point-to-point links of the ISP tree.
-	\item connectionDelay --- sets the delay of the point-to-point links of the ISP tree"
-	\item serversDatarate --- sets the bandwidth of the point-to-point link from the tree to the server.
-	\item serversDelay --- sets the delay between the server and the root of the ISP tree.
-	\item randomPriority --- when set to true, the priorities of individual flows (not the flow types) is determined randomly.
-	\item numberOfPrios --- if randomPriority is set to true, this integer determines the number of priorities used.
-	\item flowInFileName --- the location of the flow types configuration file. Defaults to \texttt{\small ../flow\_types.in}, so it is recommended to set the cwd argument to a folder in the ns-3.28 folder.
-	\item appCount --- the total number of applications generating traffic installed in the whole simulation (two applications at the opposite side of a bidirectional flow count as one).
-	\item msfcMultiplier --- the \textsc{Ratio} parameter of MSFC. Has no effect if queueDiscType is not set to 'Msfc'.
+	\item \TT{queueDiscType} --- the traffic scheduler that will be installed to all nodes. Possible values are PfifoFast, CoDel, FqCoDel, Msfc.
+	\item \TT{simDuration} --- the duration of the simulation in seconds.
+	\item \TT{connectionDatarate} --- sets the bandwidth of the point-to-point links of the ISP tree.
+	\item \TT{connectionDelay} --- sets the delay of the point-to-point links of the ISP tree"
+	\item \TT{serversDatarate} --- sets the bandwidth of the point-to-point link from the tree to the server.
+	\item \TT{serversDelay} --- sets the delay between the server and the root of the ISP tree.
+	\item \TT{randomPriority} --- when set to true, the priorities of individual flows (not the flow types) is determined randomly.
+	\item \TT{numberOfPrios} --- if randomPriority is set to true, this integer determines the number of priorities used.
+	\item \TT{flowInFileName} --- the location of the flow types configuration file. Defaults to \texttt{\small ../flow\_types.in}, so it is recommended to set the cwd argument to a folder in the ns-3.28 folder.
+	\item \TT{appCount} --- the total number of applications generating traffic installed in the whole simulation (two applications at the opposite side of a bidirectional flow count as one).
+	\item \TT{msfcMultiplier} --- the \textsc{Ratio} parameter of MSFC. Has no effect if queueDiscType is not set to 'Msfc'.
 \end{itemize}
 
 An example command for running a simulation:
@@ -75,7 +78,7 @@ The command starts simulation evaluating FQ CoDel, that runs for 100 (simulated)
 
 \section{Results}
 
-The benchmark generates several files with simulation results into the working directory, that is set by the \texttt{cwd} argument of \texttt{waf}. All the files are prefixed with the name of queueing discipline that was evaluated, so it is safe to run simulations with different queueDiscTypes in the same working directory. There are XX{X} types of files:
+The benchmark generates several files with simulation results into the working directory, that is set by the \texttt{cwd} argument of \texttt{waf}. All the files are prefixed with the name of queueing discipline that was evaluated, so it is safe to run simulations with different queueDiscTypes in the same working directory. There are 10 types of files:
 
 \begin{itemize}
 	\item \textless queueDiscType\textgreater -apps-assign.txt --- Contains list of all installed applications with their priorities and the assigned clients. It may be useful, when simulation is run with random priorities. 
