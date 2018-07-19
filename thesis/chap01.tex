@@ -1,7 +1,7 @@
 \chapter{Traffic scheduling}
 \label{chap1}
 
-The devices in packet-switched networks use packet buffering in order to correctly handle the asynchronous nature of the data transfer and avoid data collisions at outbound network interfaces. In general, it is hard to tell how large queue of packets the device should allow in the buffer: too small buffers result in unnecessary packet loss, large buffers result in an undesirable delay of packet transfer when the buffers is full.
+The devices in packet-switched networks use packet buffering in order to correctly handle the asynchronous nature of the data transfer and avoid data collisions at outbound network interfaces. In general, it is hard to tell how large queue of packets the device should allow in the buffer: too small buffers result in unnecessary packet loss, large buffers result in an undesirable delay of packet transfer when the buffers are full.
 
 A traffic scheduler is an algorithm that manages the packets stored in the buffer. Most of all, traffic scheduler chooses which packet is going to be transmitted next from the packets that are buffered in the device. Additionally, a traffic scheduler may decide to drop a packet (i.e. to delete it without transmitting). Each traffic scheduler has to handle two basic routines: enqueue and dequeue. Enqueue adds a packet to the scheduler and dequeue should return the next packet that the device will transmit.
 
