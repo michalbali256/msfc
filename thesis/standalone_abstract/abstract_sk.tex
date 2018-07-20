@@ -1,0 +1,73 @@
+%% Verze pro jednostranný tisk:
+% Okraje: levý 40mm, pravý 25mm, horní a dolní 25mm
+% (ale pozor, LaTeX si sám přidává 1in)
+\documentclass[12pt,a4paper]{report}
+
+% \openright zařídí, aby následující text začínal na pravé straně knihy
+\let\openright=\clearpage
+
+%% Pokud tiskneme oboustranně:
+% \documentclass[12pt,a4paper,twoside,openright]{report}
+% \setlength\textwidth{145mm}
+% \setlength\textheight{247mm}
+% \setlength\oddsidemargin{14.2mm}
+% \setlength\evensidemargin{0mm}
+% \setlength\topmargin{0mm}
+% \setlength\headsep{0mm}
+% \setlength\headheight{0mm}
+% \let\openright=\cleardoublepage
+
+%% Vytváříme PDF/A-2u
+\usepackage[a-2u]{pdfx}
+
+%% Přepneme na českou sazbu a fonty Latin Modern
+\usepackage[slovak]{babel}
+\usepackage{lmodern}
+\usepackage[IL2]{fontenc}%T1
+\usepackage{textcomp}
+\usepackage{hyperref}
+
+\usepackage{float}
+\usepackage{subfigure}
+
+%% Použité kódování znaků: obvykle latin2, cp1250 nebo utf8:
+\usepackage[utf8]{inputenc}
+
+%%% Další užitečné balíčky (jsou součástí běžných distribucí LaTeXu)
+\usepackage{amsmath}        % rozšíření pro sazbu matematiky
+\usepackage{amsfonts}       % matematické fonty
+\usepackage{amsthm}         % sazba vět, definic apod.
+
+%bolo treba vypnut kvoli rozdelovaniu
+%\usepackage{bbding}         % balíček s nejrůznějšími symboly
+% (čtverečky, hvězdičky, tužtičky, nůžtičky, ...)
+\usepackage{bm}             % tučné symboly (příkaz \bm)
+\usepackage{graphicx}       % vkládání obrázků
+\usepackage{fancyvrb}       % vylepšené prostředí pro strojové písmo
+\usepackage{indentfirst}    % zavede odsazení 1. odstavce kapitoly
+%\usepackage{natbib}         % zajištuje možnost odkazovat na literaturu
+% stylem AUTOR (ROK), resp. AUTOR [ČÍSLO]
+\usepackage[nottoc]{tocbibind} % zajistí přidání seznamu literatury,
+% obrázků a tabulek do obsahu
+\usepackage{icomma}         % inteligetní čárka v matematickém módu
+\usepackage{dcolumn}        % lepší zarovnání sloupců v tabulkách
+\usepackage{booktabs}       % lepší vodorovné linky v tabulkách
+\usepackage{paralist}       % lepší enumerate a itemize
+\usepackage[usenames]{xcolor}  % barevná sazba
+
+\usepackage{url}
+
+\usepackage{pdfpages}
+%opening
+\title{}
+\author{}
+
+\begin{document}
+	\pagestyle{empty}
+\section*{Abstrakt}
+Diferenciácia služieb, teda schopnosť mechanizmov zabezpečovania kvality služby (QoS) spĺňať rôzne požiadavky rôznych typov prenosu po sieti, je dôležitou súčasťou poskytovania internetových služieb. Bežné metódy zlepšovania kvality diferencovaných služieb vyžadujú centralizované plánovače sieťovej prevádzky, ktoré v sieťach typických ISP nemôžu reagovať na poruchy.
+
+V tejto práci opisujeme, implementujeme a meriame výkon plánovača sieťovej prevádzky, ktorý je dostatočne jednoduchý na to, aby bol umiestnený v kritických miestach siete, kde môže presne reagovať na vzniknuté problémy v sieti; súčasne podporuje viacúrovňové stochastické plánovanie sieťovej prevádzky, ktoré zaručuje istú úroveň spravodlivosti v sieti a diferenciácie služieb. Návrh je inšpirovaný predchádzajúcim výskumom v oblasti --- kombinuje idey CoDelu a SFQ.
+
+Výsledný návrh plánovača sieťovej prevádzky, nazvaný Multilevel Stochastically Fair CoDel (MSFC), implementujeme v sieťovom simulátore ns-3. Simulácie na sieti podobnej infraštruktúre ISP vykazujú v porovnaní s inými necentralizovanými plánovačmi zlepšenie kvality diferencovaných služieb.
+\end{document}
